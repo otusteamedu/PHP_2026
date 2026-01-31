@@ -21,25 +21,27 @@ services:
       dockerfile: Dockerfile
     image: myapp/php
     container_name: "${CONTAINER_APP}"
+    env_file:
+      - .env
     volumes:
        - ./code:/data/mysite.local
        - php-socket:/var/run
+    depends_on:
+      - redis
+      - memcached
+      - db
 
   redis:
     image: redis
     container_name: "${CONTAINER_REDIS}"
     ports:
       - "${REDIS_PORT:-6379}:6379"
-    depends_on:
-      - app
 
   memcached:
     image: memcached
     container_name: "${CONTAINER_MEMCACHED}"
     ports:
       - "${MEMCACHED_PORT:-11211}:11211"
-    depends_on:
-      - app
 
   db:
       image: postgres
