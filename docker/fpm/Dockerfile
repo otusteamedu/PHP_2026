@@ -8,7 +8,12 @@ RUN apt-get update && apt-get install -y \
         libonig-dev \
         libzip-dev \
         libssl-dev \
-        && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql zip gd \
+        libpq-dev \
+        libmemcached-dev \
+        zlib1g-dev \
+        && pecl install redis && docker-php-ext-enable redis \
+        && pecl install memcached && docker-php-ext-enable memcached \
+        && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql pdo_pgsql zip gd \
         && docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # установка composer
