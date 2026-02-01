@@ -20,9 +20,16 @@ RUN apt-get update && apt-get install -y \
 
 COPY ./php.ini /usr/local/etc/php/conf.d/php-custom.ini
 
+# ставим Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# добавляем Composer в PATH
+ENV PATH="$PATH:/usr/local/bin"
+
 WORKDIR /data
 
 VOLUME /data
 
 CMD ["php-fpm"]
+
 
