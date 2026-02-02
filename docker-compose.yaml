@@ -1,0 +1,62 @@
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: myapp/nginx
+    container_name: "${NGINX_CONTAINER_NAME}"
+    ports:
+      - "80:80"
+    volumes:
+      - ./code:/var/www/html:rw
+      - php-socket:/var/run/php
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    image: myapp/php
+    container_name: "${PHP_CONTAINER_NAME}"
+    volumes:
+      - ./code:/var/www/html:rw
+      - php-socket:/var/run/php
+    depends_on:
+      - redis
+      - memcached
+      - db
+
+  redis:
+    build:
+      context: ./redis
+      dockerfile: Dockerfile
+    image: myapp/redis
+    container_name: "${REDIS_CONTAINER_NAME}"
+    volumes:
+      - /var/www/redis:/data/redis
+
+  memcached:
+    build:
+      context: ./memcached
+      dockerfile: Dockerfile
+    image: myapp/memcached
+    container_name: "${MEMCACHED_CONTAINER_NAME}"
+
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    image: myapp/db
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    container_name: "${DB_CONTAINER_NAME}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /var/www/db:/var/lib/mysql
+volumes:
+  php-socket:
