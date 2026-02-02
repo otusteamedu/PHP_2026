@@ -8,15 +8,16 @@ RUN apt-get update && apt-get install -y \
         libonig-dev \
         libzip-dev \
         libssl-dev \
-       	libmemcached-dev \
-	libmcrypt-dev \
-        && pecl install mcrypt-1.0.3 \
-       	&& docker-php-ext-enable mcrypt \
-        && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql zip \
-        && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql zip gd \
-        && docker-php-ext-configure gd --with-freetype --with-jpeg \
-        && pecl install memcached \
-        && docker-php-ext-enable memcached
+        git \
+        unzip \
+        libmemcached-dev \
+    && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql zip \
+    && docker-php-ext-configure gd \
+        --with-freetype=/usr/include/freetype2 \
+        --with-jpeg=/usr/include \
+    && docker-php-ext-install -j$(nproc) gd \
+    && pecl install redis memcached \
+    && docker-php-ext-enable redis memcached
 
 COPY ./php.ini /usr/local/etc/php/conf.d/php-custom.ini
 
@@ -31,6 +32,7 @@ WORKDIR /data
 VOLUME /data
 
 CMD ["php-fpm"]
+
 
 
 
