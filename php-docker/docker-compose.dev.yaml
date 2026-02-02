@@ -1,0 +1,16 @@
+services:
+  nginx:
+    build:
+      target: dev
+    volumes:
+      - ./:${APP_PATH}
+
+  php:
+    build:
+      target: dev
+    volumes:
+      - ./:${APP_PATH}
+
+  npm:
+    volumes:
+      - ./:${APP_PATH}:cached
