@@ -1,5 +1,7 @@
-.idea/
-/vendor/
-.DS_Store
-.AppleDouble
-.LSOverride
+.env
+.idea
+/.fleet
+/.idea
+/.vscode
+/.php-cs-fixer.cache
+/docker/DB/base/
