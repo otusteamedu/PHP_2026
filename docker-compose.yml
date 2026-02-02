@@ -1,0 +1,67 @@
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/Nginx/Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-nginx"
+    ports:
+      - "8087:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/PHP/Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-php"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+      - redis
+      - memcached
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+
+  mysql:
+    build:
+      context: .
+      dockerfile: docker/DB/Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-db"
+    ports:
+      - "4306:3306"
+    volumes:
+      - ./docker/DB/base:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
+    restart: always
+
+  redis:
+    build:
+      context: .
+      dockerfile: docker/Redis/Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-redis"
+    restart: always
+
+  memcached:
+    build:
+      context: .
+      dockerfile: docker/Memcached/Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-memcached"
+    restart: always
+
+  composer:
+    image: composer:latest
+    container_name: "${COMPOSE_PROJECT_NAME}-composer"
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
