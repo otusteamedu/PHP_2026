@@ -61,7 +61,7 @@ services:
 
   redis:
     container_name: bitrixapp-redis
-    image: redis:7.0.11-alpine
+    image: redis:8.4.0-alpine
     volumes:
       - ./docker/volumes/redis:/data
     networks:
@@ -71,6 +71,10 @@ services:
 networks:
   bitrixapp-network:
     driver: bridge
+  deltachunk-ext:
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+  deltachunk-int:
     driver_opts:
       com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
 
