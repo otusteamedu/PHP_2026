@@ -13,6 +13,8 @@ services:
       - db
       - redis
       - memcache
+    networks:
+      - app-network
 
   webserver:
     image: nginx:alpine
@@ -27,6 +29,8 @@ services:
     container_name: hw1_webserver
     depends_on:
       - app
+    networks:
+      - app-network
 
   db:
     image: mysql:8.0
@@ -39,12 +43,13 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD:-apppass}"
     volumes:
       - db_data:/var/lib/mysql
-      - ./mysql/conf.d/:/etc/mysql/conf.d/:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
@@ -60,6 +65,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   memcache:
     image: memcached:1.6-alpine
@@ -71,7 +78,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
 volumes:
   db_data:
   redis_data:
+
+networks:
+  app-network:
+    driver: bridge
