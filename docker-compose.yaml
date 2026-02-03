@@ -38,7 +38,7 @@ services:
   # контейнер с MySQL
   # строим на базе стандартного образа
   db:
-    image: mysql:9.6.0
+    image: mysql:9.6.0-oraclelinux9
     container_name: db
     # описываем, какую БД мы создаём
     environment:
@@ -77,6 +77,7 @@ networks:
   deltachunk-int:
     driver_opts:
       com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+
 
 
 
