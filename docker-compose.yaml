@@ -47,7 +47,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - ./dbdata:/var/src/mysql
+      - ./dbdata:/var/lib/mysql
     networks:
       - bitrixapp-network
 
@@ -77,6 +77,7 @@ networks:
   deltachunk-int:
     driver_opts:
       com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+
 
 
 
