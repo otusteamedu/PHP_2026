@@ -1,0 +1,31 @@
+services:
+  nginx:
+    build:
+      target: dev
+    volumes:
+      - ./:${APP_PATH}
+
+  php:
+    build:
+      target: dev
+    volumes:
+      - ./:${APP_PATH}
+
+  db:
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:${APP_REDIS_PORT}:6379"
+
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: ${APP_NAME}_pgAdmin
+    ports:
+      - "127.0.0.1:5050:80" 
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: '${APP_MAIL_ADDRESS}'
+      PGADMIN_DEFAULT_PASSWORD: '${DB_PASSWORD}'
