@@ -34,4 +34,15 @@
  - cp .env.example .env
 
 **Запустить Docker, выполнив команду**
-docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d
+
+- dev сборка
+
+```
+docker compose -f docker-compose.prod.yaml -f docker-compose.dev.yaml up --build -d
+```
+
+- prod сборка
+
+```
+docker compose -f docker-compose.prod.yaml up --build -d
+```
