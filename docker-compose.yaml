@@ -1,0 +1,93 @@
+# версия синтаксиса
+version: '3.9'
+
+# в этом блоке мы описываем контейнеры, которые будут запускаться
+services:
+  #контейнер с Nginx
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: bitrixapp/nginx
+    container_name: "${CONTAINER_NAME}"
+    # проброс портов
+    ports:
+      - "80:80"
+    volumes:
+       - ./code:/data/bitrix.local
+       - php-socket:/var/run/php # Общая папка для сокета
+    depends_on:
+      - bitrixapp
+    networks:
+      - bitrixapp-network
+
+
+  #Контейнер с PHP-FPM, назовём его bitrixapp
+  bitrixapp:
+    # Если нет секции build, то система будет искать образ в репозиториях
+    build:
+      context: ./fpm
+      dockerfile: Dockerfile
+    image: bitrixapp/php # имя будущего образа
+    container_name: bitrixapp # имя контейнера после запуска
+    volumes:
+       - ./code:/data/bitrix.local
+       - php-socket:/var/run/php # Общая папка для сокета
+    # мы можем создать для контейнеров внутреннюю сеть
+    networks:
+      - bitrixapp-network
+
+  # контейнер с MySQL
+  # строим на базе стандартного образа
+  db:
+    image: mysql:9.6.0-oraclelinux9
+    container_name: db
+    # описываем, какую БД мы создаём
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    networks:
+      - bitrixapp-network
+
+  workspace:
+    image: php:8.5
+    container_name: console
+    volumes:
+      - ./code:/data/bitrix.local
+      - php-socket:/var/run/php # Общая папка для сокета
+    networks:
+      - bitrixapp-network
+
+  redis:
+    container_name: bitrixapp-redis
+    image: redis:8.4.0-alpine
+    volumes:
+      - ./docker/volumes/redis:/data
+    networks:
+      - bitrixapp-network
+
+#Docker Networks
+networks:
+  bitrixapp-network:
+    driver: bridge
+  deltachunk-ext:
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+  deltachunk-int:
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+
+volumes:
+  - php-socket:/var/run/php # Общая папка для сокета
+
+
+
+
+
+
+
+

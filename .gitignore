@@ -1,5 +1,11 @@
-.idea/
 /vendor/
-.DS_Store
 .AppleDouble
 .LSOverride
+
+# Project files
+.venv
+.idea/
+.DS_Store
+.env
+.env.exmaple
+.vscode/
