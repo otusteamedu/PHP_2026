@@ -1,12 +1,29 @@
 <?php
 
+require __DIR__ . '/vendor/autoload.php';
+
 echo "PHP OK ✅";
 echo "<br>";
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$dotenv->required(['DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD']);
+
+
+$dsn = sprintf(
+    "pgsql:host=%s;port=%s;dbname=%s",
+    $_ENV['DB_HOST'],
+    $_ENV['DB_PORT'],
+    $_ENV['DB_DATABASE']
+);
 
 try {
-    $pdo = new PDO("pgsql:host=db;port=5432;dbname=highload_laravel", "laravel", "secret", [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    $pdo = new PDO($dsn,
+        $_ENV['DB_USERNAME'],
+        $_ENV['DB_PASSWORD'],
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
     echo "Postgres connected ✅";
     echo "<br>";
 } catch (PDOException $e) {
