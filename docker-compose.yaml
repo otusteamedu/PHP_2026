@@ -54,9 +54,7 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     container_name: "${DB_CONTAINER_NAME}"
-    ports:
-      - "3306:3306"
     volumes:
       - /var/www/db:/var/lib/mysql
 volumes:
-  php-socket:
+  php-socket: 
