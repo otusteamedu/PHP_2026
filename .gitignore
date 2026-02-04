@@ -4,3 +4,6 @@
 .AppleDouble
 .LSOverride
 data
+.env
+.env.local
+.env.*.local

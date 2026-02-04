@@ -21,6 +21,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 
 COPY ./php.ini /usr/local/etc/php/conf.d/php-custom.ini
 
-WORKDIR /data
+WORKDIR /data/mysite.local
 
 CMD ["php-fpm"]
