@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: myapp/nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./code:/data/mysite.local
+    depends_on:
+      - app
+    networks:
+      - backend
+
+  app:
+    build:
+      context: ./fpm
+      dockerfile: Dockerfile
+    image: myapp/php
+    container_name: app
+    volumes:
+      - ./code:/data/mysite.local
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    networks:
+      - backend
+
+  memcached:
+    image: memcached:1.6-alpine
+    container_name: memcached
+    networks:
+      - backend
+
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  mysql_data:
