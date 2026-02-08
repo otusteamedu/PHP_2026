@@ -18,5 +18,5 @@ then
   exit 1
 fi
 
-awk "BEGIN {print $1 + $2}"
+echo "$1 $2" | awk "{print $1 + $2}"
 
