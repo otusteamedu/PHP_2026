@@ -18,7 +18,5 @@ then
   exit 1
 fi
 
-
-sum=$(awk "BEGIN {print $1 + $2}")
-echo "$sum"
+awk "BEGIN {print $1 + $2}"
 
