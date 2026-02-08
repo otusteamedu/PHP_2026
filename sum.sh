@@ -19,6 +19,6 @@ then
 fi
 
 
-sum=$(echo "$1 + $2" | bc)
+sum=$(awk "BEGIN {print $1 + $2}")
 echo "$sum"
 
