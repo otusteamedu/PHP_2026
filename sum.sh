@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Argument validation check
 if [ "$#" -ne 2 ]; then
     echo "Usage: <param1> <param2>"
     exit 1
@@ -16,6 +15,6 @@ if ! [[ $num1 =~ $number_regex ]] || ! [[ $num2 =~ $number_regex ]]; then
     exit 1
 fi
 
-sum=$(echo "$num1 + $num2" | bc)
+sum=$(awk "BEGIN { print $num1 + $num2 }")
 
 echo "$sum"
