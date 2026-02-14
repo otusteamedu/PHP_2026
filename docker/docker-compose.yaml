@@ -1,0 +1,88 @@
+version: '3.5'
+
+services:
+  app:
+    env_file:
+      - .env
+    build: php
+    working_dir: ${WORKING_DIR}
+    volumes:
+      - ./code/:${WORKING_DIR}
+    container_name: hw1_app
+    depends_on:
+      - db
+      - redis
+      - memcache
+    networks:
+      - app-network
+
+  webserver:
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    working_dir: ${WORKING_DIR}
+    volumes:
+      - ./code/:${WORKING_DIR}
+      - ./nginx/config/conf.d/:/etc/nginx/conf.d/
+    links:
+      - app
+    container_name: hw1_webserver
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: hw1_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootpass}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-app_db}"
+      MYSQL_USER: "${MYSQL_USER:-app}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-apppass}"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: hw1_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--save", "900", "1", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  memcache:
+    image: memcached:1.6-alpine
+    container_name: hw1_memcache
+    restart: unless-stopped
+    command: ["-m", "64", "-c", "1024"]
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'version' | nc -w 1 127.0.0.1 11211 | grep -i version || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
