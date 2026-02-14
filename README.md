@@ -1,3 +1,3 @@
-# PHP_2026
-
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+1. Файл sum.sh содержит скрипт который принимает два числа и выводит их сумму в стандартный вывод.
+Например: `./sum.sh 1.5 -7`
+2. Файл sort.sh содержит скрипт который выводит на экран 3 наиболее популярных города среди пользователей системы из файла table.txt
