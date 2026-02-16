@@ -20,8 +20,7 @@ main() {
 calculate_sum() {
   local a="$1"
   local b="$2"
-
-  echo "$a + $b" | bc
+  awk "BEGIN {print $a + $b}"
 }
 
 validate() {
