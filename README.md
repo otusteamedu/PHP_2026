@@ -1,3 +1,17 @@
-# PHP_2026
+# OTUS Money Calculator
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Пакет для точных денежных вычислений, созданный в рамках учебного курса OTUS. Проект демонстрирует навыки создания собственных PHP-пакетов, работы с Composer-зависимостями и соблюдения стандартов PSR.
+
+В основе вычислений лежит библиотека [moneyphp/money](http://moneyphp.org), что позволяет гарантировать точность и избежать ошибок округления, характерных для типа `float`.
+
+## Требования
+
+- **PHP**: >= 8.1
+- **Composer** (для управления зависимостями)
+
+## Установка
+
+Вы можете установить этот пакет в свой проект через Composer:
+
+```bash
+composer require evgeny87/otus-money-calc
