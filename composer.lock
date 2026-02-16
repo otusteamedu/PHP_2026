@@ -1,0 +1,52 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "45261e2efb462609a1eac2c31993910f",
+    "packages": [
+        {
+            "name": "ivan-sorochinskiy/hw3",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ioann34/otus-composer-package.git",
+                "reference": "4d6b901acca962b320f25e48d22116c5cc65c02a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ioann34/otus-composer-package/zipball/4d6b901acca962b320f25e48d22116c5cc65c02a",
+                "reference": "4d6b901acca962b320f25e48d22116c5cc65c02a",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IvanSorochinskiy\\Hw3\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Ivan Sorochinskiy",
+                    "email": "i.sorochinskiy@olinecontact.ru"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/ioann34/otus-composer-package/issues",
+                "source": "https://github.com/ioann34/otus-composer-package/tree/1.0.0"
+            },
+            "time": "2026-02-16T05:33:59+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}
