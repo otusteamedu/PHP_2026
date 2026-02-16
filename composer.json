@@ -2,7 +2,7 @@
     "name": "aleksei/hw3",
     "autoload": {
         "psr-4": {
-            "Aleksei\\Hw3\\": "/"
+            "Aleksei\\Hw3\\": "src/"
         }
     },
     "authors": [
