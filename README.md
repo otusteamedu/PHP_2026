@@ -1,3 +1,19 @@
 # PHP_2026
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Выполнение задания 3
+
+### Установка пакета
+
+```sh
+composer install
+```
+
+### Ссылка на пакет
+```
+https://github.com/ioann34/otus-composer-package
+````
+
+### Пример использования
+```
+Файл index.php
+```
