@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "e28f30ddf513e8764b5b874b0fb1f4e2",
+    "packages": [
+        {
+            "name": "aleksand-krasnyatov/brackets-checker",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AleksandKrasnyatov/brackets-checker.git",
+                "reference": "920b616f60ec85684b8b55800f83d05bbda4d133"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AleksandKrasnyatov/brackets-checker/zipball/920b616f60ec85684b8b55800f83d05bbda4d133",
+                "reference": "920b616f60ec85684b8b55800f83d05bbda4d133",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AleksandKrasnyatov\\BracketsChecker\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "AleksandKrasnyatov",
+                    "email": "ssokoloss1@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/AleksandKrasnyatov/brackets-checker/issues",
+                "source": "https://github.com/AleksandKrasnyatov/brackets-checker/tree/1.0.0"
+            },
+            "time": "2026-02-16T20:40:32+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}
