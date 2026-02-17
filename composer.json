@@ -1,0 +1,19 @@
+{
+    "name": "alex/php_2026",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "alex",
+            "email": "ssokoloss1@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "aleksand-krasnyatov/brackets-checker": "1.0.2"
+    }
+}
