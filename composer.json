@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=8.4",
-        "aleksand-krasnyatov/brackets-checker": "^1.0"
+        "php": ">=7.0",
+        "aleksand-krasnyatov/brackets-checker": "1.0.2"
     }
 }
