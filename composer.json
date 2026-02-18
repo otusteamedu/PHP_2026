@@ -1,0 +1,16 @@
+{
+    "name": "sorochinskiy.i/hw4",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ivan Sorochinskiy",
+            "email": "i.sorochinskiy@olinecontact.ru"
+        }
+    ],
+    "require": {}
+}
