@@ -1,3 +1,5 @@
-# PHP_2026
+## Пример использования пакета 
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Пакет: https://packagist.org/packages/aermolenko/calculator
+
+Репозиторий пакета: https://github.com/aermolenko/calculator
