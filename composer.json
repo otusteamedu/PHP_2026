@@ -1,0 +1,18 @@
+{
+    "name": "a_harutyunyan/hw_4",
+    "autoload": {
+        "psr-4": {
+            "AHarutyunyan\\Hw4\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Albert",
+            "email": "haralb01@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/psr7": "^1.8",
+        "slim/slim": "^4.15"
+    }
+}
