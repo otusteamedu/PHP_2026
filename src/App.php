@@ -7,12 +7,15 @@ namespace AHarutyunyan\Hw4;
 use Slim\Factory\AppFactory;
 use AHarutyunyan\Hw4\Controller\CheckParenthesisController;
 
-require __DIR__ . '/../vendor/autoload.php';
+class App
+{
+    public function run(): void
+    {
+        $app = AppFactory::create();
 
-$app = AppFactory::create();
+        $app->addBodyParsingMiddleware();
+        $app->post('/', [CheckParenthesisController::class, 'check']);
 
-$app->addBodyParsingMiddleware();
-
-$app->post('/', [CheckParenthesisController::class, 'check']);
-
-return $app;
+        $app->run();
+    }
+}
