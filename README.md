@@ -1,3 +1,18 @@
-# PHP_2026
+## Запуск
+```shell
+docker-compose up -d
+```
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Пример запроса:
+
+### Everything is correct responce:
+```shell
+curl -i -X POST "http://localhost" \
+  -d "string=()()()()()(())"
+```
+
+### Brackets is invalid responce:
+```shell
+curl -i -X POST "http://localhost" \
+-d "string=)("
+```
