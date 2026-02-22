@@ -10,8 +10,8 @@
 
 ## Установка
 ```bash
-
 composer require evgeny87/email-verifier
+```
 
 ## Где лежит основное
 https://github.com/Evgeny87/email-verifier
