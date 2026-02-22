@@ -1,0 +1,10 @@
+{
+    "require": {
+        "php": ">=8.4.0",
+        "evgeny87/bracket-validator": "^1.0.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
