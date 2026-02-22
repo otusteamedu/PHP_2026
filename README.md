@@ -26,7 +26,11 @@
 
 3. Инициализировать Redis Cluster:
    \`\`\`bash
-   docker compose exec redis-1 sh -c 'redis-cli -a "\$REDIS_PASSWORD" --cluster create \$(getent hosts redis-1 | awk "{print \$1}"):6379 \$(getent hosts redis-2 | awk "{print \$1}"):6379 \$(getent hosts redis-3 | awk "{print \$1}"):6379 --cluster-replicas 0 --cluster-yes'
+   docker compose exec redis-1 sh -c 'redis-cli -a "$REDIS_PASSWORD" --cluster create \
+$(getent hosts redis-1 | awk "{print \$1}"):6379 \
+$(getent hosts redis-2 | awk "{print \$1}"):6379 \
+$(getent hosts redis-3 | awk "{print \$1}"):6379 \
+--cluster-replicas 0 --cluster-yes'
    \`\`\`
 
 ## Тестирование
