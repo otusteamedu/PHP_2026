@@ -45,7 +45,7 @@ services:
     volumes:
        - ./:/app
     depends_on:
-      - redis
+      - redis-cluster-init
 
   app2:
     build:
@@ -57,10 +57,65 @@ services:
     volumes:
       - ./:/app
     depends_on:
-      - redis
+      - redis-cluster-init
 
-  redis:
-    image: redis
-    container_name: "${CONTAINER_REDIS}"
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+  redis-node-1:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-1-data:/data
+      - ./docker/redis:/redis
+
+  redis-node-2:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-2-data:/data
+      - ./docker/redis:/redis
+
+  redis-node-3:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-3-data:/data
+      - ./docker/redis:/redis
+
+  redis-node-4:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-4-data:/data
+      - ./docker/redis:/redis
+
+  redis-node-5:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-5-data:/data
+      - ./docker/redis:/redis
+
+  redis-node-6:
+    image: redis:latest
+    command: redis-server /redis/redis.conf
+    volumes:
+      - redis-node-6-data:/data
+      - ./docker/redis:/redis
+
+  redis-cluster-init:
+    image: redis:latest
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+      - redis-node-6
+    command: "redis-cli --cluster create redis-node-1:7000 redis-node-2:7000 redis-node-3:7000 redis-node-4:7000 redis-node-5:7000 redis-node-6:7000 --cluster-replicas 1 --cluster-yes"
+
+volumes:
+  redis-node-1-data:
+  redis-node-2-data:
+  redis-node-3-data:
+  redis-node-4-data:
+  redis-node-5-data:
+  redis-node-6-data:

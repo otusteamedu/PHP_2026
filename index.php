@@ -4,6 +4,10 @@ use AleksandKrasnyatov\BracketsChecker\BracketsChecker;
 
 require(__DIR__ . '/vendor/autoload.php');
 
+session_start();
+$_SESSION['check'] = 'ok';
+echo session_id();
+
 $checker = new BracketsChecker();
 
 if ($checker->check('()()')) {
