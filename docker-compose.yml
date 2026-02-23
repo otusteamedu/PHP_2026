@@ -28,9 +28,13 @@ services:
     volumes:
       - ./:/var/www/html:delegated
     command: >
-      sh -c "composer install --no-interaction --optimize-autoloader && php-fpm"
+      sh -c "sleep 5 composer install --no-interaction --optimize-autoloader && php-fpm"
     networks:
       - backend_net
+    depends_on:
+      - redis-1
+      - redis-2
+      - redis-3
 
   # Узлы Redis Cluster
   redis-1:
