@@ -29,9 +29,9 @@ $(getent hosts redis-2 | awk "{print \$1}"):6379 \
 $(getent hosts redis-3 | awk "{print \$1}"):6379 \
 --cluster-replicas 0 --cluster-yes'
 
-#6. Установка PHP зависимостей
+# 6. Установка PHP зависимостей
 echo "[+] Orchestrating Composer dependencies..."
-docker compose exec -u www-data php composer install --no-interaction --optimize-autoloader
+docker compose exec hw4_test-php-1 composer install --no-interaction --optimize-autoloader
 
 echo "--------------------------------------------------"
 echo "[SUCCESS] Infrastructure is online and clustered."
