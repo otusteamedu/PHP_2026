@@ -1,7 +1,7 @@
 {
     "require": {
         "php": ">=8.4.0",
-        "evgeny87/bracket-validator": "^1.0.4"
+        "evgeny87/bracket-validator": "^1.0.5"
     },
     "config": {
         "sort-packages": true,
