@@ -26,7 +26,7 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
-      - ./src/:/var/www/html:delegated
+      - ./src:/var/www/html:delegated
     networks:
       - backend_net
     depends_on:
