@@ -18,23 +18,21 @@ services:
       context: ./docker/nginx
     image: myapp/nginx # имя будущего образа
     container_name: "${CONTAINER_NGINX}1" # имя контейнера после запуска
-    environment:
-      PHP_FPM_UPSTREAM: app1
     volumes:
       - ./:/app
     depends_on:
       - app1
+      - app2
 
   nginx2:
     build:
       context: ./docker/nginx
     image: myapp/nginx # имя будущего образа
     container_name: "${CONTAINER_NGINX}2" # имя контейнера после запуска
-    environment:
-      PHP_FPM_UPSTREAM: app2
     volumes:
       - ./:/app
     depends_on:
+      - app1
       - app2
 
   app1:

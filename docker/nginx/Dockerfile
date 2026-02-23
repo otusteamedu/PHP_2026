@@ -1,6 +1,6 @@
 FROM nginx:stable-alpine
 
-COPY ./hosts/mysite.local.conf.template /etc/nginx/templates/default.conf.template
+COPY ./hosts/mysite.local.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /app
 
