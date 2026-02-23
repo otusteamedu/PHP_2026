@@ -29,11 +29,17 @@ $(getent hosts redis-2 | awk "{print \$1}"):6379 \
 $(getent hosts redis-3 | awk "{print \$1}"):6379 \
 --cluster-replicas 0 --cluster-yes'
 
-# 6. Установка PHP зависимостей
+# 6. Установка PHP зависимостей (с проверкой готовности)
 echo "[+] Waiting for containers to stabilize..."
-sleep 10 # Даем PHP-FPM время реально запуститьс
+sleep 10 # Даем PHP-FPM время реально запуститься
 echo "[+] Orchestrating Composer dependencies..."
-docker compose exec hw4_test-php-1 composer install --no-interaction --optimize-autoloader
+until [ "$(docker inspect -f '{{.State.Running}}' hw4_test-php-1)" == "true" ]; do
+    echo "[-] Waiting for PHP-1 to be ready for commands..."
+    sleep 3
+done
+
+docker exec -i hw4_test-php-1 composer install --no-interaction --optimize-autoloader
+
 
 echo "--------------------------------------------------"
 echo "[SUCCESS] Infrastructure is online and clustered."
