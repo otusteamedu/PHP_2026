@@ -1,0 +1,26 @@
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./public:/var/www/public
+      - php-socket:/var/run/php
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: ./docker/php-fpm
+      dockerfile: Dockerfile
+    image: php-fpm
+    container_name: php-fpm
+    volumes:
+      - .:/var/www
+      - php-socket:/var/run/php
+volumes:
+  php-socket: 
