@@ -45,5 +45,5 @@ echo "--------------------------------------------------"
 echo "[SUCCESS] Infrastructure is online and clustered."
 echo "[?] Access: http://192.168.56.101"
 echo "[?] Redis Status:"
-docker compose exec redis-1 sh -c 'redis-cli -a "$REDIS_PASSWORD" cluster nodes'
+docker compose exec redis-1 sh -c 'redis-cli -a SecurePass123 cluster nodes'
 
