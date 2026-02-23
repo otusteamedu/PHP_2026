@@ -1,17 +1,16 @@
 server {
     # указываем 80 порт для соединения
     listen 80;
-    # нужно указать, какому доменному имени принадлежит наш конфиг
-    server_name localhost;
+    # чтобы не обращать внимания на директиву Host
+    server_name _;
 
     # задаём корневую директорию
-    root /data/mysite.local;
+    root /app;
 
     # стартовый файл
     index index.php index.html;
 
     # при обращении к статическим файлам логи не нужны, равно как и обращение к fpm
-    # http://mysite.local/static/some.png
     location ~* .(jpg|jpeg|gif|css|png|js|ico|html)$ {
         access_log off;
         expires max;
@@ -27,7 +26,7 @@ server {
     location ~* .php$ {
         try_files $uri = 404;
         fastcgi_split_path_info ^(.+.php)(/.+)$;
-        fastcgi_pass app:9000;
+        fastcgi_pass ${PHP_FPM_UPSTREAM}:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;

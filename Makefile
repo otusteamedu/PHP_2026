@@ -17,5 +17,5 @@ docker-build:
 	docker-compose build
 
 composer-install:
-	docker-compose exec app composer install
+	docker-compose exec app1 composer install
 
