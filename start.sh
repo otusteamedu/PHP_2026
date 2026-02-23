@@ -30,6 +30,8 @@ $(getent hosts redis-3 | awk "{print \$1}"):6379 \
 --cluster-replicas 0 --cluster-yes'
 
 # 6. Установка PHP зависимостей
+echo "[+] Waiting for containers to stabilize..."
+sleep 10 # Даем PHP-FPM время реально запуститьс
 echo "[+] Orchestrating Composer dependencies..."
 docker compose exec hw4_test-php-1 composer install --no-interaction --optimize-autoloader
 
