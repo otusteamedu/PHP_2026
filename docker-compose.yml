@@ -27,6 +27,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ./src:/var/www/html:delegated
+    command: >
+      sh -c "composer install --no-interaction --optimize-autoloader && php-fpm"
     networks:
       - backend_net
 
