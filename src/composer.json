@@ -1,0 +1,15 @@
+{
+    "require": {
+        "php": ">=8.4.0",
+        "evgeny87/bracket-validator": "^1.0.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "evgeny87\\BracketValidatorApp\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}

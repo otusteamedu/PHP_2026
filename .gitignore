@@ -1,5 +1,19 @@
-.idea/
+# Игнорируем реальные секреты
+.env
+mysql_data/
+
+# Зависимости (устанавливаются через start.sh)
 /vendor/
+/composer.lock
+
+# Логи и временные файлы
+/logs/
+*.log
+/mysql_data/
+
+# Системный мусор и IDE
+.idea/
+.vscode/
+*.iml
 .DS_Store
-.AppleDouble
-.LSOverride
+Thumbs.db
