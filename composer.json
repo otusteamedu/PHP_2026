@@ -1,0 +1,16 @@
+{
+    "name": "root/hw4",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Aleksei Ermolenko",
+            "email": "a.o.ermolenko@gmail.com"
+        }
+    ],
+    "require": {}
+}
