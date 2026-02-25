@@ -7,12 +7,12 @@ docker-compose up -d
 
 ### Everything is correct responce:
 ```shell
-curl -i -X POST "http://localhost" \
+curl -i -X POST "http://localhost/validate" \
   -d "string=()()()()()(())"
 ```
 
 ### Brackets is invalid responce:
 ```shell
-curl -i -X POST "http://localhost" \
+curl -i -X POST "http://localhost/validate" \
 -d "string=)("
 ```

@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Core\Service;
 
+use App\Core\Exception\ValidationException;
 use InvalidArgumentException;
 
 class BracketValidator
@@ -27,7 +28,7 @@ class BracketValidator
             }
 
             if ($balance < 0) {
-                return false;
+                throw new ValidationException('Brackets are invalid');
             }
         }
 
