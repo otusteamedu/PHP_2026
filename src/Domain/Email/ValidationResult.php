@@ -1,0 +1,1 @@
+<?phpdeclare(strict_types=1);namespace Aharutyunyan\Hw\Domain\Email;final class ValidationResult{    public function __construct(        public bool $isValid,        public string $reason = '',        public array $details = []    ) {}}
