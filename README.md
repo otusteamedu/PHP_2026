@@ -1,3 +1,29 @@
-# PHP_2026
+# Задание 5: AErmolenko/hw5
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Приложение верификации email
+
+### Запуск приложения
+```bash
+docker compose up --build -d
+docker compose exec php-fpm composer i
+```
+
+### Примеры запросов
+```sh
+curl -i -X POST "http://localhost/api/email-verify" \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"email": "example@mail.ru"
+}'
+```
+
+```sh
+curl -i -X POST "http://localhost/api/email-verify" \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"emails": [
+		"example1@mail.ru",
+		"example2@mail.ruu"
+	]
+}'
+```
