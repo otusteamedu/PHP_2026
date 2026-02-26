@@ -1,0 +1,13 @@
+{
+    "name": "root/mysite.local",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "aleksand-krasnyatov/brackets-checker": "^1.0",
+        "php": ">=8.5"
+    }
+}
