@@ -5,20 +5,15 @@ namespace App\Core;
 
 class Request
 {
-    public string $method;
-    public string $uri;
-    public array $params = [];
-    public array $get = [];
-    public array $post = [];
-    public array $server = [];
 
-    public function __construct()
+    public function getMethod(): string
     {
-        $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $this->uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
-        $this->get = $_GET;
-        $this->post = $_POST;
-        $this->server = $_SERVER;
+        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    }
+
+    public function getUri(): string
+    {
+        return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
     }
 
     public static function createFromGlobals(): self
@@ -26,14 +21,9 @@ class Request
         return new self();
     }
 
-    public function get(string $key, mixed $default = null): mixed
-    {
-        return $this->get[$key] ?? $this->post[$key] ?? $default;
-    }
-
     public function isJson(): bool
     {
-        $contentType = $this->server['CONTENT_TYPE'] ?? '';
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         return str_contains($contentType, 'application/json');
     }
 

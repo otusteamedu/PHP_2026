@@ -81,8 +81,8 @@ class Kernel
 
     private function matchRoute(): array
     {
-        $requestMethod = $this->request->method;
-        $requestUri = $this->request->uri;
+        $requestMethod = $this->request->getMethod();
+        $requestUri = $this->request->getUri();
 
         foreach ($this->routes as $routePattern => $controller) {
             [$method, $pattern] = explode(' ', $routePattern, 2);
