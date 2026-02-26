@@ -5,3 +5,5 @@
 .LSOverride
 docker-compose.override.yml
 /data/*
+/.env
+/docker-compose.override.yml.example
