@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use App\Handler;
-use App\Http\Request;
+use App\Http\StringRequest;
 
 require(__DIR__ . '/vendor/autoload.php');
 
-$request = Request::create();
+$request = StringRequest::fromGlobals();
 $response = new Handler()->handle($request);
 $response->send();

@@ -4,29 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-final readonly class Request
+final readonly class StringRequest
 {
     public function __construct(
-        private string $method,
-        private array $post,
+        public string $method,
+        public ?string $string = null,
     ) {
     }
 
-    public static function create(): self
+    public static function fromGlobals(): self
     {
         return new self(
             $_SERVER['REQUEST_METHOD'] ?? 'GET',
-            $_POST,
+            $_POST['string'] ?? null,
         );
     }
 
     public function isPost(): bool
     {
         return $this->method === 'POST';
-    }
-
-    public function post(string $key): mixed
-    {
-        return $this->post[$key] ?? null;
     }
 }

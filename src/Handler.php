@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App;
 
 use AleksandKrasnyatov\BracketsChecker\BracketsChecker;
-use App\Http\Request;
+use App\Http\StringRequest;
 use App\Http\Response;
 use Exception;
 use Throwable;
 
 final class Handler
 {
-    public function handle(Request $request): Response
+    public function handle(StringRequest $request): Response
     {
         try {
             return $this->dispatch($request);
@@ -23,7 +23,7 @@ final class Handler
         }
     }
 
-    private function dispatch(Request $request): Response
+    private function dispatch(StringRequest $request): Response
     {
         return $request
             |> $this->checkMethod(...)
@@ -34,7 +34,7 @@ final class Handler
     /**
      * @throws Exception
      */
-    private function checkMethod(Request $request): Request
+    private function checkMethod(StringRequest $request): StringRequest
     {
         if (!$request->isPost()) {
             throw new Exception('Method Not Allowed', 405);
@@ -46,19 +46,18 @@ final class Handler
     /**
      * @throws Exception
      */
-    private function checkPost(Request $request): Request
+    private function checkPost(StringRequest $request): StringRequest
     {
-        $string = $request->post('string');
-        if (!is_string($string)) {
+        if (empty($request->string)) {
             throw new Exception('There is no string in POST', 400);
         }
 
         return $request;
     }
 
-    private function checkLogic(Request $request): Response
+    private function checkLogic(StringRequest $request): Response
     {
-        $isValid = new BracketsChecker()->check((string) $request->post('string'));
+        $isValid = new BracketsChecker()->check($request->string);
 
         return $isValid
             ? new Response(200, 'Everything is ok')
