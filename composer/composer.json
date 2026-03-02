@@ -1,0 +1,22 @@
+{ 
+    "name": "a.emelyanenko/bracket-validator",
+    "type": "library",
+    "description": "The skeleton application for the OTUS home work.", 
+    "license": "MIT",
+    "require": {
+        "php": "^8.2"      
+    },
+    "require-dev": {     
+    },
+    "autoload": {
+        "psr-4": {
+            "Emelyanenko\\BracketValidator\\": "src/"          
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {            
+        }
+    },  
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
