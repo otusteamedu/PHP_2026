@@ -10,23 +10,3 @@ $result = $handler->handle();
 echo '<pre>';
 print_r($result);
 echo '</pre>';
-
-//$composite = new CompositeValidator();
-//
-//$composite->add(
-//    new SyntaxValidator()
-//);
-//
-//$composite->add(
-//    new DomainValidator()
-//);
-//
-//$composite->add(
-//    new DisposableEmailValidator()
-//);
-//
-//$result = $composite->validate(new Email('test@mailinator.com'));
-//
-//echo '<pre>';
-//print_r($result);
-//echo '</pre>';
