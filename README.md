@@ -5,6 +5,8 @@
 - **Environment**: Любые пароли хранятся строго в `.env`.
 
 ## 📂 Project Structure
+
+```text
 cinema-db-project/
 ├── .env                  # Локальные секреты
 ├── .env.example          # Шаблон конфигурации
@@ -16,6 +18,7 @@ cinema-db-project/
 ├── start.sh              # Автоматизация деплоя
 ├── run_analytics.sh      # Запуск отчетов одной кнопкой
 └── cleanup.sh            # Полная очистка данных
+```
 
 ## 🚀 Operations
 Подготовка:
@@ -119,4 +122,5 @@ docker exec -i postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} < init.sql
 
 # Выполнение аналитического запроса
 docker exec -i postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} < analytics.sql
+
 ```
