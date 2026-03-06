@@ -1,0 +1,23 @@
+services:
+  postgres:
+    # Deterministic image version: Fixed, no 'latest'
+    image: postgres:15.6-alpine
+    container_name: postgres_cinema
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # Persistent storage: Изолированный volume вместо host bind mount
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - internal_network
+    # NO PORTS EXPOSED: Access only via internal network or SSH Tunnel to 5432
+
+networks:
+  internal_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+    driver: local
