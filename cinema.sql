@@ -39,8 +39,8 @@ CREATE TABLE cinema_hall_seats
     id      int auto_increment primary key,
     hall_id int not null,
     type_id int not null,
+    `row`   int not null,
     number  int not null,
-    `row` int not null,
     constraint `fk-cinema_hall_seats-hall_id`
         foreign key (hall_id) references cinema_halls (id)
             on delete cascade,
@@ -53,8 +53,8 @@ CREATE TABLE cinema_hall_seats
 
 CREATE TABLE films
 (
-    id   int auto_increment primary key,
-    name varchar(255) not null,
+    id       int auto_increment primary key,
+    name     varchar(255) not null,
     duration int not null comment 'продолжительность в секундах'
 );
 
