@@ -17,8 +17,8 @@ erDiagram
         int id
         int hall_id
         int type_id
-        int row
-        int number
+        int seat_row
+        int seat_number
     }
     FILM {
         int id
@@ -49,15 +49,23 @@ erDiagram
         int value
         int film_id
         int seat_type_id
+        int cinema_hall_id
     }
-    CINEMA ||--o{ CINEMA_HALL : has
-    CINEMA_HALL ||--o{ CINEMA_HALL_SEAT : has
-    CINEMA_HALL_SEAT ||--o{ SEAT_TYPE : has
-    PRICE ||--o{ SEAT_TYPE : has
-    CINEMA_HALL ||--o{ SCREENING : has
-    CINEMA_HALL_SEAT ||--o{ TICKET : has
-    SCREENING ||--o{ FILM : has
-    FILM ||--o{ PRICE : has
+
     CLIENT ||--o{ TICKET : has
+
+    CINEMA ||--o{ CINEMA_HALL : has
+
+    CINEMA_HALL ||--o{ CINEMA_HALL_SEAT : has
+    CINEMA_HALL ||--o{ SCREENING : has
+
+    CINEMA_HALL_SEAT ||--o{ TICKET : has
+    CINEMA_HALL_SEAT ||--o{ SEAT_TYPE : has
+
     SCREENING ||--o{ TICKET : has
+    SCREENING ||--o{ FILM : has
+
+    PRICE ||--o{ FILM : has
+    PRICE ||--o{ CINEMA_HALL : has
+    PRICE ||--o{ SEAT_TYPE : has
 ```
