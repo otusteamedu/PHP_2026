@@ -120,6 +120,55 @@ CREATE TABLE prices
         unique (film_id, seat_type_id, cinema_hall_id)
 );
 
+-- проверка пересекающихся сеансов при вставке
+CREATE TRIGGER before_screening_insert
+    BEFORE INSERT
+    ON screenings
+    FOR EACH ROW
+BEGIN
+    DECLARE intersection_count INT;
+
+    SELECT COUNT(*)
+    INTO intersection_count
+    FROM screenings s
+             JOIN films f ON s.film_id = f.id
+    WHERE s.cinema_hall_id = NEW.cinema_hall_id
+      AND s.start_time < ADDTIME(
+            NEW.start_time,
+            SEC_TO_TIME((SELECT duration FROM films WHERE id = NEW.film_id))
+      )
+      AND ADDTIME(s.start_time, SEC_TO_TIME(f.duration)) > NEW.start_time;
+
+    IF intersection_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Время сеанса пересекается с другим сеансом в этом зале';
+    END IF;
+END;
+
+-- проверка пересекающихся сеансов при обновлении
+CREATE TRIGGER before_screening_update
+    BEFORE UPDATE ON screenings
+    FOR EACH ROW
+BEGIN
+    DECLARE intersection_count INT;
+
+    SELECT COUNT(*) INTO intersection_count
+    FROM screenings s
+             JOIN films f ON s.film_id = f.id
+    WHERE s.cinema_hall_id = NEW.cinema_hall_id
+      AND s.id != NEW.id
+      AND s.start_time < ADDTIME(
+            NEW.start_time,
+            SEC_TO_TIME((SELECT duration FROM films WHERE id = NEW.film_id))
+      )
+      AND ADDTIME(s.start_time, SEC_TO_TIME(f.duration)) > NEW.start_time;
+
+    IF intersection_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Время сеанса пересекается с другим сеансом в этом зале';
+    END IF;
+END;
+
 
 INSERT INTO cinemas (id, name)
 VALUES (1, 'Кинотеатр Центральный');
@@ -129,9 +178,9 @@ VALUES (1, 'Стандарт'),
        (2, 'VIP');
 
 INSERT INTO films (id, name, duration)
-VALUES (1, 'Интерстеллар', 200),
-       (2, 'Начало', 180),
-       (3, 'Дюна', 210);
+VALUES (1, 'Интерстеллар', 12000),
+       (2, 'Начало', 10000),
+       (3, 'Дюна', 11000);
 
 INSERT INTO cinema_halls (id, cinema_id, name)
 VALUES (1, 1, 'Зал №1'),
@@ -180,4 +229,4 @@ FROM films f
 WHERE t.status = 'paid'
 GROUP BY f.id
 ORDER BY total_film_cash DESC
-LIMIT 1
+LIMIT 1;
