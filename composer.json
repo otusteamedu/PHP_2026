@@ -1,0 +1,17 @@
+{
+    "name": "aharutyunyan/hw",
+    "autoload": {
+        "psr-4": {
+            "Aharutyunyan\\Hw\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Albert",
+            "email": "haralb01@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
