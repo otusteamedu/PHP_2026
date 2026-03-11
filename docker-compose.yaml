@@ -1,0 +1,78 @@
+services:
+
+  nginx1:
+    # Если нет секции build, система ищет образ в репозитории
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    image: balancer/nginx # имя будущего образа
+    container_name: balancer-nginx1 # имя контейнера после сборки
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/n.local.conf:/etc/nginx/conf.d/n.local.conf
+    networks:
+      - balancer-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://balancer.local:8083"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nginx2:
+    # Если нет секции build, система ищет образ в репозитории
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    image: balancer/nginx # имя будущего образа
+    container_name: balancer-nginx2 # имя контейнера после сборки
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/n.local.conf:/etc/nginx/conf.d/n.local.conf
+    networks:
+      - balancer-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://balancer.local/:8083" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  balancer:
+    build:
+      context: .
+      dockerfile: ./docker/balancer/Dockerfile
+    image: balancer/main
+    container_name: balancer-main
+    ports:
+      - "8083:80"
+    networks:
+      - balancer-network
+    depends_on:
+      - nginx1
+      - nginx2
+
+  app1:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    image: balancer/app
+    container_name: balancer-fpm1
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - balancer-network
+
+
+  app2:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    image: balancer/app
+    container_name: balancer-fpm2
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - balancer-network
+
+networks:
+  balancer-network:
+    driver: bridge
