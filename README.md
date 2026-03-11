@@ -1,3 +1,37 @@
-# PHP_2026
+# Задание 5: IS/hw6
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Общее описание
+
+```
+Схема данных для системы управления кинотеатром
+```
+
+## Инфраструктура
+
+### Схема развёртывания
+
+Развёрнута следующая инфраструктура:
+
+1. **Виртуальная машина**  
+   - ОС: Ubuntu  
+   - Среда: Oracle VirtualBox
+   - Клиент для работы с БД: DBeaver
+
+2. **Контейнер с `postgres:15`**  
+   - Имеет открытый порт 5432 с проброской порта с локальной на гостевую машину.
+
+## ER схема
+
+![ER schema](ER_schema.png "ER schema")
+
+## DDL и DML команды
+
+```
+main.sql
+```
+
+## Запуск
+```bash
+cd /путь/к/вашему/проекту
+docker compose up --build -d
+```
