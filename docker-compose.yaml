@@ -73,6 +73,16 @@ services:
     networks:
       - balancer-network
 
+  redis:
+    build:
+      context: .
+      dockerfile: ./docker/redis/Dockerfile
+    image: balancer/redis
+    container_name: balancer-redis
+    restart: always
+    networks:
+      - balancer-network
+
 networks:
   balancer-network:
     driver: bridge
