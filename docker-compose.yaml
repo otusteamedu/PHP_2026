@@ -1,19 +1,27 @@
 services:
 
   nginx1:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     # Если нет секции build, система ищет образ в репозитории
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     image: balancer/nginx # имя будущего образа
     container_name: balancer-nginx1 # имя контейнера после сборки
+    depends_on:
+      app1:
+        condition: service_healthy
     volumes:
       - ./src:/var/www/html
       - ./docker/nginx/n.local.conf:/etc/nginx/conf.d/n.local.conf
     networks:
       - balancer-network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://balancer.local:8083"]
+      test: ["CMD", "wget", "--spider", "http://nginx1:80"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -25,13 +33,16 @@ services:
       dockerfile: ./docker/nginx/Dockerfile
     image: balancer/nginx # имя будущего образа
     container_name: balancer-nginx2 # имя контейнера после сборки
+    depends_on:
+      app2:
+        condition: service_healthy
     volumes:
       - ./src:/var/www/html
       - ./docker/nginx/n.local.conf:/etc/nginx/conf.d/n.local.conf
     networks:
       - balancer-network
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "http://balancer.local/:8083" ]
+      test: [ "CMD", "wget", "--spider", "http://nginx2:80" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -49,6 +60,8 @@ services:
     depends_on:
       - nginx1
       - nginx2
+      - redis
+
 
   app1:
     build:
@@ -58,9 +71,21 @@ services:
     container_name: balancer-fpm1
     volumes:
       - ./src:/var/www/html
+      - ./docker/php/php.local.ini:/usr/local/etc/php/conf.d/php.local.ini:ro
+    environment:
+      - PHP_MEMORY_LIMIT=256M
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - balancer-network
-
+    healthcheck:
+      test: ["CMD", "php-fpm", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      redis:
+        condition: service_healthy
 
   app2:
     build:
@@ -70,8 +95,21 @@ services:
     container_name: balancer-fpm2
     volumes:
       - ./src:/var/www/html
+      - ./docker/php/php.local.ini:/usr/local/etc/php/conf.d/php.local.ini:ro
+    environment:
+      - PHP_MEMORY_LIMIT=256M
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - balancer-network
+    healthcheck:
+      test: ["CMD", "php-fpm", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      redis:
+        condition: service_healthy
 
   redis:
     build:
@@ -79,10 +117,26 @@ services:
       dockerfile: ./docker/redis/Dockerfile
     image: balancer/redis
     container_name: balancer-redis
-    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-data:/data
+    ports:
+      - "6389:6379"
+    environment:
+      - REDIS_PASSWORD=oasjw44wcsnjd
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - balancer-network
 
 networks:
   balancer-network:
     driver: bridge
+
+volumes:
+  redis-data: {}
