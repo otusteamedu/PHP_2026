@@ -66,3 +66,37 @@ CREATE TABLE ticket (
     CONSTRAINT uq_ticket_seat
         UNIQUE (showtime_id, row_num, seat_number)
 );
+
+CREATE INDEX idx_hall_cinema_id ON hall(cinema_id);
+CREATE INDEX idx_showtime_hall_id ON showtime(hall_id);
+CREATE INDEX idx_showtime_movie_id ON showtime(movie_id);
+CREATE INDEX idx_ticket_showtime_id ON ticket(showtime_id);
+CREATE INDEX idx_ticket_customer_id ON ticket(customer_id);
+
+CREATE OR REPLACE FUNCTION check_ticket_seat_in_hall()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_rows_count    INT;
+    v_seats_per_row INT;
+BEGIN
+    SELECT h.rows_count, h.seats_per_row
+      INTO v_rows_count, v_seats_per_row
+      FROM showtime s
+      JOIN hall h ON h.id = s.hall_id
+     WHERE s.id = NEW.showtime_id;
+
+    IF NEW.row_num < 1 OR NEW.row_num > v_rows_count THEN
+        RAISE EXCEPTION 'row_num % выходит за пределы зала (1..%)', NEW.row_num, v_rows_count;
+    END IF;
+
+    IF NEW.seat_number < 1 OR NEW.seat_number > v_seats_per_row THEN
+        RAISE EXCEPTION 'seat_number % выходит за пределы ряда (1..%)', NEW.seat_number, v_seats_per_row;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_ticket_seat_in_hall
+BEFORE INSERT OR UPDATE ON ticket
+FOR EACH ROW EXECUTE FUNCTION check_ticket_seat_in_hall();
