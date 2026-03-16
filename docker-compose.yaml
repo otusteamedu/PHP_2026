@@ -1,0 +1,9 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: php
+    volumes:
+      - ./src:/app/src
+    working_dir: /app
