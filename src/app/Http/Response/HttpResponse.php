@@ -14,13 +14,13 @@ class HttpResponse
             return json_encode([
                 'status' => $data['status'],
                 'info' => $data['message'],
-                'session_data' => $message ?? $_SERVER['HOSTNAME'],
+                'session_data' => $_SESSION['message'] ?? $_SERVER['HOSTNAME'],
             ]);
         } else {
             return json_encode([
                 'status' => $data['status'],
                 'error' => $data['error'],
-                'session_data' => $message ?? $_SERVER['HOSTNAME'],
+                'session_data' => $_SESSION['message'] ?? $_SERVER['HOSTNAME'],
             ]);
         }
     }

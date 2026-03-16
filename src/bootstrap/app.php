@@ -1,19 +1,11 @@
 <?php
 
-header('Content-Type: application/json');
+use App\app\Http\Controllers\CheckRandomStringController;
+use App\app\Services\SessionService;
+use App\app\Services\Validation\ParenthesesValidator;
 
-session_start();
+SessionService::start();
 
-if (!isset($_SESSION['visits'])) {
-    $_SESSION['visits'] = 1;
-    $_SESSION['HOSTNAME'] = $_SERVER['HOSTNAME'];
-    $message = "Welcome! This is your first visit. "
-        . "Session started at container: " . $_SESSION['HOSTNAME'] . ". "
-        . "Current container is: " . $_SERVER['HOSTNAME'] . ".";
-} else {
-    $_SESSION['visits']++;
-    $message = "Welcome back! This is visit #" . $_SESSION['visits'] . ". "
-        . "Session started at container: " . ($_SESSION['HOSTNAME'] ?? 'unknown') . ". "
-        . "Current container is: " . $_SERVER['HOSTNAME'] . ".";
-}
-
+echo new CheckRandomStringController(
+    new ParenthesesValidator('/^[()]+$/')
+)->execute($_POST['string'] ?? null);

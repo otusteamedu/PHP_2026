@@ -1,12 +1,4 @@
 <?php
 
-require_once "vendor/autoload.php";
-require_once "src/bootstrap/app.php";
-
-
-
-
-
-
-
-
+require_once "./vendor/autoload.php";
+require_once "./bootstrap/app.php";

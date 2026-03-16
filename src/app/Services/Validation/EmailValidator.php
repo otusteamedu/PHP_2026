@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\app\Services\Validation;
 
-class EmailValidator extends StringValidationService
+use App\app\Services\Validation\Contracts\ValidationInterface;
+
+class EmailValidator implements ValidationInterface
 {
 
     public function handle(string $str): array

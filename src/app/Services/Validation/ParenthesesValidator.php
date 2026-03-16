@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\app\Services\Validation;
 
+use App\app\Services\Validation\Contracts\ValidationInterface;
 use Exception;
 
-class ParenthesesValidator extends StringValidationService
+class ParenthesesValidator implements ValidationInterface
 {
     public function __construct(
-        public readonly ?string $pattern = null,
+        public ?string $pattern = null,
     )
     {
-        parent::__construct($this->pattern);
     }
 
     /**
@@ -20,16 +20,16 @@ class ParenthesesValidator extends StringValidationService
      */
     public function handle(string $str): array
     {
-        if (empty($this->str)) {
+        if (empty($str)) {
             throw new Exception("String validation requires a string");
         }
 
         $stack = [];
 
-        for ($i = 0; $i < strlen($this->str); $i++) {
-            if ($this->str[$i] === '(') {
-                $stack[] = $this->str[$i];
-            } elseif ($this->str[$i] === ')') {
+        for ($i = 0; $i < strlen($str); $i++) {
+            if ($str[$i] === '(') {
+                $stack[] = $str[$i];
+            } elseif ($str[$i] === ')') {
                 if (empty($stack)) {
                     return [
                         'valid' => false,
@@ -41,7 +41,7 @@ class ParenthesesValidator extends StringValidationService
                 if ($stack[count($stack) - 1] === '(') {
                     array_pop($stack);
                 } else {
-                    $stack[] = $this->str[$i];
+                    $stack[] = $str[$i];
                 }
             }
         }
