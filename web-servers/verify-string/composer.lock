@@ -1,0 +1,55 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "70b6827ddfca6c8a499a26f7022ddde5",
+    "packages": [
+        {
+            "name": "a.emelyanenko/bracket-validator",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Jony2Good/bracket-validator.git",
+                "reference": "7631f75ae0f91b9d5165822b4505c2312ea76b93"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Jony2Good/bracket-validator/zipball/7631f75ae0f91b9d5165822b4505c2312ea76b93",
+                "reference": "7631f75ae0f91b9d5165822b4505c2312ea76b93",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Emelyanenko\\BracketValidator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The skeleton application for the OTUS home work.",
+            "support": {
+                "issues": "https://github.com/Jony2Good/bracket-validator/issues",
+                "source": "https://github.com/Jony2Good/bracket-validator/tree/v1.0.0"
+            },
+            "time": "2026-03-02T12:21:41+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.2"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

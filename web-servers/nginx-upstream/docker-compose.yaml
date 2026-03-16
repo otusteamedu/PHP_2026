@@ -1,0 +1,124 @@
+services:
+  balancer:
+    image: nginx:1.25-alpine    
+    volumes:
+      - ./docker/nginx/config/balancer.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - front
+
+  app:    
+    build:
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/app/Dockerfile
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}  
+    depends_on:
+      db:
+        condition: service_healthy   
+      redis-init:
+        condition: service_completed_successfully     
+    networks:
+      - front
+      - back
+
+  db:
+    image: postgres:15-alpine    
+    volumes:
+      - ./tmp/postgresql/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    healthcheck:   
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - back
+
+  redis-node-1:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --cluster-announce-hostname redis-node-1
+      --cluster-preferred-endpoint-type hostname     
+    volumes:
+      - ./docker/redis/data1:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+    networks:
+      - back
+
+  redis-node-2:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --cluster-announce-hostname redis-node-2
+      --cluster-preferred-endpoint-type hostname    
+    volumes:
+      - ./docker/redis/data2:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    networks:
+      - back
+
+  redis-node-3:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --cluster-announce-hostname redis-node-3    
+      --cluster-preferred-endpoint-type hostname  
+    volumes:
+      - ./docker/redis/data3:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    networks:
+      - back
+  
+  redis-init:
+    image: redis:7-alpine
+    depends_on:
+      redis-node-1:
+        condition: service_healthy
+      redis-node-2:
+        condition: service_healthy
+      redis-node-3:
+        condition: service_healthy
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ./docker/app/config/redis-init.sh:/usr/local/bin/redis-init.sh
+    entrypoint: ["sh", "/usr/local/bin/redis-init.sh"]
+    networks:
+      - back
+    restart: "no"
+    
+networks:
+  front:
+    driver: bridge
+  back:
+    driver: bridge
