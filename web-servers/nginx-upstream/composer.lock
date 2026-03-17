@@ -1,0 +1,100 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "450c3763c5cb0c8ef342ea96a40b72b5",
+    "packages": [
+        {
+            "name": "a.emelyanenko/bracket-validator",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Jony2Good/bracket-validator.git",
+                "reference": "7631f75ae0f91b9d5165822b4505c2312ea76b93"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Jony2Good/bracket-validator/zipball/7631f75ae0f91b9d5165822b4505c2312ea76b93",
+                "reference": "7631f75ae0f91b9d5165822b4505c2312ea76b93",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Emelyanenko\\BracketValidator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The skeleton application for the OTUS home work.",
+            "support": {
+                "issues": "https://github.com/Jony2Good/bracket-validator/issues",
+                "source": "https://github.com/Jony2Good/bracket-validator/tree/v1.0.0"
+            },
+            "time": "2026-03-02T12:21:41+00:00"
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "jetbrains/phpstorm-stubs",
+            "version": "v2025.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JetBrains/phpstorm-stubs",
+                "reference": "d1ee5e570343bd4276a3d5959e6e1c2530b006d0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/d1ee5e570343bd4276a3d5959e6e1c2530b006d0",
+                "reference": "d1ee5e570343bd4276a3d5959e6e1c2530b006d0",
+                "shasum": ""
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.86",
+                "nikic/php-parser": "^v5.6",
+                "phpdocumentor/reflection-docblock": "^5.6",
+                "phpunit/phpunit": "^12.3"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "PhpStormStubsMap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "PHP runtime & extensions header files for PhpStorm",
+            "homepage": "https://www.jetbrains.com/phpstorm",
+            "keywords": [
+                "autocomplete",
+                "code",
+                "inference",
+                "inspection",
+                "jetbrains",
+                "phpstorm",
+                "stubs",
+                "type"
+            ],
+            "time": "2025-09-18T15:47:24+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.2"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
