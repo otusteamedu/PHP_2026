@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Services;
 
 use Exception;
 use RedisCluster;
@@ -14,7 +14,7 @@ class RedisClusterService
     protected ?RedisCluster $instance = null;
 
     public function __construct(array $seeds = [], ?string $password = null)
-    {        
+    {
         $this->seeds = !empty($seeds) ? $seeds : [
             'redis-node-1:6379',
             'redis-node-2:6379',
@@ -23,10 +23,10 @@ class RedisClusterService
 
         $this->password = $password ?? (string)getenv('REDIS_PASSWORD');
     }
-   
+
     public function getConnection(): RedisCluster
     {
-         if ($this->instance === null) {
+        if ($this->instance === null) {
             $this->instance = new RedisCluster(
                 'app-cluster',
                 $this->seeds,
@@ -39,11 +39,13 @@ class RedisClusterService
 
         return $this->instance;
     }
-   
-    public function run(): void
+
+    public function getData(): array
     {
+        $result = [];
+
         try {
-            $redis = $this->getConnection();           
+            $redis = $this->getConnection();
 
             $testKeys = [
                 'session_1',
@@ -53,25 +55,18 @@ class RedisClusterService
             ];
 
             foreach ($testKeys as $key) {
-
                 $value = "data_for_" . $key . "_" . time();
-
                 $redis->set($key, $value);
-
-                $savedValue = $redis->get($key);            
-
-                echo "Key: {$key}\n";
-                echo "Value: {$savedValue}\n";                              
+                $savedValue = $redis->get($key);
+                $result['keys'][] = ['key' => $key, 'value' => $savedValue];
             }
-           
 
             foreach ($redis->_masters() as $nodeInfo) {
-                echo "{$nodeInfo[0]}:{$nodeInfo[1]} ONLINE\n";
+                $result['nodes'][] = "{$nodeInfo[0]}:{$nodeInfo[1]} ONLINE";
             }
-
         } catch (Exception $e) {
-            echo "Ошибка подключения к Redis: " . $e->getMessage() . "\n";
-
+            $result['error'] = "Ошибка подключения к Redis: " . $e->getMessage();
         }
+        return $result;
     }
 }

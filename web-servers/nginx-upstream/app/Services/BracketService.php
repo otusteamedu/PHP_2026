@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Services;
 
 use Emelyanenko\BracketValidator\Service\BracketValidatorService;
 use Emelyanenko\BracketValidator\Exceptions\InvalidCountException;
 use App\Handlers\RequestHandler;
 use App\Handlers\ResponseHandler;
 
-class Kernel
+class BracketService
 {
     private BracketValidatorService $validator;
     private RequestHandler $request;
