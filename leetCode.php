@@ -18,7 +18,6 @@ class Solution {
         while ($toWhile) {
             $next = $prevNode->next;
             if (!$next || $toWhile->val < $next->val) {
-                $toSetVal = $toWhile->val;
                 $prevNode->next = new ListNode($toWhile->val, $next);
                 $toWhile = $toWhile->next;
             }
