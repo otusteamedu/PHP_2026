@@ -1,0 +1,28 @@
+{
+    "name": "evgeny87/leetcode-task",
+    "description": "High-performance LeetCode solutions following evgeny87 Architecture Standards",
+    "keywords": ["leetcode", "php8.4", "clean-architecture", "algorithm"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "evgeny87",
+            "email": "sun_nik_off@mail.ru"
+        }
+    ],
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "evgeny87\\LeetCode\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
