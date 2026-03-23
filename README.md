@@ -34,9 +34,10 @@ cinema-db-project/
 
 ```mermaid
 erDiagram
-    MOVIES ||--o{ MOVIE_ATTRIBUTE_VALUES : "has_attributes"
-    MOVIE_ATTRIBUTES_LIST ||--o{ MOVIE_ATTRIBUTE_VALUES : "defines"
     MOVIES ||--o{ SCREENINGS : "has"
+    MOVIES ||--o{ MOVIE_ATTRIBUTE_VALUES : "has"
+    ATTRIBUTES ||--o{ MOVIE_ATTRIBUTE_VALUES : "defines"
+    ATTRIBUTE_TYPES ||--o{ ATTRIBUTES : "categorizes"
     CINEMAS ||--|{ HALLS : "contains"
     HALLS ||--|{ SEATS_BLUEPRINT : "defined_by"
     HALLS ||--o{ SCREENINGS : "hosts"
@@ -111,12 +112,15 @@ erDiagram
         decimal actual_price
     }
 
-    MOVIE_ATTRIBUTES_LIST {
+    ATTRIBUTE_TYPES {
         int id PK
-        string name
-        string data_type
+        string type_name
     }
-
+    ATTRIBUTES {
+        int id PK
+        int type_id FK
+        string name
+    }
     MOVIE_ATTRIBUTE_VALUES {
         int movie_id FK
         int attr_id FK
@@ -147,6 +151,11 @@ docker exec -i postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} < analytics.sql
 Реализация модели EAV (таблицы, данные и VIEW) интегрирована непосредственно в основной файл инициализации `init.sql`.
 
 Для проверки гибкой схемы атрибутов и корректности сборки данных выполнить:
+1. **Маркетинговые данные** (фильм, тип, атрибут, значение):
 ```bash
-docker exec -it postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} -c "SELECT * FROM cinema.v_movie_details;"
+docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_marketing_data;"
+```
+2. **Служебные задачи** (актуально сегодня и через 20 дней):
+```bash
+docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_service_tasks;"
 ```

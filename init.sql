@@ -171,3 +171,76 @@ FROM cinema.movies m
 JOIN cinema.movie_attribute_values av ON m.id = av.movie_id
 JOIN cinema.movie_attributes_list al ON av.attr_id = al.id
 GROUP BY m.id, m.title;
+
+-- ==========================================
+-- ДОРАБОТКА ДЗ №8: Полное соответствие ТЗ (EAV)
+-- ==========================================
+
+-- 1. Таблица ТИПОВ атрибутов (4-я таблица по заданию)
+CREATE TABLE IF NOT EXISTS cinema.attribute_types (
+    id SERIAL PRIMARY KEY,
+    type_name VARCHAR(50) NOT NULL UNIQUE -- текст, логика, дата
+);
+
+INSERT INTO cinema.attribute_types (type_name) VALUES ('текст'), ('логика'), ('дата') ON CONFLICT DO NOTHING;
+
+-- 2. Таблица АТРИБУТОВ (связь с типом)
+DROP TABLE IF EXISTS cinema.movie_attribute_values CASCADE;
+DROP TABLE IF EXISTS cinema.movie_attributes_list CASCADE;
+
+CREATE TABLE IF NOT EXISTS cinema.attributes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    type_id INTEGER REFERENCES cinema.attribute_types(id)
+);
+
+INSERT INTO cinema.attributes (name, type_id) VALUES 
+('рецензия критиков', 1),
+('оскар', 2),
+('мировая премьера', 3),
+('дата начала продажи билетов', 3)
+ON CONFLICT DO NOTHING;
+
+-- 3. Таблица ЗНАЧЕНИЙ (EAV) с ИНДЕКСАМИ (критерий оценки)
+CREATE TABLE IF NOT EXISTS cinema.movie_attribute_values (
+    movie_id INTEGER REFERENCES cinema.movies(id) ON DELETE CASCADE,
+    attr_id INTEGER REFERENCES cinema.attributes(id) ON DELETE CASCADE,
+    attr_value TEXT NOT NULL,
+    PRIMARY KEY (movie_id, attr_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_eav_movie ON cinema.movie_attribute_values(movie_id);
+CREATE INDEX IF NOT EXISTS idx_eav_attr ON cinema.movie_attribute_values(attr_id);
+
+-- 4. Наполнение данными для тестов (фильм Inception)
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, attr_value)
+SELECT m.id, a.id, 'Шедевр визуализации' FROM cinema.movies m, cinema.attributes a WHERE m.title = 'Inception' AND a.name = 'рецензия критиков' LIMIT 1;
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, attr_value)
+SELECT m.id, a.id, 'true' FROM cinema.movies m, cinema.attributes a WHERE m.title = 'Inception' AND a.name = 'оскар' LIMIT 1;
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, attr_value)
+SELECT m.id, a.id, '2026-03-23' FROM cinema.movies m, cinema.attributes a WHERE m.title = 'Inception' AND a.name = 'мировая премьера' LIMIT 1;
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, attr_value)
+SELECT m.id, a.id, (CURRENT_DATE + INTERVAL '20 days')::text FROM cinema.movies m, cinema.attributes a WHERE m.title = 'Inception' AND a.name = 'дата начала продажи билетов' LIMIT 1;
+
+-- 5. VIEW для МАРКЕТИНГА (фильм, тип, атрибут, значение)
+CREATE OR REPLACE VIEW cinema.v_marketing_data AS
+SELECT 
+    m.title as фильм,
+    t.type_name as тип_атрибута,
+    a.name as атрибут,
+    av.attr_value as значение
+FROM cinema.movies m
+JOIN cinema.movie_attribute_values av ON m.id = av.movie_id
+JOIN cinema.attributes a ON av.attr_id = a.id
+JOIN cinema.attribute_types t ON a.type_id = t.id;
+
+-- 6. VIEW для СЛУЖЕБНЫХ ДАННЫХ (фильм, задачи на сегодня, задачи через 20 дней)
+CREATE OR REPLACE VIEW cinema.v_service_tasks AS
+SELECT 
+    m.title as фильм,
+    MAX(CASE WHEN a.name = 'мировая премьера' AND av.attr_value::date <= CURRENT_DATE THEN 'Актуально сегодня' END) as задачи_на_сегодня,
+    MAX(CASE WHEN a.name = 'дата начала продажи билетов' AND av.attr_value::date <= (CURRENT_DATE + INTERVAL '20 days') THEN 'Старт через 20 дней' END) as через_20_дней
+FROM cinema.movies m
+JOIN cinema.movie_attribute_values av ON m.id = av.movie_id
+JOIN cinema.attributes a ON av.attr_id = a.id
+GROUP BY m.title;
