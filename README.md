@@ -158,7 +158,7 @@ docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * 
 docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_service_tasks;"
 ```
 
-# ДЗ №9: Индексирование данных в БД Кинотеатра
+# 🛠 ДЗ №9: Индексирование данных в БД Кинотеатра
 
 ## 1. Список запросов для анализа
 В ходе работы проанализированы 6 ключевых запросов (3 простых и 3 сложных):
