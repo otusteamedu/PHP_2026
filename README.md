@@ -8,16 +8,16 @@
 
 ```text
 cinema-db-project/
-├── .env                  # Локальные секреты
-├── .env.example          # Шаблон конфигурации
-├── .gitignore            # Защита от утечек
-├── analytics.sql         # SQL-запрос для расчета прибыли
-├── docker-compose.yml    # Контейнер PostgreSQL (No Ports)
-├── init.sql              # Схема БД (DDL) и тестовые данные
-├── README.md             # Технический паспорт
-├── start.sh              # Автоматизация деплоя
-├── run_analytics.sh      # Запуск отчетов одной кнопкой
-└── cleanup.sh            # Полная очистка данных
+├── .env                       # Локальные секреты
+├── .env.example               # Шаблон конфигурации
+├── .gitignore                 # Защита от утечек
+├── analytics.sql              # SQL-запрос для расчета прибыли
+├── docker-compose.yml         # Контейнер PostgreSQL (No Ports)
+├── init.sql                   # Схема БД (DDL) и тестовые данные
+├── README.md                  # Технический паспорт
+├── start.sh                   # Автоматизация деплоя
+├── run_analytics.sh           # Запуск отчетов одной кнопкой
+└── cleanup.sh                 # Полная очистка данных
 ```
 
 ## 🚀 Operations
@@ -34,6 +34,8 @@ cinema-db-project/
 
 ```mermaid
 erDiagram
+    MOVIES ||--o{ MOVIE_ATTRIBUTE_VALUES : "has_attributes"
+    MOVIE_ATTRIBUTES_LIST ||--o{ MOVIE_ATTRIBUTE_VALUES : "defines"
     MOVIES ||--o{ SCREENINGS : "has"
     CINEMAS ||--|{ HALLS : "contains"
     HALLS ||--|{ SEATS_BLUEPRINT : "defined_by"
@@ -108,19 +110,43 @@ erDiagram
         int seat_blueprint_id FK
         decimal actual_price
     }
+
+    MOVIE_ATTRIBUTES_LIST {
+        int id PK
+        string name
+        string data_type
+    }
+
+    MOVIE_ATTRIBUTE_VALUES {
+        int movie_id FK
+        int attr_id FK
+        string attr_value
+    }
 ```
 
 ## 📊 Database Management (Manual)
 Если требуется выполнить скрипты вручную без использования bash-оберток:
 
-```bash
+
 # Запустить контейнер
+```bash
 docker compose up -d
+```
 
 # Импорт схемы
+```bash
 docker exec -i postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} < init.sql
+```
 
 # Выполнение аналитического запроса
+```bash
 docker exec -i postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} < analytics.sql
+```
 
+## 🛠 Проверка ДЗ №8 (EAV)
+Реализация модели EAV (таблицы, данные и VIEW) интегрирована непосредственно в основной файл инициализации `init.sql`.
+
+Для проверки гибкой схемы атрибутов и корректности сборки данных выполнить:
+```bash
+docker exec -it postgres_cinema psql -U ${DB_USER} -d ${DB_NAME} -c "SELECT * FROM cinema.v_movie_details;"
 ```

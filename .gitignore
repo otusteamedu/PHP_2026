@@ -15,6 +15,7 @@ composer.phar
 .vscode/
 *.swp
 .DS_Store
+*.log
 
 # VirtualBox Shared Folders artifacts
 .vbox_shared_folder_map

@@ -117,3 +117,57 @@ VALUES (1, 2, 3, 1500.00);
 INSERT INTO bookings (customer_id, total_amount) VALUES (2, 400.00);
 INSERT INTO tickets (booking_id, screening_id, seat_blueprint_id, actual_price) 
 VALUES (2, 3, 1, 400.00);
+-- ==========================================
+-- ДЗ №8: Внедрение EAV-модели (Гибкие атрибуты)
+-- ==========================================
+
+-- 1. Справочник атрибутов
+CREATE TABLE IF NOT EXISTS cinema.movie_attributes_list (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    data_type VARCHAR(20) NOT NULL
+);
+
+INSERT INTO cinema.movie_attributes_list (name, data_type) VALUES 
+('IMDb Rating', 'decimal'),
+('Budget ($)', 'integer'),
+('Country', 'string'),
+('Age Rating', 'string')
+ON CONFLICT DO NOTHING;
+
+-- 2. Таблица значений
+CREATE TABLE IF NOT EXISTS cinema.movie_attribute_values (
+    movie_id INTEGER REFERENCES cinema.movies(id) ON DELETE CASCADE,
+    attr_id INTEGER REFERENCES cinema.movie_attributes_list(id) ON DELETE CASCADE,
+    attr_value TEXT NOT NULL,
+    PRIMARY KEY (movie_id, attr_id)
+);
+
+-- 3. Наполнение тестовыми данными
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, attr_value)
+SELECT 
+    m.id, 
+    a.id, 
+    CASE 
+        WHEN a.name = 'IMDb Rating' THEN '8.9'
+        WHEN a.name = 'Budget ($)' THEN '150000000'
+        WHEN a.name = 'Country' THEN 'USA'
+        WHEN a.name = 'Age Rating' THEN '16+'
+    END
+FROM cinema.movies m
+CROSS JOIN cinema.movie_attributes_list a
+WHERE m.id = (SELECT id FROM cinema.movies LIMIT 1)
+ON CONFLICT DO NOTHING;
+
+-- 4. VIEW для проверки
+CREATE OR REPLACE VIEW cinema.v_movie_details AS
+SELECT 
+    m.title,
+    MAX(CASE WHEN al.name = 'IMDb Rating' THEN av.attr_value END) AS imdb_rating,
+    MAX(CASE WHEN al.name = 'Budget ($)' THEN av.attr_value END) AS budget,
+    MAX(CASE WHEN al.name = 'Country' THEN av.attr_value END) AS country,
+    MAX(CASE WHEN al.name = 'Age Rating' THEN av.attr_value END) AS age_limit
+FROM cinema.movies m
+JOIN cinema.movie_attribute_values av ON m.id = av.movie_id
+JOIN cinema.movie_attributes_list al ON av.attr_id = al.id
+GROUP BY m.id, m.title;
