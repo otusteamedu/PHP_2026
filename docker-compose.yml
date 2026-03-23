@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16
+    container_name: hw8-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/cinema_db.sql:/docker-entrypoint-initdb.d/cinema_db.sql
+      - ./sql/view_marketing.sql:/docker-entrypoint-initdb.d/view_marketing.sql
+      - ./sql/view_service_tasks.sql:/docker-entrypoint-initdb.d/view_service_tasks.sql
+    networks:
+      - backend
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
