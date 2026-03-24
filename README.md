@@ -122,9 +122,13 @@ erDiagram
         string name
     }
     MOVIE_ATTRIBUTE_VALUES {
+        int id PK
         int movie_id FK
         int attr_id FK
-        string attr_value
+        string val_text
+        boolean val_boolean
+        date val_date
+        decimal val_numeric
     }
 ```
 
