@@ -163,3 +163,10 @@ docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * 
 ```bash
 docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_service_tasks;"
 ```
+
+Реализована **типизированная модель EAV**, исключающая потерю точности при хранении числовых данных (рейтинги, бюджеты). 
+
+**Ключевые особенности:**
+- Использование `NUMERIC(15,4)` вместо `TEXT/FLOAT` для дробных чисел.
+- Жесткая проверка целостности на уровне БД (`CHECK constraint`), гарантирующая заполнение ровно одного типа данных для атрибута.
+- Оптимизированные `VIEW` для автоматической сборки данных из разных типов в единый отчет.
