@@ -170,3 +170,8 @@ docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * 
 - Использование `NUMERIC(15,4)` вместо `TEXT/FLOAT` для дробных чисел.
 - Жесткая проверка целостности на уровне БД (`CHECK constraint`), гарантирующая заполнение ровно одного типа данных для атрибута.
 - Оптимизированные `VIEW` для автоматической сборки данных из разных типов в единый отчет.
+
+В моей реализации для каждого типа данных выделена своя колонка. Числа хранятся в NUMERIC(15,4), что исключает ошибки округления, характерные для TEXT или FLOAT.
+```bash
+docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_marketing_data WHERE атрибут = 'IMDb Rating';"
+```
