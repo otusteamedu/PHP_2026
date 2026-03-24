@@ -120,9 +120,13 @@ erDiagram
         string name
     }
     MOVIE_ATTRIBUTE_VALUES {
+        int id PK
         int movie_id FK
         int attr_id FK
-        string attr_value
+        string val_text
+        boolean val_boolean
+        date val_date
+        decimal val_numeric
     }
 ```
 
@@ -156,6 +160,18 @@ docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * 
 2. **Служебные задачи** (актуально сегодня и через 20 дней):
 ```bash
 docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_service_tasks;"
+```
+
+Реализована **типизированная модель EAV**, исключающая потерю точности при хранении числовых данных (рейтинги, бюджеты). 
+
+**Ключевые особенности:**
+- Использование `NUMERIC(15,4)` вместо `TEXT/FLOAT` для дробных чисел.
+- Жесткая проверка целостности на уровне БД (`CHECK constraint`), гарантирующая заполнение ровно одного типа данных для атрибута.
+- Оптимизированные `VIEW` для автоматической сборки данных из разных типов в единый отчет.
+
+В моей реализации для каждого типа данных выделена своя колонка. Числа хранятся в NUMERIC(15,4), что исключает ошибки округления, характерные для TEXT или FLOAT.
+```bash
+docker exec -it postgres_cinema psql -U evgeny87_user -d cinema_db -c "SELECT * FROM cinema.v_marketing_data WHERE атрибут = 'IMDb Rating';"
 ```
 
 # 🛠 ДЗ №9: Индексирование данных в БД Кинотеатра
