@@ -1,0 +1,14 @@
+{
+    "name": "aharutyunyan/otus_seven_app",
+    "autoload": {
+        "psr-4": {
+            "Aharutyunyan\\OtusSevenApp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Albert Harutyunyan"
+        }
+    ],
+    "require": {}
+}

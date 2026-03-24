@@ -1,0 +1,1 @@
+services:  app:    build:      context: ./docker/php      dockerfile: Dockerfile    container_name: otus_seven_app    volumes:      - .:/var/www/otus_seven_appvolumes:  otus_five_app:
