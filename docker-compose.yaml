@@ -1,0 +1,12 @@
+services:
+  postgres:
+    build: ./docker/db
+    container_name: postgres-container
+    environment:
+      POSTGRES_DB: "${DB}"
+      POSTGRES_USER: "${USER}"
+      POSTGRES_PASSWORD: "${PASS}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql
