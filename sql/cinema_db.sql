@@ -44,7 +44,7 @@ CREATE TABLE attribute_values (
     value_text TEXT,
     value_date DATE,
     value_boolean BOOLEAN,
-    value_numeric NUMERIC(12,4),
+    value_numeric FLOAT,
     value_timestamp TIMESTAMPTZ,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT fk_attribute_values_movie FOREIGN KEY (movie_id) REFERENCES movie(id),
