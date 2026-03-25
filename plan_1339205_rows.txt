@@ -1,0 +1,188 @@
+=== ANALYSIS (1339205 rows) ===
+
+--- QUERY 1 ---
+SET
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..65922.51 rows=21521 width=33) (actual time=124.704..138.713 rows=700 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=7425 read=28444
+   ->  Parallel Seq Scan on screenings  (cost=0.00..62770.41 rows=8967 width=33) (actual time=88.106..134.938 rows=233 loops=3)
+         Filter: ((start_time)::date = '2026-03-24'::date)
+         Rows Removed by Filter: 1434512
+         Buffers: shared hit=7425 read=28444
+ Planning:
+   Buffers: shared hit=104 read=1
+ Planning Time: 0.618 ms
+ Execution Time: 138.764 ms
+(12 rows)
+
+
+--- QUERY 2 ---
+SET
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=23406.24..23406.25 rows=1 width=8) (actual time=62.203..64.281 rows=1 loops=1)
+   Buffers: shared hit=125 read=3184 written=2395
+   ->  Gather  (cost=23406.02..23406.23 rows=2 width=8) (actual time=62.117..64.277 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=125 read=3184 written=2395
+         ->  Partial Aggregate  (cost=22406.02..22406.03 rows=1 width=8) (actual time=60.666..60.667 rows=1 loops=3)
+               Buffers: shared hit=125 read=3184 written=2395
+               ->  Parallel Hash Join  (cost=6831.10..22405.88 rows=56 width=0) (actual time=60.663..60.665 rows=0 loops=3)
+                     Hash Cond: (t.booking_id = b.id)
+                     Buffers: shared hit=125 read=3184 written=2395
+                     ->  Parallel Seq Scan on tickets t  (cost=0.00..14110.02 rows=558002 width=4) (never executed)
+                     ->  Parallel Hash  (cost=6830.83..6830.83 rows=21 width=4) (actual time=60.478..60.478 rows=0 loops=3)
+                           Buckets: 1024  Batches: 1  Memory Usage: 0kB
+                           Buffers: shared hit=1 read=3184 written=2395
+                           ->  Parallel Seq Scan on bookings b  (cost=0.00..6830.83 rows=21 width=4) (actual time=60.457..60.457 rows=0 loops=3)
+                                 Filter: (booking_time > (now() - '7 days'::interval))
+                                 Rows Removed by Filter: 166667
+                                 Buffers: shared hit=1 read=3184 written=2395
+ Planning:
+   Buffers: shared hit=237 read=1
+ Planning Time: 1.116 ms
+ Execution Time: 64.324 ms
+(23 rows)
+
+
+--- QUERY 3 ---
+SET
+                                                                                     QUERY PLAN                                                                                     
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Unique  (cost=63863.14..63867.50 rows=582 width=19) (actual time=48.042..49.929 rows=21 loops=1)
+   Buffers: shared hit=4455 read=31482 written=82
+   ->  Sort  (cost=63863.14..63864.59 rows=582 width=19) (actual time=48.041..49.925 rows=21 loops=1)
+         Sort Key: m.title, s.start_time
+         Sort Method: quicksort  Memory: 26kB
+         Buffers: shared hit=4455 read=31482 written=82
+         ->  Gather  (cost=63775.30..63836.41 rows=582 width=19) (actual time=47.966..49.894 rows=21 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=4449 read=31482 written=82
+               ->  HashAggregate  (cost=62775.30..62778.21 rows=291 width=19) (actual time=46.148..46.150 rows=7 loops=3)
+                     Group Key: m.title, s.start_time
+                     Batches: 1  Memory Usage: 37kB
+                     Buffers: shared hit=4449 read=31482 written=82
+                     Worker 0:  Batches: 1  Memory Usage: 37kB
+                     Worker 1:  Batches: 1  Memory Usage: 37kB
+                     ->  Hash Join  (cost=1.04..62773.85 rows=291 width=19) (actual time=29.841..46.126 rows=233 loops=3)
+                           Hash Cond: (s.movie_id = m.id)
+                           Buffers: shared hit=4449 read=31482 written=82
+                           ->  Parallel Seq Scan on screenings s  (cost=0.00..62770.41 rows=291 width=12) (actual time=29.758..46.025 rows=233 loops=3)
+                                 Filter: ((start_time >= '2026-03-24 00:00:00+00'::timestamp with time zone) AND (start_time < '2026-03-25 00:00:00+00'::timestamp with time zone))
+                                 Rows Removed by Filter: 1434512
+                                 Buffers: shared hit=4387 read=31482 written=82
+                           ->  Hash  (cost=1.02..1.02 rows=2 width=15) (actual time=0.019..0.020 rows=2 loops=2)
+                                 Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                 Buffers: shared hit=2
+                                 ->  Seq Scan on movies m  (cost=0.00..1.02 rows=2 width=15) (actual time=0.015..0.016 rows=2 loops=2)
+                                       Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=238 read=7 written=6
+ Planning Time: 1.856 ms
+ Execution Time: 50.002 ms
+(32 rows)
+
+
+--- QUERY 4 ---
+SET
+                                                                                  QUERY PLAN                                                                                   
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=23443.18..23443.19 rows=2 width=43) (actual time=13.089..14.818 rows=0 loops=1)
+   Buffers: shared hit=3238 read=1
+   ->  Sort  (cost=23443.18..23443.19 rows=2 width=43) (actual time=13.088..14.817 rows=0 loops=1)
+         Sort Key: (sum(t.actual_price)) DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=3238 read=1
+         ->  Finalize GroupAggregate  (cost=23442.21..23443.17 rows=2 width=43) (actual time=13.073..14.802 rows=0 loops=1)
+               Group Key: m.title
+               Buffers: shared hit=3235 read=1
+               ->  Gather Merge  (cost=23442.21..23443.12 rows=4 width=43) (actual time=13.072..14.801 rows=0 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=3235 read=1
+                     ->  Partial GroupAggregate  (cost=22442.19..22442.63 rows=2 width=43) (actual time=11.233..11.235 rows=0 loops=3)
+                           Group Key: m.title
+                           Buffers: shared hit=3235 read=1
+                           ->  Sort  (cost=22442.19..22442.33 rows=56 width=17) (actual time=11.232..11.234 rows=0 loops=3)
+                                 Sort Key: m.title
+                                 Sort Method: quicksort  Memory: 25kB
+                                 Buffers: shared hit=3235 read=1
+                                 Worker 0:  Sort Method: quicksort  Memory: 25kB
+                                 Worker 1:  Sort Method: quicksort  Memory: 25kB
+                                 ->  Hash Join  (cost=6832.57..22440.56 rows=56 width=17) (actual time=11.214..11.216 rows=0 loops=3)
+                                       Hash Cond: (s.movie_id = m.id)
+                                       Buffers: shared hit=3217 read=1
+                                       ->  Nested Loop  (cost=6831.53..22439.06 rows=56 width=10) (actual time=11.181..11.182 rows=0 loops=3)
+                                             Buffers: shared hit=3184 read=1
+                                             ->  Parallel Hash Join  (cost=6831.10..22405.88 rows=56 width=10) (actual time=11.181..11.182 rows=0 loops=3)
+                                                   Hash Cond: (t.booking_id = b.id)
+                                                   Buffers: shared hit=3184 read=1
+                                                   ->  Parallel Seq Scan on tickets t  (cost=0.00..14110.02 rows=558002 width=14) (never executed)
+                                                   ->  Parallel Hash  (cost=6830.83..6830.83 rows=21 width=4) (actual time=11.085..11.086 rows=0 loops=3)
+                                                         Buckets: 1024  Batches: 1  Memory Usage: 0kB
+                                                         Buffers: shared hit=3184 read=1
+                                                         ->  Parallel Seq Scan on bookings b  (cost=0.00..6830.83 rows=21 width=4) (actual time=11.063..11.063 rows=0 loops=3)
+                                                               Filter: (booking_time > (now() - '7 days'::interval))
+                                                               Rows Removed by Filter: 166667
+                                                               Buffers: shared hit=3184 read=1
+                                             ->  Index Scan using screenings_pkey on screenings s  (cost=0.43..0.59 rows=1 width=8) (never executed)
+                                                   Index Cond: (id = t.screening_id)
+                                       ->  Hash  (cost=1.02..1.02 rows=2 width=15) (actual time=0.009..0.010 rows=2 loops=3)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                             Buffers: shared hit=3
+                                             ->  Seq Scan on movies m  (cost=0.00..1.02 rows=2 width=15) (actual time=0.005..0.006 rows=2 loops=3)
+                                                   Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=360 read=8
+ Planning Time: 3.541 ms
+ Execution Time: 14.909 ms
+(49 rows)
+
+
+--- QUERY 5 ---
+SET
+                                                                           QUERY PLAN                                                                            
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Left Join  (cost=29.09..78.60 rows=100 width=38) (actual time=0.332..0.333 rows=0 loops=1)
+   Hash Cond: (sb.id = t.seat_blueprint_id)
+   Buffers: shared hit=1 read=2
+   InitPlan 1 (returns $0)
+     ->  Index Scan using screenings_pkey on screenings  (cost=0.43..8.45 rows=1 width=4) (actual time=0.328..0.329 rows=0 loops=1)
+           Index Cond: (id = 10)
+           Buffers: shared hit=1 read=2
+   ->  Bitmap Heap Scan on seats_blueprint sb  (cost=5.06..54.31 rows=100 width=10) (actual time=0.332..0.332 rows=0 loops=1)
+         Recheck Cond: (hall_id = $0)
+         Buffers: shared hit=1 read=2
+         ->  Bitmap Index Scan on seats_blueprint_hall_id_seat_row_seat_number_key  (cost=0.00..5.03 rows=100 width=0) (actual time=0.331..0.331 rows=0 loops=1)
+               Index Cond: (hall_id = $0)
+               Buffers: shared hit=1 read=2
+   ->  Hash  (cost=15.52..15.52 rows=5 width=8) (never executed)
+         ->  Index Scan using tickets_screening_id_seat_blueprint_id_key on tickets t  (cost=0.43..15.52 rows=5 width=8) (never executed)
+               Index Cond: (screening_id = 10)
+ Planning:
+   Buffers: shared hit=289 read=2
+ Planning Time: 1.280 ms
+ Execution Time: 0.377 ms
+(20 rows)
+
+
+--- QUERY 6 ---
+SET
+                                                                        QUERY PLAN                                                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=15.54..15.55 rows=1 width=64) (actual time=0.011..0.012 rows=1 loops=1)
+   Buffers: shared hit=3
+   ->  Index Scan using tickets_screening_id_seat_blueprint_id_key on tickets  (cost=0.43..15.52 rows=5 width=6) (actual time=0.009..0.009 rows=0 loops=1)
+         Index Cond: (screening_id = 10)
+         Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=103 read=1
+ Planning Time: 0.543 ms
+ Execution Time: 0.048 ms
+(9 rows)
+
