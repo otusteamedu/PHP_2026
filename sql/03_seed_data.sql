@@ -1,112 +1,6 @@
-DROP SCHEMA IF EXISTS otus CASCADE;
-
-CREATE SCHEMA otus;
-
 SET
     search_path TO otus;
-
-drop table if exists cinemas CASCADE;
-
-drop table if exists halls CASCADE;
-
-drop table if exists places CASCADE;
-
-drop table if exists movies CASCADE;
-
-drop table if exists prices CASCADE;
-
-drop table if exists sessions CASCADE;
-
-drop table if exists customers CASCADE;
-
-drop table if exists prices CASCADE;
-
-drop table if exists orders CASCADE;
-
-drop table if exists tickets CASCADE;
-
-CREATE TABLE
-    IF NOT EXISTS cinemas (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        address VARCHAR(255) NOT NULL
-    );
-
-CREATE TABLE
-    IF NOT EXISTS halls (
-        id SERIAL PRIMARY KEY,
-        cinema_id INT NOT NULL REFERENCES cinemas (id) ON DELETE CASCADE,
-        number INT NOT NULL
-    );
-
-CREATE TABLE
-    IF NOT EXISTS places (
-        id SERIAL PRIMARY KEY,
-        hall_id INT NOT NULL REFERENCES halls (id) ON DELETE CASCADE,
-        row_num INT NOT NULL,
-        place_num INT NOT NULL,
-        place_type VARCHAR(15) NOT NULL,
-        UNIQUE (hall_id, row_num, place_num)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS movies (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(100) NOT NULL,
-        description VARCHAR(255),
-        duration INT NOT NULL CHECK (duration > 0)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS sessions (
-        id SERIAL PRIMARY KEY,
-        movie_id INT NOT NULL REFERENCES movies (id) ON DELETE CASCADE,
-        hall_id INT NOT NULL REFERENCES halls (id) ON DELETE CASCADE,
-        start_time TIMESTAMP NOT NULL,
-        end_time TIMESTAMP NOT NULL,
-        CHECK (start_time < end_time)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS prices (
-        id SERIAL PRIMARY KEY,
-        session_id INT NOT NULL REFERENCES sessions (id) ON DELETE CASCADE,
-        place_type VARCHAR(15) NOT NULL,
-        price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
-        UNIQUE (session_id, place_type)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS customers (
-        id SERIAL PRIMARY KEY,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        email VARCHAR(100) UNIQUE,
-        phone VARCHAR(11),
-        created_at TIMESTAMP DEFAULT NOW ()
-    );
-
-CREATE TABLE
-    IF NOT EXISTS orders (
-        id SERIAL PRIMARY KEY,
-        customer_id INT NOT NULL REFERENCES customers (id) ON DELETE SET NULL,
-        total_amount DECIMAL(10, 2) NOT NULL CHECK (total_amount >= 0),
-        order_date TIMESTAMP DEFAULT NOW (),
-        status VARCHAR(20) DEFAULT 'pending' CHECK (
-            status IN ('pending', 'confirmed', 'cancelled', 'completed')
-        )
-    );
-
-CREATE TABLE
-    IF NOT EXISTS tickets (
-        id SERIAL PRIMARY KEY,
-        session_id INT NOT NULL REFERENCES sessions (id) ON DELETE CASCADE,
-        place_id INT NOT NULL REFERENCES places (id) ON DELETE CASCADE,
-        order_id INT NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
-        created_at TIMESTAMP DEFAULT NOW (),
-        UNIQUE (session_id, place_id)
-    );
-
+    
 INSERT INTO
     cinemas (id, name, address)
 values
@@ -183,18 +77,8 @@ INSERT INTO
     movies (id, title, description, duration)
 values
     (1, 'Чебурашка', 'Первый фильм про Чебурашку', 90),
-    (
-        2,
-        'Чебурашка 2',
-        'Второй фильм про Чебурашку',
-        90
-    ),
-    (
-        3,
-        'Чебурашка 3',
-        'Третий фильм про Чебурашку',
-        90
-    );
+    (2, 'Чебурашка 2', 'Второй фильм про Чебурашку', 90),
+    (3, 'Чебурашка 3', 'Третий фильм про Чебурашку', 90);
 
 INSERT INTO
     sessions (id, movie_id, hall_id, start_time, end_time)
@@ -325,26 +209,49 @@ values
     (12, 5, 6, 8),
     (13, 9, 25, 9);
 
-SELECT
-    m.title AS movie,
-    SUM(p.price) AS "revenue"
-FROM
-    movies m
-    JOIN sessions s ON m.id = s.movie_id
-    JOIN tickets t ON s.id = t.session_id
-    JOIN prices p ON s.id = p.session_id
-    AND p.place_type = (
-        SELECT
-            pl.place_type
-        FROM
-            places pl
-        WHERE
-            pl.id = t.place_id
-    )
-GROUP BY
-    m.id,
-    m.title
-ORDER BY
-    "revenue" DESC
-LIMIT
-    1;
+INSERT INTO 
+    attribute_types (id, name, code, value_type)
+VALUES
+    (1, 'Рецензии', 'reviews', 'text'),
+    (2, 'Премия', 'awards', 'boolean'),
+    (3, 'Важные даты', 'important_dates', 'date'),
+    (4, 'Служебные даты', 'internal_dates', 'date'),
+    (5, 'Некое числовое значение', 'some_integer', 'int'),
+    (6, 'Некое числовое значнеие с плавающей запятой', 'some_float', 'float');
+
+INSERT INTO 
+    attributes (id, attribute_type_id, name) 
+VALUES
+    (1, 1, 'Рецензия критика Иванова'),
+    (2, 1, 'Отзыв киноакадемии X'),
+    (3, 2, 'Оскар'),
+    (4, 2, 'Ника'),
+    (5, 3, 'Мировая премьера'),
+    (6, 3, 'Премьера в РФ'),
+    (7, 4, 'Дата начала продажи билетов'),
+    (8, 4, 'Запуск ТВ‑рекламы'),
+    (9, 5, 'Какое то число'),
+    (10, 6, 'Какое то число с запятой');
+
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (1, 6, '2024-03-21');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (2, 6, '2025-03-21');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (3, 6, '2026-03-21');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (1, 5, '2024-03-28');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (2, 5, '2025-03-28');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (3, 5, '2026-03-28');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (1, 7, '2024-03-14');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (2, 7, '2025-03-14');
+INSERT INTO attribute_values (movie_id, attribute_id, value_date) VALUES (3, 7, '2026-03-14');
+INSERT INTO attribute_values (movie_id, attribute_id, value_text) VALUES (1, 1, 'Хорошо');
+INSERT INTO attribute_values (movie_id, attribute_id, value_text) VALUES (2, 1, 'Отлично');
+INSERT INTO attribute_values (movie_id, attribute_id, value_text) VALUES (3, 1, 'Превосходно');
+INSERT INTO attribute_values (movie_id, attribute_id, value_boolean) VALUES (1, 3, true);
+INSERT INTO attribute_values (movie_id, attribute_id, value_boolean) VALUES (2, 3, true);
+INSERT INTO attribute_values (movie_id, attribute_id, value_boolean) VALUES (3, 3, false);
+INSERT INTO attribute_values (movie_id, attribute_id, value_int) VALUES (1, 9, 5);
+INSERT INTO attribute_values (movie_id, attribute_id, value_float) VALUES (2, 10, 8);
+INSERT INTO attribute_values (movie_id, attribute_id, value_float) VALUES (3, 10, 8.2432);
+
+
+
+

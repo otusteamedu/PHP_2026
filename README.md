@@ -1,9 +1,9 @@
-# Задание 5: IS/hw6
+# Задание 8: IS/hw6
 
 ## Общее описание
 
 ```
-Схема данных для системы управления кинотеатром
+Спроектировать EAV-хранение для базы данных кинотеатра
 ```
 
 ## Инфраструктура
@@ -24,14 +24,48 @@
 
 ![ER schema](ER_schema.png "ER schema")
 
-## DDL и DML команды
+## По ДЗ сделано:
 
-```
-main.sql
-```
+### Таблица `attribute_types`
 
-## Запуск
-```bash
-cd /путь/к/вашему/проекту
-docker compose up --build -d
-```
+- id
+- name
+- code
+- value_type
+
+### Таблица `attributes`
+
+- id
+- attribute_type_id
+- name
+
+attribute_type_id и name уникальные.
+
+idx_eav_attribute_type индекс на attribute_type_id для быстрого поиска.
+
+### Таблица `attribute_values`
+
+- id
+- movie_id
+- attribute_id
+- value_text
+- value_boolean
+- value_date
+- value_float
+- value_int INTEGER,
+
+movie_id и attribute_id уникальные.
+
+idx_eav_movie индекс на movie_id для быстрого поиска.
+
+idx_eav_attribute индекс на attribute_id для быстрого поиска.
+
+## Views
+
+### 04_view_movies_with_attributes
+
+Вывод всех фильмов с атрибутами
+
+### 05_view_premiere_2026
+
+Премьеры 2026 года
