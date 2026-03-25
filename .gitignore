@@ -1,5 +1,21 @@
+# Secrets & Environment
+.env
+.env.local
+
+# Docker Data (Strictly prohibited in Git)
+docker/postgres_data/
+pgdata/
+
+# Dependencies
+vendor/
+composer.phar
+
+# Host-Guest / IDE
 .idea/
-/vendor/
+.vscode/
+*.swp
 .DS_Store
-.AppleDouble
-.LSOverride
+*.log
+
+# VirtualBox Shared Folders artifacts
+.vbox_shared_folder_map
