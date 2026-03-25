@@ -157,14 +157,16 @@ CREATE TABLE IF NOT EXISTS cinema.movie_attribute_values (
     val_text    TEXT,
     val_boolean BOOLEAN,
     val_date    DATE,
-    val_numeric NUMERIC(15, 4), -- Защита точности float
+    val_int     INTEGER,
+    val_float   DOUBLE PRECISION,
     
     -- Проверка: заполнено ровно одно поле
     CONSTRAINT check_single_value CHECK (
         (val_text IS NOT NULL)::int + 
         (val_boolean IS NOT NULL)::int + 
         (val_date IS NOT NULL)::int + 
-        (val_numeric IS NOT NULL)::int = 1
+        (val_int IS NOT NULL)::int + 
+        (val_float IS NOT NULL)::int = 1
     ),
     UNIQUE (movie_id, attr_id)
 );
@@ -173,13 +175,14 @@ CREATE INDEX IF NOT EXISTS idx_eav_movie ON cinema.movie_attribute_values(movie_
 CREATE INDEX IF NOT EXISTS idx_eav_attr ON cinema.movie_attribute_values(attr_id);
 
 -- 4. Наполнение данными (Inception)
-INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, val_text, val_boolean, val_date, val_numeric)
+INSERT INTO cinema.movie_attribute_values (movie_id, attr_id, val_text, val_boolean, val_date, val_int, val_float)
 SELECT 
     m.id, 
     a.id,
     CASE WHEN a.name = 'рецензия критиков' THEN 'Шедевр визуализации' END,
     CASE WHEN a.name = 'оскар' THEN TRUE END,
     CASE WHEN a.name = 'мировая премьера' THEN '2026-03-23'::DATE END,
+    NULL,
     CASE WHEN a.name = 'IMDb Rating' THEN 8.8000 END
 FROM cinema.movies m, cinema.attributes a 
 WHERE m.title = 'Inception' 
@@ -195,7 +198,8 @@ SELECT
         val_text, 
         val_boolean::text, 
         val_date::text, 
-        val_numeric::text
+        val_int::text, 
+        val_float::text
     ) as значение
 FROM cinema.movies m
 JOIN cinema.movie_attribute_values av ON m.id = av.movie_id
