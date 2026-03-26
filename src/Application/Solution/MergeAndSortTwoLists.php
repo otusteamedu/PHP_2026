@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aharutyunyan\OtusSevenApp\Application\Solution;
+
+class MergeAndSortTwoLists
+{
+    function mergeTwoLists(array $list1, array $list2): array
+    {
+        $res = [];
+        $isList2Largest = count($list2) > count($list1);
+
+        $largest = $isList2Largest ? $list2 : $list1;
+        $smallest = $isList2Largest ? $list1 : $list2;
+
+        foreach ($largest as $i => $item) {
+            if ($largest[$i] >= $smallest[$i]) {
+                if (isset($smallest[$i])) {
+                    $res[] = $smallest[$i];
+                }
+
+                if (isset($largest[$i])) {
+                    $res[] = $largest[$i];
+                }
+                continue;
+            }
+            if (isset($largest[$i])) {
+                $res[] = $largest[$i];
+            }
+
+            if (isset($smallest[$i])) {
+                $res[] = $smallest[$i];
+            }
+        }
+
+        return $res;
+    }
+}

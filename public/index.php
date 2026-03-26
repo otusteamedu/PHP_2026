@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$case = new \Aharutyunyan\OtusSevenApp\Application\Solution\MergeAndSortTwoLists();
+$result = $case->mergeTwoLists([1,2,4], [1,3,4, 6, 88]);
+
+
+//$result = $case->mergeTwoLists([], [0]);
+
+echo '<pre>';
+print_r($result);
+echo '</pre>';
