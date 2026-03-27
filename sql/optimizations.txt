@@ -1,0 +1,34 @@
+Оптимизации (датасет 10000000 строк, explain_plans_output_2.txt)
+********************************************************************************
+
+1. Функциональный индекс по дате сеанса — Query 1, Query 3
+   Проблема: фильтр starts_at::date = CURRENT_DATE не позволяет использовать
+   индекс, PostgreSQL сканирует всю таблицу session и отбрасывает ~97% строк.
+   Решение А: CREATE INDEX idx_session_date ON session((starts_at::date));
+   Решение Б: заменить фильтр на диапазон —
+     starts_at >= CURRENT_DATE::timestamptz
+     AND starts_at < (CURRENT_DATE + 1)::timestamptz
+   Эффект: 255 ms и 102 ms -> единицы ms.
+
+2. DISTINCT -> EXISTS — Query 1
+   Проблема: SELECT DISTINCT сортирует весь результат для дедупликации.
+   Решение: переписать через EXISTS — поиск останавливается на первом найденном
+   сеансе фильма, сортировка и дедупликация не нужны.
+   Эффект: убирает лишний Sort + Unique.
+
+3. Увеличить work_mem — Query 4
+   Проблема: сортировка при GROUP BY спиллится на диск (~4 МБ на каждый воркер).
+   Решение: SET work_mem = '32MB';
+   Эффект: 302 ms -> ~200 ms, убирает I/O на temp-файлы.
+
+4. Покрывающий индекс по ticket — Query 4
+   Проблема: после поиска по idx_ticket_sold_at PostgreSQL делает 3053 обращения
+   к heap за колонками session_id и price.
+   Решение: CREATE INDEX idx_ticket_sold_covering ON ticket(sold_at)
+                INCLUDE (session_id, price);
+   Эффект: Index Only Scan без обращений к heap.
+
+5. Индекс на session(movie_id) — Query 4
+   Проблема: join с movie идёт через Seq Scan по всей таблице movie (~1 млн строк).
+   Решение: CREATE INDEX idx_session_movie ON session(movie_id);
+   Эффект: снижает стоимость join с movie.

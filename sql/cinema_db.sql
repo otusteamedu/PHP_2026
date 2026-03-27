@@ -13,7 +13,8 @@ INSERT INTO attribute_types (code, name) VALUES
 ('text',      'Текст'),
 ('date',      'Дата'),
 ('boolean',   'Логическое'),
-('numeric',   'Число'),
+('integer',   'Целое число'),
+('float',     'Дробное число'),
 ('timestamp', 'Дата и время');
 
 -- 2. movie
@@ -44,7 +45,8 @@ CREATE TABLE attribute_values (
     value_text TEXT,
     value_date DATE,
     value_boolean BOOLEAN,
-    value_numeric FLOAT,
+    value_integer INT,
+    value_float FLOAT,
     value_timestamp TIMESTAMPTZ,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT fk_attribute_values_movie FOREIGN KEY (movie_id) REFERENCES movie(id),
@@ -53,7 +55,8 @@ CREATE TABLE attribute_values (
             (value_text IS NOT NULL)::int +
             (value_date IS NOT NULL)::int +
             (value_boolean IS NOT NULL)::int +
-            (value_numeric IS NOT NULL)::int +
+            (value_integer IS NOT NULL)::int +
+            (value_float IS NOT NULL)::int +
             (value_timestamp IS NOT NULL)::int = 1
         )
 );
@@ -65,9 +68,10 @@ CREATE INDEX idx_attribute_values_movie_attr ON attribute_values(movie_id, attri
 CREATE INDEX idx_attribute_values_date ON attribute_values(value_date) WHERE value_date IS NOT NULL;
 CREATE INDEX idx_attribute_values_timestamp ON attribute_values(value_timestamp) WHERE value_timestamp IS NOT NULL;
 CREATE INDEX idx_attribute_values_true ON attribute_values(attribute_id, movie_id) WHERE value_boolean = true;
-CREATE INDEX idx_attribute_values_numeric ON attribute_values(value_numeric) WHERE value_numeric IS NOT NULL;
+CREATE INDEX idx_attribute_values_integer ON attribute_values(value_integer) WHERE value_integer IS NOT NULL;
+CREATE INDEX idx_attribute_values_float ON attribute_values(value_float) WHERE value_float IS NOT NULL;
 
--- attribute_type_id: 1=text, 2=date, 3=boolean, 4=numeric, 5=timestamp
+-- attribute_type_id: 1=text, 2=date, 3=boolean, 4=integer, 5=float, 6=timestamp
 -- Премии (boolean)
 INSERT INTO attributes (code, name, attribute_type_id, is_required) VALUES
 ('oscar', 'Оскар', 3, false),
@@ -82,8 +86,8 @@ INSERT INTO attributes (code, name, attribute_type_id, is_required) VALUES
 ('unknown_academy_review', 'Отзыв неизвестной киноакадемии',   1, false);
 -- Служебные даты (timestamp)
 INSERT INTO attributes (code, name, attribute_type_id, is_required) VALUES
-('ads_start', 'Запуск рекламы на ТВ', 5, false),
-('ticket_sales_start', 'Начало продажи билетов', 5, false);
+('ads_start', 'Запуск рекламы на ТВ', 6, false),
+('ticket_sales_start', 'Начало продажи билетов', 6, false);
 
 
 INSERT INTO movie (title, release_year) VALUES
