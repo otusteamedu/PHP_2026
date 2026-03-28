@@ -8,7 +8,8 @@ SELECT
             av.value_text,
             to_char(av.value_date, 'YYYY-MM-DD'),
             av.value_boolean::text,
-            av.value_numeric::text
+            av.value_integer::text,
+            av.value_float::text
     ) AS value
 FROM attribute_values av
 JOIN attributes a ON a.id = av.attribute_id
