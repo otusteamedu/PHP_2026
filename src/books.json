@@ -1,0 +1,7 @@
+[
+  {"title": "Рыцари круглого стола", "category": "historical_novel", "price": 1500, "stock": 10},
+  {"title": "История рыцарства", "category": "historical_novel", "price": 1800, "stock": 5},
+  {"title": "Король Артур", "category": "historical_novel", "price": 2500, "stock": 2},
+  {"title": "Программирование на PHP", "category": "it", "price": 1200, "stock": 20}
+]
+
