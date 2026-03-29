@@ -1,0 +1,28 @@
+services:
+  nginx:    
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: ${APP_NAME}-nginx
+    ports:
+      - "${APP_WEB_PORT}:80"    
+    depends_on:
+      - php
+    networks:
+      - front
+
+  php:    
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/php/Dockerfile    
+    container_name: ${APP_NAME}_php
+    networks:
+      - front    
+  
+networks:
+  front:
+    driver: bridge
