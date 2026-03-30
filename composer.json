@@ -1,0 +1,12 @@
+{
+    "name": "evgeny87/redis-lab",
+    "description": "Redis Event Management System",
+    "autoload": {
+        "psr-4": {
+            "Evgeny87\\RedisLab\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.4"
+    }
+}

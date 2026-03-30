@@ -1,0 +1,50 @@
+services:
+  php:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: evgeny87_php
+    volumes:
+      - .:/var/www/html
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - backend_isolated
+    restart: always
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: evgeny87_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - backend_isolated
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    restart: always
+
+  angie:
+    image: ${ANGIE_VERSION}
+    container_name: evgeny87_angie
+    ports:
+      - "80:80"
+    volumes:
+      - ./angie.conf:/etc/angie/http.d/default.conf:ro
+      - .:/var/www/html:ro
+    networks:
+      - backend_isolated
+    depends_on:
+      - php
+    restart: always
+
+  redisinsight:
+    image: redis/redisinsight:${REDIS_INSIGHT_VERSION}
+    container_name: evgeny87_redisinsight
+    ports:
+      - "8001:5540"
+    networks:
+      - backend_isolated
+    restart: always
+
+networks:
+  backend_isolated:
+    driver: bridge
