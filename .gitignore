@@ -19,6 +19,5 @@
 
 # Docker
 .docker/
-EOF
 
 /public/index.php

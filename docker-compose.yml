@@ -1,6 +1,6 @@
 services:
   php:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: evgeny87_php
@@ -11,6 +11,11 @@ services:
     networks:
       - backend_isolated
     restart: always
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   redis:
     image: redis:${REDIS_VERSION}
@@ -20,6 +25,9 @@ services:
       - backend_isolated
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
 
   angie:
@@ -44,6 +52,23 @@ services:
     networks:
       - backend_isolated
     restart: always
+
+  mongodb:
+    image: mongo:${MONGODB_VERSION}
+    container_name: evgeny87_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    networks:
+      - backend_isolated
+    restart: always
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   backend_isolated:
