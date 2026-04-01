@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aharutyunyan\Hw\Domain\Email\Validator;
+
+use Aharutyunyan\Hw\Domain\Email\ValidationResult;
+use Aharutyunyan\Hw\Domain\Email\ValueObject\Email;
+
+interface EmailValidatorInterface
+{
+    public function validate(Email $email): ValidationResult;
+}

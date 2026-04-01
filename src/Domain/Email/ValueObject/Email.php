@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aharutyunyan\Hw\Domain\Email\ValueObject;
+
+final class Email {
+    private string $email;
+
+    public function __construct(string $email)
+    {
+        $this->email = $this->normalize($email);
+    }
+
+    private function normalize(string $email): string
+    {
+        $email = trim(strtolower($email));
+
+        if (empty($email) || !str_contains($email, '@')) {
+            throw new \InvalidArgumentException('Invalid email format');
+        }
+
+        return $email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+}

@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aharutyunyan\Hw\Infrastructure\Validator\Strategy;
+
+use Aharutyunyan\Hw\Domain\Email\ValidationResult;
+use Aharutyunyan\Hw\Domain\Email\Validator\EmailValidatorInterface;
+use Aharutyunyan\Hw\Domain\Email\ValueObject\Email;
+
+final class DisposableEmailValidator implements EmailValidatorInterface
+{
+    private array $disposableDomains = [
+        'tempmail.com', 'throwaway.com', 'mailinator.com'
+    ];
+
+    public function validate(Email $email): ValidationResult
+    {
+        $domain = explode('@', $email->getEmail())[1] ?? '';
+
+        if (in_array($domain, $this->disposableDomains)) {
+            return new ValidationResult(false, 'Disposable email not allowed');
+        }
+
+        return new ValidationResult(true);
+    }
+}
