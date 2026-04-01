@@ -1,5 +1,23 @@
+# IDE и системные файлы
 .idea/
-/vendor/
+.vscode/
+*.swp
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Зависимости PHP
+/vendor/
+
+# Переменные окружения
+.env
+.env.example
+
+# Логи и временные файлы
+*.log
+/src/*.log
+
+# Docker
+.docker/
+
+/public/index.php

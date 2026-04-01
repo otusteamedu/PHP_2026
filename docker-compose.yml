@@ -1,0 +1,75 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evgeny87_php
+    volumes:
+      - .:/var/www/html
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - backend_isolated
+    restart: always
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: evgeny87_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - backend_isolated
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  angie:
+    image: ${ANGIE_VERSION}
+    container_name: evgeny87_angie
+    ports:
+      - "80:80"
+    volumes:
+      - ./angie.conf:/etc/angie/http.d/default.conf:ro
+      - .:/var/www/html:ro
+    networks:
+      - backend_isolated
+    depends_on:
+      - php
+    restart: always
+
+  redisinsight:
+    image: redis/redisinsight:${REDIS_INSIGHT_VERSION}
+    container_name: evgeny87_redisinsight
+    ports:
+      - "8001:5540"
+    networks:
+      - backend_isolated
+    restart: always
+
+  mongodb:
+    image: mongo:${MONGODB_VERSION}
+    container_name: evgeny87_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    networks:
+      - backend_isolated
+    restart: always
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  backend_isolated:
+    driver: bridge
