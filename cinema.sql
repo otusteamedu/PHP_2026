@@ -19,10 +19,7 @@ CREATE TABLE cinema_halls
 (
     id        SERIAL PRIMARY KEY,
     cinema_id INT          NOT NULL,
-    name      VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_cinema_halls_cinema_id
-        FOREIGN KEY (cinema_id) REFERENCES cinemas (id)
-            ON DELETE CASCADE
+    name      VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE seat_types
@@ -37,9 +34,7 @@ CREATE TABLE cinema_hall_seats
     hall_id     INT NOT NULL,
     type_id     INT NOT NULL,
     seat_row    INT NOT NULL,
-    seat_number INT NOT NULL,
-    CONSTRAINT unique_hall_id_seat_row_seat_number
-        UNIQUE (hall_id, seat_row, seat_number)
+    seat_number INT NOT NULL
 );
 
 CREATE TABLE films
@@ -74,9 +69,7 @@ CREATE TABLE tickets
     cinema_hall_seat_id INT           NOT NULL,
     price               INT           NOT NULL,
     status              ticket_status DEFAULT 'paid',
-    paid_at             TIMESTAMP     NOT NULL, -- время оплаты
-    CONSTRAINT unique_screening_id_cinema_hall_seat_id
-        UNIQUE (screening_id, cinema_hall_seat_id)
+    paid_at             TIMESTAMP     NOT NULL
 );
 
 CREATE TABLE prices
@@ -85,7 +78,5 @@ CREATE TABLE prices
     value          INT NOT NULL,
     film_id        INT NOT NULL,
     seat_type_id   INT NOT NULL,
-    cinema_hall_id INT NOT NULL,
-    CONSTRAINT unique_film_id_seat_type_id_cinema_hall_id
-        UNIQUE (film_id, seat_type_id, cinema_hall_id)
+    cinema_hall_id INT NOT NULL
 );
