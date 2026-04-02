@@ -30,11 +30,13 @@ CREATE TABLE IF NOT EXISTS attribute_values
     value_boolean BOOLEAN,
     value_date    DATE,
     value_float   NUMERIC(12, 4),
+    value_int     INTEGER,
     CONSTRAINT chk_one_value CHECK (
         (value_text IS NOT NULL):: integer +
         (value_boolean IS NOT NULL):: integer +
         (value_date IS NOT NULL):: integer +
-        (value_float IS NOT NULL):: integer = 1
+        (value_float IS NOT NULL):: integer +
+        (value_int IS NOT NULL):: integer = 1
     ),
     UNIQUE (movie_id, attribute_id)
 );
@@ -49,6 +51,7 @@ SELECT
         WHEN a.data_type = 'boolean' THEN CASE WHEN av.value_boolean THEN 'Да' ELSE 'Нет' END
         WHEN a.data_type = 'date'    THEN to_char(av.value_date, 'YYYY-MM-DD')
         WHEN a.data_type = 'float'   THEN av.value_float::text
+        WHEN a.data_type = 'int'   THEN av.value_float::text
         ELSE NULL
         END AS value
 FROM movies m
