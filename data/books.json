@@ -1,0 +1,22 @@
+[
+  {"title": "Рыцари", "category": "Историческое", "price": 2000, "stock": 12},
+  {"title": "Рыцарские бои", "category": "Историческое", "price": 1450, "stock": 3},
+  {"title": "Рыцари 2", "category": "Категория1", "price": 650, "stock": 7},
+  {"title": "Книга4", "category": "Категория1", "price": 750, "stock": 20},
+  {"title": "Книга5", "category": "Категория1", "price": 540, "stock": 15},
+  {"title": "Книга6", "category": "Категория2", "price": 490, "stock": 8},
+  {"title": "Книга7", "category": "Категория2", "price": 420, "stock": 5},
+  {"title": "Книга8", "category": "Категория2", "price": 680, "stock": 18},
+  {"title": "Книга9", "category": "Категория3", "price": 920, "stock": 6},
+  {"title": "Книга10", "category": "Категория4", "price": 580, "stock": 10},
+  {"title": "Книга11", "category": "Категория4", "price": 1800, "stock": 25},
+  {"title": "Книга12", "category": "Категория4", "price": 720, "stock": 30},
+  {"title": "Книга13", "category": "Категория5", "price": 990, "stock": 14},
+  {"title": "Книга14", "category": "Категория5", "price": 860, "stock": 9},
+  {"title": "Книга15", "category": "Категория5", "price": 620, "stock": 11},
+  {"title": "Книга16", "category": "Категория5", "price": 780, "stock": 7},
+  {"title": "Книга17", "category": "Категория5", "price": 1200, "stock": 22},
+  {"title": "Книга18", "category": "Категория5", "price": 1750, "stock": 4},
+  {"title": "Книга19", "category": "Категория6", "price": 2100, "stock": 0},
+  {"title": "Книга20", "category": "Категория6", "price": 380, "stock": 3}
+]
