@@ -1,3 +1,14 @@
-# PHP_2026
+1. Скрипт создания БД (с предыдущих занятий)
+ [cinema.sql](cinema.sql)
+2. Скрипт заполнения БД тестовыми данными
+ [inserts.sql](inserts.sql)
+3. Таблица с результатами по каждому из 6 запросов
+ [таблица](https://docs.google.com/spreadsheets/d/16rVeo0KcNr_neqWs1EP4Z2lp2UH2OFxB9RygDdzb8jc/edit?usp=sharing)
+4. Отсортированный список (15 значений) самых больших по размеру объектов БД (таблицы, включая индексы, сами индексы)
+ [top-15.sql](top-15.sql)
+5. Отсортированные списки (по 5 значений) самых часто и редко используемых индексов
+ [top-5.sql](top-5.sql)
+6. Сами запросы
+ [queries.sql](queries.sql)
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+В таблицах убраны внешние ключи и уникальные индексы, чтобы облегчить массовую вставку данных.
