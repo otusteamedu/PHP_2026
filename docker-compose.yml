@@ -1,0 +1,97 @@
+services:
+  nginx:
+    container_name: ${IMAGES_PREFIX}_nginx
+    image: nginx:latest
+    restart: always
+    build:
+      dockerfile: .docker/nginx/Dockerfile
+      args:
+        uid: 1000
+    volumes:
+      - .docker/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www/app
+    depends_on:
+      - php
+    links:
+      - php
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      php-2026:
+    ports:
+      - "${NGINX_PORT_OUT}:80"
+
+  mysql:
+    container_name: ${IMAGES_PREFIX}_mysql
+    restart: always
+    ports:
+      - ${MYSQL_PORT_OUT}:3306
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - .docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      php-2026:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Europe/Moscow
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+
+  percona:
+    image: percona/percona-server:8.0
+    container_name: percona
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PERCONA_PASSWORD}
+      MYSQL_DATABASE: ${PERCONA_DB}
+      MYSQL_USER: ${PERCONA_USER}
+      MYSQL_PASSWORD: ${PERCONA_PASSWORD}
+      TZ: Europe/Moscow
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+    ports:
+      - ${PERCONA_PORT_OUT}:3306
+    volumes:
+      - percona_data:/var/lib/mysql
+      - .docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+
+  php:
+    container_name: ${IMAGES_PREFIX}_php
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        uid: 1000
+    working_dir: /var/www/app
+    restart: always
+    volumes:
+      - ./:/var/www/app:delegated
+      - ./data/cfg:/usr/local/share:delegated
+      - ./docker/php/fpm/xdebug.ini:/usr/local/etc/php/conf.d/zz-xdebug.ini
+    ports:
+      - 9000
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      php-2026:
+    environment:
+      CORS_ALLOW_ORIGIN: '*'
+
+networks:
+  php-2026:
+    external: true
+    driver: bridge
+
+volumes:
+  mysql_data:
+  percona_data:
