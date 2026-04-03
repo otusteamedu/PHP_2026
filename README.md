@@ -39,6 +39,12 @@ sql/
 ├── query_6_price_range.sql     # Запрос: диапазон цен на конкретный сеанс
 ├── explain_plans.sql           # EXPLAIN ANALYZE для всех 6 запросов
 ├── explain_plans_output_1.txt  # Планы на БД 10000 строк
-├── explain_plans_output_2.txt  # Планы на БД 10000000 строк
-└── optimizations.txt           # Перечень оптимизаций с пояснениями
+├── explain_plans_output_2.txt  # Планы на БД 10000000 строк (до оптимизаций)
+├── explain_plans_output_3.txt  # Планы на БД 10000000 строк (после оптимизаций)
+└── optimizations.txt           # Анализ индексов, сводная таблица, оптимизации
 ```
+
+## Индексирование
+
+Все индексы создаются в `cinema_db.sql` и `cinema_operational.sql`. Обоснование каждого индекса - в комментариях прямо в DDL.
+Проблемные запросы на датасете 10M строк и применённые оптимизации - в `optimizations.txt`.

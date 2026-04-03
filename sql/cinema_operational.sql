@@ -39,8 +39,23 @@ CREATE TABLE ticket (
     UNIQUE (session_id, seat_id)
 );
 
+-- idx_session_starts_at: обслуживает Query 1 и Query 3 (фильтр по дате сеанса).
+-- Примечание: фильтр вида starts_at::date = CURRENT_DATE НЕ использует этот индекс
+-- (каст снимает sargability). Для его использования нужен функциональный индекс
+-- idx_session_date (см. sql/indexes_after.sql) или переписать фильтр на диапазон.
+-- Индекс полезен для диапазонных запросов без каста: starts_at >= ... AND starts_at < ...
 CREATE INDEX idx_session_starts_at ON session(starts_at);
+
+-- idx_ticket_session: обслуживает Query 5 (схема зала) и Query 6 (диапазон цен).
+-- Оба запроса ищут билеты по конкретному session_id = $id.
+-- Без индекса: Seq Scan по всей таблице ticket.
+-- С индексом: Index Scan / Bitmap Index Scan — сотни строк вместо всей таблицы.
 CREATE INDEX idx_ticket_session ON ticket(session_id);
+
+-- idx_ticket_sold_at: обслуживает Query 2 (счётчик за неделю) и Query 4 (топ-3 по выручке).
+-- Оба запроса фильтруют ticket.sold_at >= date_trunc('day', now()) - interval '6 days'.
+-- На большом датасете даёт Index Only Scan для Query 2 (0,2 ms вместо Seq Scan).
+-- Для Query 4 используется как Bitmap Index Scan, ограничивая выборку нужными строками.
 CREATE INDEX idx_ticket_sold_at ON ticket(sold_at);
 
 -- Тестовые данные
