@@ -1,0 +1,60 @@
+Оптимизации (датасет 10000000 строк, explain_plans_output_2.txt)
+********************************************************************************
+
+Сводная таблица: запрос → индекс → тип сканирования
+--------------------------------------------------------------------------------
+
+Запрос                 | Индекс                            | Тип сканирования  | Время
+-----------------------|-----------------------------------|-------------------|--------
+Q1: фильмы на сегодня  | idx_session_starts_at (не исп.)   | Seq Scan          | 255 ms
+Q2: билеты за неделю   | idx_ticket_sold_at                | Index Only Scan   | 8 ms
+Q3: афиша              | idx_session_starts_at (не исп.)   | Seq Scan          | 102 ms
+Q4: топ-3 по выручке   | idx_ticket_sold_at                | Bitmap Heap Scan  | 302 ms
+Q4: топ-3 по выручке   | —                                 | Seq Scan          | (в составе Q4)
+Q5: схема зала         | session_pkey                      | Index Scan        | <1 ms
+Q5: схема зала         | seat_hall_id_row_num_seat_num_key | Bitmap Index Scan | <1 ms
+Q5: схема зала         | idx_ticket_session                | Index Scan        | <1 ms
+Q6: диапазон цен       | idx_ticket_session                | Index Scan        | 0.01 ms
+
+Почему idx_session_starts_at не работает для Q1/Q3:
+  Фильтр starts_at::date = CURRENT_DATE применяет функцию к каждой строке —
+  индекс по значению колонки не подходит. PostgreSQL сканирует все 2 000 000 строк
+  и отбрасывает ~97% (Rows Removed by Filter: 644445 на каждый воркер).
+  Решение: диапазонный фильтр без функции — оптимизация №1 ниже.
+
+********************************************************************************
+
+1. Диапазонный фильтр вместо ::date — Query 1, Query 3
+   Проблема: фильтр starts_at::date = CURRENT_DATE не позволяет использовать
+   idx_session_starts_at — функция ::date на TIMESTAMPTZ не иммутабельна
+   (зависит от timezone), PostgreSQL сканирует всю таблицу (~97% строк отброшено).
+   Функциональный индекс ON session((starts_at::date)) тоже не создать:
+     ERROR: functions in index expression must be marked IMMUTABLE
+   Решение: заменить фильтр на диапазон (использует существующий idx_session_starts_at):
+     starts_at >= CURRENT_DATE::timestamptz
+     AND starts_at < (CURRENT_DATE + 1)::timestamptz
+   Реализовано в: query_1_movies_today.sql, query_3_poster.sql
+   Эффект: 255 ms и 102 ms -> единицы ms.
+
+2. DISTINCT -> EXISTS — Query 1
+   Проблема: SELECT DISTINCT сортирует весь результат для дедупликации.
+   Решение: переписать через EXISTS — поиск останавливается на первом найденном
+   сеансе фильма, сортировка и дедупликация не нужны.
+   Эффект: убирает лишний Sort + Unique.
+
+3. Увеличить work_mem — Query 4
+   Проблема: сортировка при GROUP BY спиллится на диск (~4 МБ на каждый воркер).
+   Решение: SET work_mem = '32MB';
+   Эффект: 302 ms -> ~200 ms, убирает I/O на temp-файлы.
+
+4. Покрывающий индекс по ticket — Query 4
+   Проблема: после поиска по idx_ticket_sold_at PostgreSQL делает 3053 обращения
+   к heap за колонками session_id и price.
+   Решение: CREATE INDEX idx_ticket_sold_covering ON ticket(sold_at)
+                INCLUDE (session_id, price);
+   Эффект: Index Only Scan без обращений к heap.
+
+5. Индекс на session(movie_id) — Query 4
+   Проблема: join с movie идёт через Seq Scan по всей таблице movie (~1 млн строк).
+   Решение: CREATE INDEX idx_session_movie ON session(movie_id);
+   Эффект: снижает стоимость join с movie.

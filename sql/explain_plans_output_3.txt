@@ -1,0 +1,194 @@
+
+*** Query 1: Все фильмы на сегодня ***
+                                                                        QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Unique  (cost=48658.43..49724.55 rows=8334 width=30) (actual time=52.047..53.569 rows=0 loops=1)
+   Buffers: shared hit=2710 read=16140
+   ->  Gather Merge  (cost=48658.43..49662.05 rows=8334 width=30) (actual time=52.046..53.569 rows=0 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=2710 read=16140
+         ->  Unique  (cost=47658.41..47700.08 rows=4167 width=30) (actual time=50.546..50.547 rows=0 loops=3)
+               Buffers: shared hit=2710 read=16140
+               ->  Sort  (cost=47658.41..47668.82 rows=4167 width=30) (actual time=50.545..50.547 rows=0 loops=3)
+                     Sort Key: m.title, m.id, m.release_year
+                     Sort Method: quicksort  Memory: 25kB
+                     Buffers: shared hit=2710 read=16140
+                     Worker 0:  Sort Method: quicksort  Memory: 25kB
+                     Worker 1:  Sort Method: quicksort  Memory: 25kB
+                     ->  Parallel Hash Join  (cost=33327.42..47407.87 rows=4167 width=30) (actual time=50.513..50.514 rows=0 loops=3)
+                           Hash Cond: (m.id = se.movie_id)
+                           Buffers: shared hit=2606 read=16140
+                           ->  Parallel Seq Scan on movie m  (cost=0.00..12500.67 rows=416667 width=30) (never executed)
+                           ->  Parallel Hash  (cost=33275.33..33275.33 rows=4167 width=8) (actual time=50.430..50.430 rows=0 loops=3)
+                                 Buckets: 16384  Batches: 1  Memory Usage: 0kB
+                                 Buffers: shared hit=2552 read=16140
+                                 ->  Parallel Seq Scan on session se  (cost=0.00..33275.33 rows=4167 width=8) (actual time=50.349..50.349 rows=0 loops=3)
+                                       Filter: ((starts_at)::date = CURRENT_DATE)
+                                       Rows Removed by Filter: 666667
+                                       Buffers: shared hit=2552 read=16140
+ Planning:
+   Buffers: shared hit=231 read=8
+ Planning Time: 0.633 ms
+ Execution Time: 53.634 ms
+(29 rows)
+
+
+*** Query 2: Подсчёт проданных билетов за неделю ***
+                                                                   QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1479.01..1479.02 rows=1 width=8) (actual time=3.643..3.643 rows=1 loops=1)
+   Buffers: shared hit=57
+   ->  Index Only Scan using idx_ticket_sold_at on ticket  (cost=0.43..1321.19 rows=63129 width=0) (actual time=0.019..2.115 rows=63333 loops=1)
+         Index Cond: (sold_at >= (date_trunc('day'::text, now()) - '6 days'::interval))
+         Heap Fetches: 0
+         Buffers: shared hit=57
+ Planning:
+   Buffers: shared hit=84 read=4
+ Planning Time: 0.159 ms
+ Execution Time: 3.653 ms
+(10 rows)
+
+
+*** Query 3: Афиша - фильмы с сеансами на сегодня ***
+                                                                     QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather Merge  (cost=48718.39..49690.76 rows=8334 width=108) (actual time=48.595..50.035 rows=0 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=2849 read=16044
+   ->  Sort  (cost=47718.37..47728.79 rows=4167 width=108) (actual time=47.513..47.520 rows=0 loops=3)
+         Sort Key: se.starts_at
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=2849 read=16044
+         Worker 0:  Sort Method: quicksort  Memory: 25kB
+         Worker 1:  Sort Method: quicksort  Memory: 25kB
+         ->  Hash Join  (cost=33366.00..47467.83 rows=4167 width=108) (actual time=47.492..47.499 rows=0 loops=3)
+               Hash Cond: (se.hall_id = h.id)
+               Buffers: shared hit=2775 read=16044
+               ->  Parallel Hash Join  (cost=33327.42..47407.87 rows=4167 width=48) (actual time=47.443..47.448 rows=0 loops=3)
+                     Hash Cond: (m.id = se.movie_id)
+                     Buffers: shared hit=2678 read=16044
+                     ->  Parallel Seq Scan on movie m  (cost=0.00..12500.67 rows=416667 width=28) (never executed)
+                     ->  Parallel Hash  (cost=33275.33..33275.33 rows=4167 width=36) (actual time=47.381..47.381 rows=0 loops=3)
+                           Buckets: 16384  Batches: 1  Memory Usage: 0kB
+                           Buffers: shared hit=2648 read=16044
+                           ->  Parallel Seq Scan on session se  (cost=0.00..33275.33 rows=4167 width=36) (actual time=47.332..47.332 rows=0 loops=3)
+                                 Filter: ((starts_at)::date = CURRENT_DATE)
+                                 Rows Removed by Filter: 666667
+                                 Buffers: shared hit=2648 read=16044
+               ->  Hash  (cost=22.70..22.70 rows=1270 width=36) (actual time=0.007..0.008 rows=4 loops=3)
+                     Buckets: 2048  Batches: 1  Memory Usage: 17kB
+                     Buffers: shared hit=3
+                     ->  Seq Scan on hall h  (cost=0.00..22.70 rows=1270 width=36) (actual time=0.005..0.005 rows=4 loops=3)
+                           Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=124 read=1
+ Planning Time: 0.229 ms
+ Execution Time: 50.054 ms
+(33 rows)
+
+
+*** Query 4: Топ-3 самых прибыльных фильма за неделю ***
+                                                                                            QUERY PLAN
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=53901.42..53901.43 rows=3 width=44) (actual time=84.568..86.809 rows=3 loops=1)
+   Buffers: shared hit=276815 read=5956, temp read=1587 written=1590
+   ->  Sort  (cost=53901.42..54059.24 rows=63129 width=44) (actual time=84.568..86.808 rows=3 loops=1)
+         Sort Key: (sum(t.price)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=276815 read=5956, temp read=1587 written=1590
+         ->  Finalize GroupAggregate  (cost=45461.29..53085.49 rows=63129 width=44) (actual time=74.515..84.940 rows=33333 loops=1)
+               Group Key: m.id
+               Buffers: shared hit=276812 read=5956, temp read=1587 written=1590
+               ->  Gather Merge  (cost=45461.29..52059.64 rows=52608 width=44) (actual time=74.510..81.049 rows=33333 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=276812 read=5956, temp read=1587 written=1590
+                     ->  Partial GroupAggregate  (cost=44461.26..44987.34 rows=26304 width=44) (actual time=73.244..75.661 rows=11111 loops=3)
+                           Group Key: m.id
+                           Buffers: shared hit=276812 read=5956, temp read=1587 written=1590
+                           ->  Sort  (cost=44461.26..44527.02 rows=26304 width=44) (actual time=73.240..73.720 rows=21111 loops=3)
+                                 Sort Key: m.id
+                                 Sort Method: quicksort  Memory: 2252kB
+                                 Buffers: shared hit=276812 read=5956, temp read=1587 written=1590
+                                 Worker 0:  Sort Method: quicksort  Memory: 2255kB
+                                 Worker 1:  Sort Method: quicksort  Memory: 2252kB
+                                 ->  Nested Loop  (cost=14282.45..42530.16 rows=26304 width=44) (actual time=26.692..71.915 rows=21111 loops=3)
+                                       Buffers: shared hit=276796 read=5956, temp read=1587 written=1590
+                                       ->  Merge Join  (cost=14282.03..30307.79 rows=26304 width=24) (actual time=26.675..54.105 rows=21111 loops=3)
+                                             Merge Cond: (se.id = t.session_id)
+                                             Buffers: shared hit=23462 read=5956, temp read=1587 written=1590
+                                             ->  Parallel Index Scan using session_pkey on session se  (cost=0.43..58972.76 rows=833333 width=12) (actual time=0.025..17.112 rows=166661 loops=3)
+                                                   Buffers: shared hit=1444 read=5956
+                                             ->  Sort  (cost=14281.54..14439.36 rows=63129 width=20) (actual time=26.635..29.137 rows=63333 loops=3)
+                                                   Sort Key: t.session_id
+                                                   Sort Method: external sort  Disk: 2120kB
+                                                   Buffers: shared hit=22018, temp read=1587 written=1590
+                                                   Worker 0:  Sort Method: external sort  Disk: 2120kB
+                                                   Worker 1:  Sort Method: external sort  Disk: 2120kB
+                                                   ->  Bitmap Heap Scan on ticket t  (cost=705.68..9248.26 rows=63129 width=20) (actual time=1.916..15.222 rows=63333 loops=3)
+                                                         Recheck Cond: (sold_at >= (date_trunc('day'::text, now()) - '6 days'::interval))
+                                                         Heap Blocks: exact=7280
+                                                         Buffers: shared hit=22010
+                                                         ->  Bitmap Index Scan on idx_ticket_sold_at  (cost=0.00..689.90 rows=63129 width=0) (actual time=1.313..1.313 rows=63333 loops=3)
+                                                               Index Cond: (sold_at >= (date_trunc('day'::text, now()) - '6 days'::interval))
+                                                               Buffers: shared hit=170
+                                       ->  Index Scan using movie_pkey on movie m  (cost=0.42..0.46 rows=1 width=28) (actual time=0.001..0.001 rows=1 loops=63333)
+                                             Index Cond: (id = se.movie_id)
+                                             Buffers: shared hit=253334
+ Planning:
+   Buffers: shared hit=69 read=4
+ Planning Time: 0.302 ms
+ Execution Time: 87.092 ms
+(49 rows)
+
+
+*** Query 5: Схема зала - свободные и занятые места (session_id = 1) ***
+                                                                           QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=39.76..40.17 rows=166 width=36) (actual time=0.085..0.088 rows=120 loops=1)
+   Sort Key: s.row_num, s.seat_num
+   Sort Method: quicksort  Memory: 30kB
+   Buffers: shared hit=2 read=10
+   ->  Hash Left Join  (cost=17.47..33.64 rows=166 width=36) (actual time=0.060..0.078 rows=120 loops=1)
+         Hash Cond: (s.id = t.seat_id)
+         Buffers: shared hit=2 read=10
+         ->  Nested Loop  (cost=5.98..21.71 rows=166 width=12) (actual time=0.036..0.045 rows=120 loops=1)
+               Buffers: shared read=7
+               ->  Index Scan using session_pkey on session se  (cost=0.43..8.45 rows=1 width=8) (actual time=0.021..0.022 rows=1 loops=1)
+                     Index Cond: (id = 1)
+                     Buffers: shared read=4
+               ->  Bitmap Heap Scan on seat s  (cost=5.55..11.62 rows=165 width=12) (actual time=0.013..0.016 rows=120 loops=1)
+                     Recheck Cond: (hall_id = se.hall_id)
+                     Heap Blocks: exact=1
+                     Buffers: shared read=3
+                     ->  Bitmap Index Scan on seat_hall_id_row_num_seat_num_key  (cost=0.00..5.51 rows=165 width=0) (actual time=0.008..0.008 rows=120 loops=1)
+                           Index Cond: (hall_id = se.hall_id)
+                           Buffers: shared read=2
+         ->  Hash  (cost=11.46..11.46 rows=2 width=16) (actual time=0.021..0.021 rows=2 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 9kB
+               Buffers: shared hit=2 read=3
+               ->  Index Scan using idx_ticket_session on ticket t  (cost=0.42..11.46 rows=2 width=16) (actual time=0.018..0.020 rows=2 loops=1)
+                     Index Cond: (session_id = 1)
+                     Buffers: shared hit=2 read=3
+ Planning:
+   Buffers: shared hit=50 read=7
+ Planning Time: 0.201 ms
+ Execution Time: 0.103 ms
+(29 rows)
+
+
+*** Query 6: Диапазон цен на билеты для сеанса (session_id = 1) ***
+                                                             QUERY PLAN
+------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=11.47..11.48 rows=1 width=16) (actual time=0.004..0.004 rows=1 loops=1)
+   Buffers: shared hit=5
+   ->  Index Scan using idx_ticket_session on ticket t  (cost=0.42..11.46 rows=2 width=8) (actual time=0.002..0.002 rows=2 loops=1)
+         Index Cond: (session_id = 1)
+         Buffers: shared hit=5
+ Planning:
+   Buffers: shared hit=10 read=1
+ Planning Time: 0.052 ms
+ Execution Time: 0.009 ms
+(9 rows)
