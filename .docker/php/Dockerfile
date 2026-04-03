@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y \
 RUN pecl install -o -f apcu
 RUN docker-php-ext-enable apcu
 RUN docker-php-ext-install opcache
-
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql pgsql
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
