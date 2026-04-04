@@ -20,5 +20,10 @@ services:
     depends_on:
       - elastic
 
+  php-cli:
+    image: php:8.5-cli
+    volumes:
+      - ./:/app
+
 volumes:
   elastic-data:

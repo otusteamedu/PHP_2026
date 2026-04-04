@@ -15,3 +15,9 @@ docker-down-clear:
 
 docker-build:
 	docker-compose build
+
+cli:
+	docker-compose run --rm php-cli $(ARGS)
+
+script:
+	docker-compose run --rm php-cli ./app/bin/index.php $(ARGS)
