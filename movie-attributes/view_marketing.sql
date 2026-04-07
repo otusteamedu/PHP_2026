@@ -6,7 +6,8 @@ SELECT
     a.name AS attribute_name,
     COALESCE(
         av.value_text, 
-        av.value_number::text, 
+        av.value_int::text,
+        av.value_float::text, 
         TO_CHAR(av.value_date, 'DD.MM.YYYY'), 
         CASE 
             WHEN av.value_boolean = true THEN 'Да' 
