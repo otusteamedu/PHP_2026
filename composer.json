@@ -1,0 +1,17 @@
+{
+    "name": "is/hw10",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "elasticsearch/elasticsearch": "^9.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

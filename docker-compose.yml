@@ -1,0 +1,49 @@
+services:
+  hw10-php-cli:
+    build:
+      context: ./docker/php-cli
+      dockerfile: Dockerfile
+    image: php-cli
+    container_name: hw10-php-cli
+    volumes:
+      - .:/var/www
+    working_dir: /var/www
+    depends_on:
+      - hw10-elasticsearch
+    stdin_open: true
+    tty: true
+    networks:
+      - app-network
+
+  hw10-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.1
+    container_name: hw10-elasticsearch
+    environment:
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+
+  hw10-kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.1
+    container_name: hw10-kibana
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://hw10-elasticsearch:9200"]'
+    depends_on:
+      - hw10-elasticsearch
+    networks:
+      - app-network
+
+volumes:
+  esdata:
+
+networks:
+  app-network:
+    driver: bridge
