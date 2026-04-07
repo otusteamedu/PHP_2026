@@ -20,8 +20,8 @@
 ------------
 1. Запросы на выборку данных
 
-    - scripts/scripts.sql
-    - [Запросы](scripts/SCRIPTS.md)  
+    - [SQL-scripts](scripts/scripts.sql)
+    - [Запросы](scripts/SCRIPTS.md)
 
 2. Таблица с результатами по каждому из 6 запросов:
 
