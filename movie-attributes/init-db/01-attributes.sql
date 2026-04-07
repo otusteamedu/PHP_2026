@@ -1,5 +1,14 @@
 SET search_path TO cinema;
 
+CREATE TABLE movies (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    original_title VARCHAR(255),
+    duration SMALLINT NOT NULL CHECK (duration > 0),
+    release_date DATE,
+    age_rating VARCHAR(10)
+);
+
 CREATE TABLE attribute_groups (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -13,7 +22,7 @@ CREATE TABLE attributes (
     code VARCHAR(50) NOT NULL UNIQUE,
     data_type VARCHAR(20) NOT NULL,
 
-    CHECK (data_type IN ('text', 'boolean', 'date', 'numeric'))
+    CHECK (data_type IN ('text', 'boolean', 'date', 'int', 'float'))
 );
 
 CREATE TABLE attribute_values (
@@ -21,7 +30,8 @@ CREATE TABLE attribute_values (
     movie_id BIGINT NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
     attribute_id INT NOT NULL REFERENCES attributes(id) ON DELETE CASCADE,
     value_text TEXT,
-    value_number NUMERIC,
+    value_int BIGINT,
+    value_float DOUBLE PRECISION,
     value_date DATE,
     value_boolean BOOLEAN,
 
@@ -29,7 +39,8 @@ CREATE TABLE attribute_values (
 
     CHECK (
         (value_text IS NOT NULL)::int +
-        (value_number IS NOT NULL)::int +
+        (value_int IS NOT NULL)::int +
+        (value_float IS NOT NULL)::int +
         (value_date IS NOT NULL)::int +
         (value_boolean IS NOT NULL)::int = 1
     )
