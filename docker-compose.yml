@@ -1,0 +1,43 @@
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    image: hw11-nginx
+    container_name: "${NGINX_CONTAINER_NAME}"
+    volumes:
+      - ./public:/var/www/public
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+      - redis
+    networks:
+      - app-network
+
+  php-fpm:
+    build:
+      context: ./docker/php-fpm
+      dockerfile: Dockerfile
+    image: hw11-php-fpm
+    container_name: "${PHP_CONTAINER_NAME}"
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+    depends_on:
+      - redis
+  redis:
+    build:
+      context: ./docker/redis
+      dockerfile: Dockerfile
+    image: hw11-redis
+    container_name: "${REDIS_CONTAINER_NAME}"
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
