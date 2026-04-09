@@ -1,0 +1,26 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "type": "project",
+    "description": "The skeleton application for the OTUS home work.", 
+    "license": "MIT",
+    "require": {
+        "php": "^8.2"        
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"          
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {            
+        }
+    },
+    "scripts": {        
+    },
+    "extra": {       
+    },
+    "config": {        
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
