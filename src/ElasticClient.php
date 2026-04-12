@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+namespace App;
+
+use Exception;
 
 class ElasticClient
 {
-    private const string BASE_SQL_URL = 'http://elastic:9200/_sql?format=json';
-    public array $headers = [
-        'Content-Type: application/json',
-    ];
+    public const string ACTION_SQL = '_sql';
+    public const string ACTION_OTUS_SHOP = 'otus-shop';
+    private const string BASE_URL = 'http://localhost:9200/';
+
 
     /**
      * @return array{
@@ -17,19 +20,54 @@ class ElasticClient
      * }
      * @throws Exception
      */
-    public function post(): array
+    public function put(string $action, string $data): array
     {
-        $data = ['query' => 'SELECT title, author, published_at FROM articles WHERE is_public = true LIMIT 5'];
+        $options = [
+            CURLOPT_URL => self::BASE_URL . $action,
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS => $data,
+        ];
+
+        return $this->send($options);
+    }
+
+    /**
+     * @return array{
+     *     code : int,
+     *     data : mixed
+     * }
+     * @throws Exception
+     */
+    public function post(string $action, string $data): array
+    {
+        $options = [
+            CURLOPT_URL => self::BASE_URL . $action,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $data,
+        ];
+
+        return $this->send($options);
+    }
+
+    /**
+     * @return array{
+     *     code : int,
+     *     data : mixed
+     * }
+     * @throws Exception
+     */
+    private function send(array $options = []): array
+    {
+        $commonOptions = [
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_RETURNTRANSFER => true,
+        ];
+
+        $options += $commonOptions;
 
         $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => self::BASE_SQL_URL,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => json_encode($data),
-            CURLOPT_HTTPHEADER     => $this->headers,
-            CURLOPT_TIMEOUT        => 10
-        ]);
+        curl_setopt_array($ch, $options);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

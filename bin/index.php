@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+use App\ElasticClient;
+
 include __DIR__ . '/../src/ElasticClient.php';
 
 if (PHP_SAPI !== 'cli') {
