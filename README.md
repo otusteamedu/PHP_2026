@@ -1,3 +1,6 @@
-# PHP_2026
+## Поиск по магазину книг в Elasticsearch
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Для запуска приложения выполните:
+```bash
+make init
+```
