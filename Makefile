@@ -19,5 +19,5 @@ docker-build:
 cli:
 	docker-compose run --rm php-cli $(ARGS)
 
-script:
-	docker-compose run --rm php-cli ./app/bin/index.php $(ARGS)
+composer-install:
+	docker-compose run --rm php-cli composer install

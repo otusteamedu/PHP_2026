@@ -21,7 +21,9 @@ services:
       - elastic
 
   php-cli:
-    image: php:8.5-cli
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./:/app
 
