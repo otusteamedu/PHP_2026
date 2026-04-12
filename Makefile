@@ -1,7 +1,8 @@
-init: docker-down-clear docker-build docker-up
+init: docker-down-clear docker-build docker-up start
 up: docker-up
 down: docker-down
 restart: down up
+start: composer-install wait-elastic create-index
 
 
 docker-up:
@@ -16,8 +17,14 @@ docker-down-clear:
 docker-build:
 	docker-compose build
 
-cli:
-	docker-compose run --rm php-cli $(ARGS)
+create-index:
+	docker-compose run --rm php-cli bin/create_index.php
+
+delete-index:
+	docker-compose run --rm php-cli bin/delete_index.php
 
 composer-install:
 	docker-compose run --rm php-cli composer install
+
+wait-elastic:
+	docker compose run --rm php-cli wait-for-it elastic:9200 -t 30

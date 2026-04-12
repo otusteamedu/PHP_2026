@@ -15,11 +15,11 @@ $client = ClientBuilder::create()
 $shopRepository = new OtusShopRepository($client);
 
 try {
-    $shopRepository->createIndex();
+    $shopRepository->deleteIndex();
 } catch (Exception $exception) {
     echo $exception->getMessage();
     exit(1);
 }
 
-echo 'Индекс успешно создан!' . PHP_EOL;
+echo 'Индекс успешно удален!' . PHP_EOL;
 exit(0);

@@ -22,7 +22,7 @@ services:
 
   php-cli:
     build:
-      context: .
+      context: ./docker
       dockerfile: Dockerfile
     volumes:
       - ./:/app
