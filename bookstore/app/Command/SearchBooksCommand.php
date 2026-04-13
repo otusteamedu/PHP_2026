@@ -65,10 +65,13 @@ final class SearchBooksCommand extends Command
             foreach ($hits as $hit) {
                 $source = $hit['_source'] ?? [];
 
+                $title = $hit['highlight']['title'][0] ?? $source['title'] ?? '';       
+                $category = $hit['highlight']['category'][0] ?? $source['category'] ?? '';
+
                 $table->addRow([
                     $source['sku'] ?? '',
-                    $source['title'] ?? '',
-                    $source['category'] ?? '',
+                    $this->replaceTags($title),
+                    $this->replaceTags($category),
                     (string)($source['price'] ?? ''),
                     (string)($source['stock_total'] ?? 0),
                     isset($hit['_score']) ? number_format((float)$hit['_score'], 4) : '',
@@ -83,5 +86,10 @@ final class SearchBooksCommand extends Command
             $output->writeln("Ошибка при поиске: {$e->getMessage()}");
             return Command::FAILURE;
         }
+    }
+
+    private function replaceTags(string $data): string
+    {
+        return str_replace(['<em>', '</em>'], ['<info>', '</info>'], $data);
     }
 }

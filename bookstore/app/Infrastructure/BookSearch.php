@@ -26,7 +26,8 @@ class BookSearch
                     'fields' => ['title^3', 'category^1.5'],
                     'type' => 'best_fields',
                     'fuzziness' => 'AUTO',
-                    'operator' => 'and',
+                    'operator' => 'or',
+                    'minimum_should_match' => '75%',
                 ],
             ];
         }
@@ -55,8 +56,8 @@ class BookSearch
             ];
         }
 
-        $query = ['match_all' => new \stdClass()]; 
-        
+        $query = ['match_all' => new \stdClass()];
+
         if ($must !== [] || $filter !== []) {
             $query = ['bool' => []];
             if ($must !== [])   $query['bool']['must'] = $must;
@@ -70,6 +71,12 @@ class BookSearch
                 'track_total_hits' => true,
                 'query' => $query,
                 'sort' => $this->buildSort($must !== []),
+                'highlight' => [
+                    'fields' => [
+                        'title' => new \stdClass(),
+                        'category' => new \stdClass(),
+                    ],
+                ],
             ],
         ];
 
@@ -85,5 +92,5 @@ class BookSearch
 
         $sort[] = ['price' => ['order' => 'asc']];
         return $sort;
-    }
+    }    
 }
