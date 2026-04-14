@@ -1,1 +1,115 @@
--- SELECT--     relname AS object_name,--     pg_size_pretty(pg_total_relation_size(relid)) AS size-- FROM pg_catalog.pg_statio_user_tables-- ORDER BY pg_total_relation_size(relid) DESC--     LIMIT 15;---- EXPLAIN-- select *-- from orders-- where seanse_id IN (select id from seanses where start_at  between '2026-01-06' and '2026-04-12');---- EXPLAIN-- select *-- from orders-- join seanses s on orders.seanse_id = s.id-- where s.start_at between '2026-01-06' and '2026-04-12';---- EXPLAIN analyze SELECT--     m.id AS movie_id,--     m.title,--     COUNT(o.id) AS tickets_sold-- FROM orders o--          JOIN seanses s ON o.seanse_id = s.id--          JOIN movies m ON s.movie_id = m.id-- WHERE o.status = 'paid'--   AND s.start_at >= NOW() - INTERVAL '14 days'-- GROUP BY m.id, m.title-- ORDER BY tickets_sold DESC-- LIMIT 1;-- Limit  (cost=214999.04..214999.04 rows=1 width=20) (actual time=2132.269..2136.367 rows=1 loops=1)-- ->  Sort  (cost=214999.04..214999.29 rows=100 width=20) (actual time=2118.006..2122.104 rows=1 loops=1)--          Sort Key: (count(o.id)) DESC--          Sort Method: top-N heapsort  Memory: 25kB--          ->  Finalize GroupAggregate  (cost=214973.20..214998.54 rows=100 width=20) (actual time=2117.894..2122.071 rows=100 loops=1)-- CREATE TABLE seanses_new (--      id       serial,--      room_id  integer       NOT NULL,--      movie_id integer       NOT NULL,--      price    numeric(8,2)  NOT NULL,--      start_at timestamp     NOT NULL,--      PRIMARY KEY (id, start_at),--      CONSTRAINT new_unique_room_datetime UNIQUE (room_id, start_at)-- ) PARTITION BY RANGE (start_at);---- CREATE TABLE seanses_20260401_20260414 PARTITION OF seanses_new--     FOR VALUES FROM ('2026-04-01') TO ('2026-04-15');---- CREATE TABLE seanses_20260415_20260429 PARTITION OF seanses_new--     FOR VALUES FROM ('2026-04-15') TO ('2026-04-29');---- INSERT INTO seanses_new SELECT * FROM seanses;---- ALTER TABLE seanses RENAME TO seanses_old;-- ALTER TABLE seanses_new RENAME TO seanses;-- EXPLAIN analyze SELECT--     m.id AS movie_id,--     m.title,--     COUNT(o.id) AS tickets_sold-- FROM orders o--          JOIN seanses s ON o.seanse_id = s.id--          JOIN movies m ON s.movie_id = m.id-- WHERE o.status = 'paid'--   AND s.start_at >= NOW() - INTERVAL '14 days'-- GROUP BY m.id, m.title-- ORDER BY tickets_sold DESC-- LIMIT 1;-- Execution Time: 11700.217 ms-- explain analyze select * from seanses where start_at >= NOW() - INTERVAL '14 days';--   ->  Seq Scan on seanses_20260401_20260414 seanses_1  (cost=0.00..2486.00 rows=99990 width=26) (actual time=0.081..30.635 rows=100000 loops=1)-- Execution Time: 37.779 ms-- explain analyse select * from seanses_old where start_at >= NOW() - INTERVAL '14 days';--  Seq Scan on seanses_old  (cost=0.00..2486.00 rows=99990 width=26) (actual time=0.072..32.403 rows=100000 loops=1)-- Execution Time: 57.085 ms-- CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_status_seanse ON orders (status, seanse_id);-- EXPLAIN analyze SELECT--                     m.id AS movie_id,--                     m.title,--                     COUNT(o.id) AS tickets_sold--                 FROM orders o--                          JOIN seanses s ON o.seanse_id = s.id--                          JOIN movies m ON s.movie_id = m.id--                 WHERE o.status = 'paid'--                   AND s.start_at >= NOW() - INTERVAL '14 days'--                 GROUP BY m.id, m.title--                 ORDER BY tickets_sold DESC--                 LIMIT 1;-- Execution Time: 8826.280 ms AFTER ADDING INDEX-- explain analyze select * from orders o--                                   JOIN seanses s ON o.seanse_id = s.id--                                   JOIN movies m ON s.movie_id = m.id--                 WHERE o.status = 'paid'--                   AND o.paid_at >= NOW() - INTERVAL '14 days';-- -- Execution Time: 3412.170 ms---- CREATE INDEX idx_orders_paid_at ON orders (paid_at, seanse_id, status);---- ANALYZE orders;---- explain ANALYZE select * from orders o--                   JOIN seanses s ON o.seanse_id = s.id--                   JOIN movies m ON s.movie_id = m.id--                 WHERE o.status = 'paid'--                   AND o.paid_at >= NOW() - INTERVAL '14 days';
+-- SELECT
+--     relname AS object_name,
+--     pg_size_pretty(pg_total_relation_size(relid)) AS size
+-- FROM pg_catalog.pg_statio_user_tables
+-- ORDER BY pg_total_relation_size(relid) DESC
+--     LIMIT 15;
+--
+-- EXPLAIN
+-- select *
+-- from orders
+-- where seanse_id IN (select id from seanses where start_at  between '2026-01-06' and '2026-04-12');
+--
+-- EXPLAIN
+-- select *
+-- from orders
+-- join seanses s on orders.seanse_id = s.id
+-- where s.start_at between '2026-01-06' and '2026-04-12';
+--
+-- EXPLAIN analyze SELECT
+--     m.id AS movie_id,
+--     m.title,
+--     COUNT(o.id) AS tickets_sold
+-- FROM orders o
+--          JOIN seanses s ON o.seanse_id = s.id
+--          JOIN movies m ON s.movie_id = m.id
+-- WHERE o.status = 'paid'
+--   AND s.start_at >= NOW() - INTERVAL '14 days'
+-- GROUP BY m.id, m.title
+-- ORDER BY tickets_sold DESC
+-- LIMIT 1;
+
+-- Limit  (cost=214999.04..214999.04 rows=1 width=20) (actual time=2132.269..2136.367 rows=1 loops=1)
+-- ->  Sort  (cost=214999.04..214999.29 rows=100 width=20) (actual time=2118.006..2122.104 rows=1 loops=1)
+--          Sort Key: (count(o.id)) DESC
+--          Sort Method: top-N heapsort  Memory: 25kB
+--          ->  Finalize GroupAggregate  (cost=214973.20..214998.54 rows=100 width=20) (actual time=2117.894..2122.071 rows=100 loops=1)
+
+-- CREATE TABLE seanses_new (
+--      id       serial,
+--      room_id  integer       NOT NULL,
+--      movie_id integer       NOT NULL,
+--      price    numeric(8,2)  NOT NULL,
+--      start_at timestamp     NOT NULL,
+--      PRIMARY KEY (id, start_at),
+--      CONSTRAINT new_unique_room_datetime UNIQUE (room_id, start_at)
+-- ) PARTITION BY RANGE (start_at);
+--
+-- CREATE TABLE seanses_20260401_20260414 PARTITION OF seanses_new
+--     FOR VALUES FROM ('2026-04-01') TO ('2026-04-15');
+--
+-- CREATE TABLE seanses_20260415_20260429 PARTITION OF seanses_new
+--     FOR VALUES FROM ('2026-04-15') TO ('2026-04-29');
+--
+-- INSERT INTO seanses_new SELECT * FROM seanses;
+--
+-- ALTER TABLE seanses RENAME TO seanses_old;
+-- ALTER TABLE seanses_new RENAME TO seanses;
+
+-- EXPLAIN analyze SELECT
+--     m.id AS movie_id,
+--     m.title,
+--     COUNT(o.id) AS tickets_sold
+-- FROM orders o
+--          JOIN seanses s ON o.seanse_id = s.id
+--          JOIN movies m ON s.movie_id = m.id
+-- WHERE o.status = 'paid'
+--   AND s.start_at >= NOW() - INTERVAL '14 days'
+-- GROUP BY m.id, m.title
+-- ORDER BY tickets_sold DESC
+-- LIMIT 1;
+
+-- Execution Time: 11700.217 ms
+
+
+-- explain analyze select * from seanses where start_at >= NOW() - INTERVAL '14 days';
+--   ->  Seq Scan on seanses_20260401_20260414 seanses_1  (cost=0.00..2486.00 rows=99990 width=26) (actual time=0.081..30.635 rows=100000 loops=1)
+-- Execution Time: 37.779 ms
+-- explain analyse select * from seanses_old where start_at >= NOW() - INTERVAL '14 days';
+--  Seq Scan on seanses_old  (cost=0.00..2486.00 rows=99990 width=26) (actual time=0.072..32.403 rows=100000 loops=1)
+-- Execution Time: 57.085 ms
+
+-- CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_status_seanse ON orders (status, seanse_id);
+
+-- EXPLAIN analyze SELECT
+--                     m.id AS movie_id,
+--                     m.title,
+--                     COUNT(o.id) AS tickets_sold
+--                 FROM orders o
+--                          JOIN seanses s ON o.seanse_id = s.id
+--                          JOIN movies m ON s.movie_id = m.id
+--                 WHERE o.status = 'paid'
+--                   AND s.start_at >= NOW() - INTERVAL '14 days'
+--                 GROUP BY m.id, m.title
+--                 ORDER BY tickets_sold DESC
+--                 LIMIT 1;
+
+-- Execution Time: 8826.280 ms AFTER ADDING INDEX
+
+-- explain analyze select * from orders o
+--                                   JOIN seanses s ON o.seanse_id = s.id
+--                                   JOIN movies m ON s.movie_id = m.id
+--                 WHERE o.status = 'paid'
+--                   AND o.paid_at >= NOW() - INTERVAL '14 days';
+-- -- Execution Time: 3412.170 ms
+--
+-- CREATE INDEX idx_orders_paid_at ON orders (paid_at, seanse_id, status);
+--
+-- ANALYZE orders;
+--
+-- explain ANALYZE select * from orders o
+--                   JOIN seanses s ON o.seanse_id = s.id
+--                   JOIN movies m ON s.movie_id = m.id
+--                 WHERE o.status = 'paid'
+--                   AND o.paid_at >= NOW() - INTERVAL '14 days';
+
