@@ -34,5 +34,5 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR(20) DEFAULT 'pending',
     ticket_number VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    CONSTRAINT unique_seat_per_seans UNIQUE (seanse_id, seat_id)
+    paid_at TIMESTAMP NULL
 );

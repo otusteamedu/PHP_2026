@@ -1,49 +1,42 @@
 INSERT INTO rooms (title)
-VALUES ('Зал 1'),
-       ('Зал 2'),
-       ('VIP-зал'),
-       ('Кинотеатр 3D');
-
-INSERT INTO seats (room_id, position_x, position_y)
-VALUES (1, 1, 1),
-       (1, 1, 2),
-       (1, 1, 3),
-       (1, 2, 1),
-       (1, 2, 2),
-       (2, 1, 1),
-       (2, 1, 2),
-       (3, 1, 1),
-       (3, 1, 2);
+SELECT 'Room ' || i
+FROM generate_series(1, 10) i;
 
 INSERT INTO movies (title, duration_in_seconds)
-VALUES ('Начало', 8880),
-       ('Матрица', 8160),
-       ('Интерстеллар', 10140),
-       ('Дюна', 10140),
-       ('Титаник', 11700);
+SELECT 'Movie ' || i, (90 + random() * 60) * 60
+FROM generate_series(1, 100) i;
 
--- Пример сеансов с уникальным индексом (room_id, date, time)
+INSERT INTO seats (room_id, position_x, position_y)
+SELECT r.id, x, y
+FROM rooms r,
+     generate_series(1, 10) x,
+     generate_series(1, 10) y;
+
 INSERT INTO seanses (room_id, movie_id, price, start_at)
-VALUES (1, 1, 500.00, '2026-03-18 12:00:00'),
-       (1, 2, 450.00, '2026-03-18 15:00:00'),
-       (2, 3, 600.00, '2026-03-18 14:00:00'),
-       (2, 4, 550.00, '2026-03-18 18:00:00'),
-       (3, 5, 400.00, '2026-03-18 20:00:00'),
-       (1, 3, 600.00, '2026-03-19 12:00:00'),
-       (1, 4, 550.00, '2026-03-19 15:00:00'),
-       (2, 2, 450.00, '2026-03-19 14:00:00'),
-       (3, 1, 500.00, '2026-03-19 20:00:00');
+SELECT
+       (random() * 9 + 1)::int,
+       (random() * 99 + 1)::int,
+       (5 + random() * 10)::numeric(8,2),
+        NOW() - (random() * 10) * INTERVAL '1 day'
+FROM generate_series(1, 100000);
 
--- Пример заказов на сеансы
-INSERT INTO orders (seanse_id, seat_id, price, ticket_number)
-VALUES (1, 1, 500.00, 'TICKET-001'),
-       (1, 2, 500.00, 'TICKET-002'),
-       (2, 3, 450.00, 'TICKET-003'),
-       (2, 4, 450.00, 'TICKET-004'),
-       (3, 6, 600.00, 'TICKET-005'),
-       (4, 7, 550.00, 'TICKET-006'),
-       (5, 8, 400.00, 'TICKET-007'),
-       (6, 1, 600.00, 'TICKET-008'),
-       (7, 2, 550.00, 'TICKET-009'),
-       (8, 3, 450.00, 'TICKET-010'),
-       (9, 4, 500.00, 'TICKET-011');
+-- сталкивался с проблемой сперва с wal размером
+-- Подумал чтобы не поставить размер в настройках, для инсерта сделать так
+-- использовал еще и вариант ALTER TABLE orders SET UNLOGGED; но очень сильно медленно работал
+SET synchronous_commit = OFF;
+INSERT INTO orders (seanse_id, seat_id, price, status, ticket_number,paid_at)
+SELECT
+    s.id,
+    seat.id,
+    (5 + random()*10)::numeric(8,2),
+    CASE WHEN random() > 0.2 THEN 'paid' ELSE 'pending' END,
+    md5(random()::text),
+    CASE WHEN random() > 0.2
+             THEN NOW() - (random() * 30) * INTERVAL '1 day'
+        ELSE NULL
+    END
+FROM seanses s
+         JOIN seats seat ON seat.room_id = s.room_id
+    LIMIT 10000000;
+
+SET synchronous_commit = ON;
