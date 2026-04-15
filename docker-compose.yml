@@ -23,7 +23,7 @@ services:
     volumes:
       - .:/var/www/html:delegated
     depends_on:
-      db
+      - db
     networks:
       - internal_net
 
