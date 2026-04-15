@@ -1,7 +1,7 @@
 -- Отключаем проверку внешних ключей, чтобы очистить связанные таблицы
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE posts;
-TRUNCATE TABLE users;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Создаем структуру (на случай если её нет)
