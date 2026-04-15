@@ -27,7 +27,8 @@ services:
     volumes:
       - .:/var/www/html:delegated
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - internal_net
 
