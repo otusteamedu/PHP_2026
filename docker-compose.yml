@@ -11,10 +11,6 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER}", "-p${DB_PASSWORD}"]
-      timeout: 5s
-      retries: 10
     networks:
       - internal_net
 
@@ -27,8 +23,7 @@ services:
     volumes:
       - .:/var/www/html:delegated
     depends_on:
-      db:
-        condition: service_healthy
+      db
     networks:
       - internal_net
 
