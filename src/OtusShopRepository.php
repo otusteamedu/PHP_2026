@@ -8,12 +8,34 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\MissingParameterException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
+use Elastic\Elasticsearch\Helper\Esql\Query;
 
 readonly class OtusShopRepository
 {
     private const INDEX_NAME = 'otus-shop';
     public function __construct(private Client $client)
     {}
+
+    /**
+     * @throws ServerResponseException
+     * @throws ClientResponseException
+     */
+    public function search(string $query)
+    {
+        $params = [
+            'index' => self::INDEX_NAME,
+            'body'  => [
+                'query' => [
+                    'match' => [
+                        'title' => 'под мухой'
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->client->search($params);
+        return array_map(fn (array $book) => Book::fromArray($book['_source']), $response->asArray()['hits']['hits']);
+    }
 
     /**
      * @throws ServerResponseException
@@ -55,10 +77,28 @@ readonly class OtusShopRepository
     /**
      * @throws ServerResponseException
      * @throws ClientResponseException
+     */
+    public function fillIndex(): void
+    {
+        $data = file_get_contents(__DIR__ . '/../books.json');
+        $response = $this->client->bulk(['body' => $data]);
+
+        if ($response->getReasonPhrase() !== 'OK' && $response->getReasonPhrase() !== 'Continue') {
+            throw new ClientResponseException($response->getReasonPhrase());
+        }
+    }
+
+    /**
+     * @throws ServerResponseException
+     * @throws ClientResponseException
      * @throws MissingParameterException
      */
     public function deleteIndex(): void
     {
-        $this->client->indices()->delete(['index' => self::INDEX_NAME]);
+        $response = $this->client->indices()->delete(['index' => self::INDEX_NAME]);
+
+        if ($response->getReasonPhrase() !== 'OK') {
+            throw new ClientResponseException($response->getReasonPhrase());
+        }
     }
 }

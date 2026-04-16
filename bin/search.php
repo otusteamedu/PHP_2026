@@ -13,11 +13,10 @@ $client = ClientBuilder::create()->setHosts(['http://elastic:9200'])->build();
 $shopRepository = new OtusShopRepository($client);
 
 try {
-    $shopRepository->deleteIndex();
+    var_dump($shopRepository->search('f'));
 } catch (Exception $exception) {
     echo $exception->getMessage();
     exit(1);
 }
 
-echo 'Индекс успешно удален!' . PHP_EOL;
 exit(0);

@@ -23,6 +23,9 @@ create-index:
 delete-index:
 	docker-compose run --rm php-cli bin/delete_index.php
 
+search:
+	docker-compose run --rm php-cli bin/search.php
+
 composer-install:
 	docker-compose run --rm php-cli composer install
 
