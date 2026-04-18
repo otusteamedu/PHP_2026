@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Render;
 
+use App\Dto\Book;
+use App\Dto\Stock;
 use League\CLImate\CLImate;
 
 final readonly class ResultTableRenderer

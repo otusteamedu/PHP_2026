@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Infrastructure;
 
+use App\Dto\Book;
+use App\Search\SearchInput;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\MissingParameterException;
@@ -142,7 +144,7 @@ final readonly class OtusShopRepository
      */
     public function fillIndex(): void
     {
-        $data = file_get_contents(__DIR__ . '/../books.json');
+        $data = file_get_contents(__DIR__ . '/../../books.json');
         $response = $this->client->bulk(['body' => $data]);
 
         if ($response->getReasonPhrase() !== 'OK' && $response->getReasonPhrase() !== 'Continue') {

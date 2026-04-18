@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-use App\ElasticsearchClientFactory;
-use App\OtusShopRepository;
-use App\ResultTableRenderer;
-use App\SearchInputParser;
+use App\Infrastructure\ElasticsearchClientFactory;
+use App\Infrastructure\OtusShopRepository;
+use App\Render\ResultTableRenderer;
+use App\Search\SearchInputParser;
 
 require __DIR__ . '/../vendor/autoload.php';
 

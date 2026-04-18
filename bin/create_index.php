@@ -3,8 +3,8 @@
 
 declare(strict_types=1);
 
-use App\ElasticsearchClientFactory;
-use App\OtusShopRepository;
+use App\Infrastructure\ElasticsearchClientFactory;
+use App\Infrastructure\OtusShopRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
 
