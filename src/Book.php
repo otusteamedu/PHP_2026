@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-readonly class Book
+final readonly class Book
 {
     /**
      * @param Stock[] $stock

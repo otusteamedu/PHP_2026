@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-readonly class Stock
+final readonly class Stock
 {
     public function __construct(
         public string $shop,

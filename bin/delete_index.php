@@ -3,14 +3,12 @@
 
 declare(strict_types=1);
 
+use App\ElasticsearchClientFactory;
 use App\OtusShopRepository;
-use Elastic\Elasticsearch\ClientBuilder;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$client = ClientBuilder::create()->setHosts(['http://elastic:9200'])->build();
-
-$shopRepository = new OtusShopRepository($client);
+$shopRepository = new OtusShopRepository(ElasticsearchClientFactory::create());
 
 try {
     $shopRepository->deleteIndex();

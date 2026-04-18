@@ -8,11 +8,10 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\MissingParameterException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
-use Elastic\Elasticsearch\Helper\Esql\Query;
 
-readonly class OtusShopRepository
+final readonly class OtusShopRepository
 {
-    private const INDEX_NAME = 'otus-shop';
+    private const string INDEX_NAME = 'otus-shop';
     public function __construct(private Client $client)
     {}
 
@@ -20,17 +19,67 @@ readonly class OtusShopRepository
      * @throws ServerResponseException
      * @throws ClientResponseException
      */
-    public function search(string $query)
+    public function search(SearchInput $input): array
     {
+        $must = [];
+        $filter = [];
+
+        if ($input->query !== null) {
+            $must[] = [
+                'match' => [
+                    'title' => [
+                        'query' => $input->query,
+                        'fuzziness' => 'AUTO',
+                    ],
+                ],
+            ];
+        }
+
+        if ($input->category !== null) {
+            $filter[] = [
+                'term' => [
+                    'category' => $input->category,
+                ],
+            ];
+        }
+
+        if ($input->maxPrice !== null) {
+            $filter[] = [
+                'range' => [
+                    'price' => [
+                        'lte' => $input->maxPrice,
+                    ],
+                ],
+            ];
+        }
+
+        if ($input->inStock) {
+            $filter[] = [
+                'nested' => [
+                    'path' => 'stock',
+                    'query' => [
+                        'range' => [
+                            'stock.stock' => [
+                                'gt' => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
         $params = [
             'index' => self::INDEX_NAME,
             'body'  => [
-                'query' => [
-                    'match' => [
-                        'title' => 'под мухой'
-                    ]
-                ]
-            ]
+                'query' => empty($must) && empty($filter)
+                    ? ['match_all' => (object) []]
+                    : [
+                        'bool' => array_filter([
+                            'must' => $must,
+                            'filter' => $filter,
+                        ]),
+                    ],
+            ],
         ];
 
         $response = $this->client->search($params);
