@@ -20,8 +20,8 @@ final readonly class SearchInput
     {
         $query = $data['--query'] ?? null;
         $category = $data['--category'] ?? null;
-        $minPrice = $data['--min-price'] ?? null;
-        $maxPrice = $data['--max-price'] ?? null;
+        $minPrice = $data['--min-price'] ? (int) $data['--min-price'] : null;
+        $maxPrice = $data['--max-price'] ? (int) $data['--max-price'] : null;
         $inStock = $data['--in-stock'] ?? false;
 
         Assert::nullOrString($query, 'Параметр --query должен быть строкой.');
