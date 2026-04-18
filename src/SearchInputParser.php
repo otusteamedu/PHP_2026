@@ -13,7 +13,7 @@ final class SearchInputParser
         Поиск по книжному магазину.
         
         Usage:
-          bin/search.php [--query=<text>] [--category=<name>] [--min-price=<amount>] [--max-price=<amount>] [--in-stock]
+          bin/search.php [--query=<text>] [--category=<name>] [--min-price=<amount>] [--max-price=<amount>] [--limit=<count>] [--in-stock]
           bin/search.php (-h | --help)
         
         Options:
@@ -22,11 +22,12 @@ final class SearchInputParser
           --category=<name>     Категория.
           --min-price=<amount>  Минимальная цена.
           --max-price=<amount>  Максимальная цена.
+          --limit=<count>       Сколько максимум записей вернуть.
           --in-stock            Вернет только книги в наличии.
         
         Examples:
           php bin/search.php --help
-          php bin/search.php --query="рыцОри" --category="Исторический роман" --max-price=2000 --in-stock
+          php bin/search.php --query="рыцОри" --category="Исторический роман" --max-price=2000 --limit=25 --in-stock
     DOCOPT;
 
     /**

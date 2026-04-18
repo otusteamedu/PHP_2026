@@ -12,6 +12,7 @@ use Elastic\Elasticsearch\Exception\ServerResponseException;
 final readonly class OtusShopRepository
 {
     private const string INDEX_NAME = 'otus-shop';
+
     public function __construct(private Client $client)
     {}
 
@@ -53,6 +54,16 @@ final readonly class OtusShopRepository
             ];
         }
 
+        if ($input->minPrice !== null) {
+            $filter[] = [
+                'range' => [
+                    'price' => [
+                        'gte' => $input->minPrice,
+                    ],
+                ],
+            ];
+        }
+
         if ($input->inStock) {
             $filter[] = [
                 'nested' => [
@@ -71,6 +82,7 @@ final readonly class OtusShopRepository
         $params = [
             'index' => self::INDEX_NAME,
             'body'  => [
+                'size' => $input->limit ?? 10,
                 'query' => empty($must) && empty($filter)
                     ? ['match_all' => (object) []]
                     : [
@@ -83,7 +95,8 @@ final readonly class OtusShopRepository
         ];
 
         $response = $this->client->search($params);
-        return array_map(fn (array $book) => Book::fromArray($book['_source']), $response->asArray()['hits']['hits']);
+        $hits = $response->asArray()['hits']['hits'] ?? [];
+        return array_map(fn (array $book) => Book::fromArray($book['_source']), $hits);
     }
 
     /**
