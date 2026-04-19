@@ -1,0 +1,52 @@
+services:
+  db:
+    image: ${MYSQL_IMAGE}
+    container_name: ${PROJECT_NAME}-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - internal_net
+
+  php:
+    build: .
+    container_name: ${PROJECT_NAME}-php
+    restart: always
+    # ДОБАВЛЯЕМ ПРОБРОС ПЕРЕМЕННЫХ
+    env_file: .env
+    volumes:
+      - .:/var/www/html:delegated
+    depends_on:
+      - db
+    networks:
+      - internal_net
+
+  web:
+    image: ${ANGIE_IMAGE}
+    container_name: ${PROJECT_NAME}-web
+    restart: always
+    ports:
+      - "${WEB_PORT_HTTP}:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./config/angie/http.d:/etc/angie/http.d:ro
+    depends_on:
+      - php
+    networks:
+      - internal_net
+
+networks:
+  internal_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${PROJECT_SUBNET}
+
+volumes:
+  db_data:
