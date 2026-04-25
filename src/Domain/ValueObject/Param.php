@@ -17,7 +17,6 @@ final readonly class Param
     public static function create(string $name, int $value): self
     {
         Assert::stringNotEmpty($name);
-        Assert::integer($value);
 
         return new self($name, $value);
     }
