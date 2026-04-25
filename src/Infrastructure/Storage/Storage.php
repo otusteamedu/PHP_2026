@@ -6,6 +6,7 @@ namespace App\Infrastructure\Storage;
 
 abstract class Storage
 {
-    abstract public function get(string $key, string $value): string;
-    abstract public function set(string $key, string $value): void;
+    abstract public function set(string $key, int $score, string $value): void;
+
+    abstract public function get(string $key): array;
 }

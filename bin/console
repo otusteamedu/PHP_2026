@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Infrastructure\Console\CreateEventCommand;
+use App\Infrastructure\Console\FindEventCommand;
+use App\Application\UseCase\CreateEvent\Handler as CreateHandler;
+use App\Application\UseCase\GetEvent\Handler as GetHandler;
+use App\Infrastructure\Repository\EventsRepository;
+use App\Infrastructure\Storage\RedisStorage;
+use Symfony\Component\Console\Application;
+
+$application = new Application('Система событий для аналитика', '1.0.0');
+
+$redis = new Redis();
+$redis->connect('redis');
+$storage = new RedisStorage($redis);
+
+$repository = new EventsRepository($storage);
+
+$application->addCommands([
+    new CreateEventCommand(new CreateHandler($repository)),
+    new FindEventCommand(new GetHandler($repository)),
+]);
+
+$application->run();

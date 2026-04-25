@@ -9,7 +9,7 @@ use App\Domain\ValueObject\Conditions;
 
 interface EventRepositoryInterface
 {
-    public function findPriorityOneByConditions(Conditions $conditions): AnalyticEvent;
+    public function findPriorityOneByConditions(Conditions $conditions): ?AnalyticEvent;
 
     public function save(AnalyticEvent $event): void;
 

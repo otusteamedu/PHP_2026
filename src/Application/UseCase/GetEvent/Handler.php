@@ -14,11 +14,11 @@ final readonly class Handler
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): ?Response
     {
         $conditions = Conditions::create($request->conditions);
         $event = $this->events->findPriorityOneByConditions($conditions);
 
-        return new Response($event->event->value);
+        return $event ? new Response($event->event->value) : null;
     }
 }
