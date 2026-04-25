@@ -21,3 +21,9 @@ composer-install:
 
 index:
 	docker-compose run --rm php-cli php bin/index.php
+
+test:
+	docker-compose run --rm php-cli composer test
+
+test-coverage:
+	docker-compose run --rm php-cli composer test-coverage

@@ -6,13 +6,27 @@
             "App\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "tests/"
+        }
+    },
     "require": {
         "ext-redis": "*",
-        "ext-memcached": "*"
+        "ext-memcached": "*",
+        "symfony/console": "^8.0",
+        "webmozart/assert": "^2.3"
     },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.1"
+    },
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-text"
     }
 }

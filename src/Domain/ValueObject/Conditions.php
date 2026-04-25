@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
-use iterable;
 use Webmozart\Assert\Assert;
 
-final readonly class Conditions implements Iterable
+final readonly class Conditions
 {
     /**
      * @param Param[] $params
