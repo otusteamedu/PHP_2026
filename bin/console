@@ -5,10 +5,12 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Infrastructure\Console\ClearEventCommand;
 use App\Infrastructure\Console\CreateEventCommand;
 use App\Infrastructure\Console\FindEventCommand;
 use App\Application\UseCase\CreateEvent\Handler as CreateHandler;
 use App\Application\UseCase\GetEvent\Handler as GetHandler;
+use App\Application\UseCase\ClearEvents\Handler as ClearHandler;
 use App\Infrastructure\Repository\EventsRepository;
 use App\Infrastructure\Storage\RedisStorage;
 use Symfony\Component\Console\Application;
@@ -24,6 +26,7 @@ $repository = new EventsRepository($storage);
 $application->addCommands([
     new CreateEventCommand(new CreateHandler($repository)),
     new FindEventCommand(new GetHandler($repository)),
+    new ClearEventCommand(new ClearHandler($repository)),
 ]);
 
 $application->run();

@@ -2,7 +2,7 @@
 
 namespace Test\Unit\Infrastructure\Console;
 
-use App\Infrastructure\Console\ConditionParser;
+use App\Infrastructure\Console\Helper\ConditionParser;
 use PHPUnit\Framework\TestCase;
 
 class ConditionParserTest extends TestCase

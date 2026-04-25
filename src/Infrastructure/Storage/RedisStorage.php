@@ -6,10 +6,10 @@ namespace App\Infrastructure\Storage;
 
 use Redis;
 
-final class RedisStorage extends Storage
+final readonly class RedisStorage implements Storage
 {
     public function __construct(
-        private readonly Redis $redis,
+        private Redis $redis,
     ) {
     }
 
@@ -21,5 +21,10 @@ final class RedisStorage extends Storage
     public function get(string $key): array
     {
         return $this->redis->zRevRange($key, 0, 0, true);
+    }
+
+    public function deleteAll(): void
+    {
+        $this->redis->del('*');
     }
 }

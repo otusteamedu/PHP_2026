@@ -60,4 +60,9 @@ final readonly class EventsRepository implements EventRepositoryInterface
             Event::create($event)
         );
     }
+
+    public function deleteAll(): void
+    {
+        $this->client->deleteAll();
+    }
 }

@@ -13,4 +13,5 @@ interface EventRepositoryInterface
 
     public function save(AnalyticEvent $event): void;
 
+    public function deleteAll(): void;
 }

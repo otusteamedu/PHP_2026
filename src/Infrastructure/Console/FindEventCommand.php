@@ -6,9 +6,9 @@ namespace App\Infrastructure\Console;
 
 use App\Application\UseCase\GetEvent\Handler;
 use App\Application\UseCase\GetEvent\Request;
+use App\Infrastructure\Console\Helper\ConditionParser;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -27,9 +27,9 @@ class FindEventCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->setHelp('Эта команда позволяет получить наиболее приоритетное событие по условиям в интерактивном режиме.')
-        ;
+        $this->setHelp(
+            'Эта команда позволяет получить наиболее приоритетное событие по условиям в интерактивном режиме.'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,7 +47,6 @@ class FindEventCommand extends Command
 
         try {
             $conditions = new ConditionParser()->parseConditions($conditionsString);
-
 
             $request = new Request($conditions);
             $response = ($this->handler)($request);

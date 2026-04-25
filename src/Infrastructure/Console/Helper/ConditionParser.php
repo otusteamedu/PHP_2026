@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Console;
+namespace App\Infrastructure\Console\Helper;
 
 class ConditionParser
 {
