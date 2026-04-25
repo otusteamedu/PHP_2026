@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit\Infrastructure\Console;
+namespace Test\Unit\Infrastructure\Console\Helper;
 
 use App\Infrastructure\Console\Helper\ConditionParser;
 use PHPUnit\Framework\TestCase;

@@ -25,6 +25,6 @@ final readonly class RedisStorage implements Storage
 
     public function deleteAll(): void
     {
-        $this->redis->del('*');
+        $this->redis->flushDB();
     }
 }
