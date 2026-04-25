@@ -9,7 +9,7 @@ final readonly class Request
     public function __construct(
         public int $priority,
         public array $conditions,
-        public mixed $event,
+        public string $event,
     ) {
     }
 }
