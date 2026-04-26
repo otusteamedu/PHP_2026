@@ -1,3 +1,21 @@
-# PHP_2026
+## Консольное приложение для хранения и поиска событий
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Для запуска приложения выполните:
+```bash
+make init
+```
+
+Создание события в интерактивном режиме:
+```bash
+make create
+```
+
+Поиск события в интерактивном режиме:
+```bash
+make find
+```
+
+Очистка всех событий:
+```bash
+make clear
+```
