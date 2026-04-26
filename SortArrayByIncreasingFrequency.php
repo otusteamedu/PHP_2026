@@ -26,6 +26,9 @@ declare(strict_types=1);
 class Solution {
 
     /**
+     * Сложность решения O(n) + O(m log m) + O(m log m) + O(n) => O(m log m).
+     * Худший случай, если все элементы уникальные и сортировка по худшему сценарию => O(n2).
+     *
      * @param Integer[] $nums
      * @return Integer[]
      */

@@ -26,6 +26,8 @@ declare(strict_types=1);
 class Solution {
 
     /**
+     * Сложность решения O(n + m) => O(n)
+     *
      * @param Integer[] $nums
      * @param Integer $target
      * @return Integer[]
