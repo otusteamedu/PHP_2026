@@ -1,21 +1,21 @@
-## Поиск по магазину книг в Elasticsearch
+## Консольное приложение для хранения и поиска событий
 
 Для запуска приложения выполните:
 ```bash
 make init
 ```
 
-Для поиска через Docker выполните:
+Создание события в интерактивном режиме:
 ```bash
-docker-compose run --rm php-cli bin/search.php --help
+make create
 ```
+
+Поиск события в интерактивном режиме:
 ```bash
-docker-compose run --rm php-cli bin/search.php --query="рыцОри" --category="Исторический роман" --max-price=2000 --limit=25 --in-stock
+make find
 ```
-или
+
+Очистка всех событий:
 ```bash
-make search ARGS="--help"
-```
-```bash
-make search ARGS="--query='рыцОри' --limit=2"
+make clear
 ```

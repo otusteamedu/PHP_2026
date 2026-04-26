@@ -27,3 +27,12 @@ test:
 
 test-coverage:
 	docker-compose run --rm php-cli composer test-coverage
+
+create:
+	docker-compose run --rm php-cli php bin/console app:event:create
+
+find:
+	docker-compose run --rm php-cli php bin/console app:event:find
+
+clear:
+	docker-compose run --rm php-cli php bin/console app:event:clear
