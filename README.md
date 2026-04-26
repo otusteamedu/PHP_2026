@@ -1,3 +1,5 @@
-# PHP_2026
+# Решения алгоритмических задач, через хеши
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+- В корне 5 php файлов с решениями 5 задач с Leetcode.
+- В phpdoc класса Solution указано описание задачи с примерами.
+- В phpdoc функции указано описание сложности.
