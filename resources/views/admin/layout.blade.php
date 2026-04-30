@@ -15,7 +15,7 @@
                 <a class="btn btn-sm btn-outline-light" href="{{ route('admin.pages.index') }}">Страницы</a>
                 <a class="btn btn-sm btn-outline-light" href="{{ route('admin.courses.index') }}">Курсы</a>
                 <a class="btn btn-sm btn-outline-secondary" href="{{ route('home') }}" target="_blank">Сайт</a>
-                <form action="{{ route('admin.logout') }}" method="post" class="d-inline">
+                <form action="{{ route('logout') }}" method="post" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-danger">Выйти</button>
                 </form>

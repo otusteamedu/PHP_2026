@@ -13,7 +13,7 @@
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab adipisci aliquam consectetur consequatur corporis doloribus eos iusto laudantium magnam nam, natus nesciunt, odio optio saepe sapiente sed ullam unde ut!
                 </p>
                 <div class="d-flex flex-column flex-sm-row gap-2">
-                    <a class="btn btn-light btn-lg" href="{{ route('register.form') }}">Попробовать бесплатно</a>
+                    <a class="btn btn-light btn-lg" href="{{ route('register') }}">Попробовать бесплатно</a>
                     <a class="btn btn-outline-light btn-lg" href="{{ route('static.info') }}">Как устроен сервис</a>
                 </div>
             </div>

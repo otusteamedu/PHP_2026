@@ -21,12 +21,34 @@
                     <li class="nav-item">
                         <a class="nav-link @yield('nav_home_active')" href="{{ route('home') }}">Главная</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @yield('nav_user_active')" href="{{ route('user.profile') }}">Профиль</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @yield('nav_register_active')" href="{{ route('register.form') }}">Регистрация</a>
-                    </li>
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav_tasks_active')" href="{{ route('tasks.index') }}">Задачи</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @yield('nav_user_active')" href="{{ route('user.profile') }}">Профиль</a>
+                        </li>
+                        @can('access-admin')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.pages.index') }}">Админка</a>
+                            </li>
+                        @endcan
+                        <li class="nav-item">
+                            <form method="post" action="{{ route('logout') }}" class="d-inline-flex h-100 align-items-center">
+                                @csrf
+                                <button type="submit" class="btn btn-link nav-link text-white text-decoration-none border-0 py-2">
+                                    Выйти
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">Вход</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">Регистрация</a>
+                        </li>
+                    @endauth
                     <li class="nav-item">
                         <a class="nav-link @yield('nav_static_active')" href="{{ route('static.info') }}">О проекте</a>
                     </li>
@@ -37,6 +59,7 @@
 
     <main class="flex-grow-1 py-4 py-md-5">
         <div class="container">
+            @include('partials.flash')
             @yield('content')
         </div>
     </main>
@@ -46,7 +69,13 @@
             <div class="row row-cols-1 row-cols-md-2 gy-2 align-items-center">
                 <div class="col">Подвал сайта</div>
                 <div class="col text-md-end">
-                    <a href="{{ route('admin.login') }}" class="link-secondary">Администрирование</a>
+                    @guest
+                        <a href="{{ route('login') }}" class="link-secondary">Вход для администраторов</a>
+                    @else
+                        @can('access-admin')
+                            <a href="{{ route('admin.pages.index') }}" class="link-secondary">Панель управления</a>
+                        @endcan
+                    @endguest
                     · © {{ date('Y') }}
                 </div>
             </div>
