@@ -8,19 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('directions', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+            $table->string('title');
             $table->text('description')->nullable();
+            $table->boolean('is_done')->default(false);
+            $table->timestamp('due_at')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'is_done']);
         });
     }
 
     public function down(): void
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('directions');
+        Schema::dropIfExists('tasks');
         Schema::enableForeignKeyConstraints();
     }
 };
