@@ -7,6 +7,7 @@ use App\Models\Direction;
 use App\Models\Enrollment;
 use App\Models\Role;
 use App\Models\Task;
+use App\Models\Page;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -56,6 +57,19 @@ class DatabaseSeeder extends Seeder
             'bio' => 'Учебный профиль.',
         ]);
         Task::factory()->count(4)->for($demoUser)->create();
+
+        $adminUser = User::factory()->create([
+            'name' => 'Админ',
+            'email' => 'admin@example.test',
+        ]);
+        $adminUser->roles()->attach($adminRole->id);
+
+        Page::factory()->create([
+            'title' => 'Информация',
+            'slug' => 'info',
+            'body' => "Текст созданный через сид.\n\nДоступен по адресу с slug.",
+            'is_published' => true,
+        ]);
 
         $users = User::factory()->count(7)->create();
         foreach ($users as $user) {

@@ -45,7 +45,10 @@
         <div class="container small text-body-secondary text-center text-md-start">
             <div class="row row-cols-1 row-cols-md-2 gy-2 align-items-center">
                 <div class="col">Подвал сайта</div>
-                <div class="col text-md-end">© {{ date('Y') }}</div>
+                <div class="col text-md-end">
+                    <a href="{{ route('admin.login') }}" class="link-secondary">Администрирование</a>
+                    · © {{ date('Y') }}
+                </div>
             </div>
         </div>
     </footer>
