@@ -36,7 +36,7 @@ class Solution {
         $result = [];
         $hash = [];
         foreach ($nums as $num) {
-            @$hash[$num]++;
+            $hash[$num] = ($hash[$num] ?? 0) + 1;
         }
 
         krsort($hash);
