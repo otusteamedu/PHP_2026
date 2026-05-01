@@ -29,28 +29,30 @@ declare(strict_types=1);
 class Solution {
 
     /**
-     * Сложность O(n log n) + O(2n) => O(n log n).
-     * В худшем случае для сортировки => O(n2).
+     * Сложность O(2n + k), где k = 101
      *
      * @param Integer[] $nums
      * @return Integer[]
      */
     function smallerNumbersThanCurrent($nums): array
     {
-        $sortedNums = $nums;
         $result = [];
-        $hash = [];
+        $hash = array_fill(0 , 101, 0);
 
-        rsort($sortedNums);
-        $counter = count($nums) - 1;
+        foreach ($nums as $num) {
+            $hash[$num]++;
+        }
 
-        foreach ($sortedNums as $num) {
-            $hash[$num] = $counter;
-            $counter--;
+        for ($i = 1; $i < 101; $i++) {
+            $hash[$i] += $hash[$i - 1];
         }
 
         foreach ($nums as $num) {
-            $result[] = $hash[$num];
+            if ($num === 0) {
+                $result[] = 0;
+                continue;
+            }
+            $result[] = $hash[$num - 1];
         }
 
         return $result;
