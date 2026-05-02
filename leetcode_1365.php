@@ -2,46 +2,42 @@
 /*
 * https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/
 */
-class Solution {
+class Solution
+{
 
     /**
-     * @param Integer[] $nums
-     * @return Integer[]
+     * @param int[] $nums
+     * @return int[]
      */
-    function smallerNumbersThanCurrent($nums) {
+    function smallerNumbersThanCurrent(array $nums)
+    {
         $result = [];
         $hash = [];
-        for ($i = 0; $i < count($nums); $i++) {
-            $hash[$nums[$i]] = isset($hash[$nums[$i]]) ? $hash[$nums[$i]] + 1 : 1;
+        $temp = $nums;
+        sort($temp, SORT_NUMERIC);
+        for ($i = 0; $i < count($temp); $i++) {
+            if (!isset($hash[$temp[$i]])) $hash[$temp[$i]] = $i;
         }
-        ksort($hash, SORT_NUMERIC);
+
         for ($i = 0; $i < count($nums); $i++) {
-            $count = 0;
-            foreach ($hash as $key => $value) {
-                if ($key < $nums[$i]) {
-                    $count += $value;
-                } else {
-                    break;
-                }
-            }
-            $result[] = $count;
+            $result[] = $hash[$nums[$i]];
         }
         return $result;
     }
 }
 
 $solution = new Solution();
-$nums = [8,1,2,2,3];
+$nums = [8, 1, 2, 2, 3];
 $result = $solution->smallerNumbersThanCurrent($nums);
 print_r($result);
 // Output: [4,0,1,1,3]
 
-$nums = [6,5,4,8];
+$nums = [6, 5, 4, 8];
 $result = $solution->smallerNumbersThanCurrent($nums);
 print_r($result);
 // Output: [2,1,0,3]
 
-$nums = [7,7,7,7];
+$nums = [7, 7, 7, 7];
 $result = $solution->smallerNumbersThanCurrent($nums);
 print_r($result);
 // Output: [0,0,0,0]

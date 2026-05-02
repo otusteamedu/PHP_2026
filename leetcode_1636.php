@@ -14,13 +14,26 @@ class Solution
         $result = [];
         $hash = [];
         for ($i = 0; $i < count($nums); $i++) {
-            $hash[$nums[$i]] = isset($hash[$nums[$i]]) ? $hash[$nums[$i]] + 1 : 1;
+            if (isset($hash[$nums[$i]])) {
+                $hash[$nums[$i]]['count']++;
+            } else {
+                $hash[$nums[$i]] = [
+                    'value' => $nums[$i],
+                    'count' => 1,
+                ];
+            }
         }
-        krsort($hash, SORT_NUMERIC);
-        asort($hash, SORT_NUMERIC);
-        foreach ($hash as $num => $count) {
-            for ($j = 0; $j < $count; $j++) {
-                $result[] = $num;
+
+        usort($hash, function ($a, $b) {
+            if ($a['count'] === $b['count']) {
+                return $a['value'] < $b['value'] ? 1 : -1;
+            }
+            return $a['count'] > $b['count'] ? 1 : -1;
+        });
+
+        for ($i = 0; $i < count($hash); $i++) {
+            for ($j = 0; $j < $hash[$i]['count']; $j++) {
+                $result[] = $hash[$i]['value'];
             }
         }
         return $result;
@@ -29,8 +42,7 @@ class Solution
 
 $solution = new Solution();
 
-
-$nums = [1,1,2,2,2,3];
+$nums = [1, 1, 2, 2, 2, 3];
 $result = $solution->frequencySort($nums);
 print_r($result);
 // Output: [3,1,1,2,2,2]
