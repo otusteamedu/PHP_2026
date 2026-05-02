@@ -1,3 +1,52 @@
-# PHP_2026
+# Задание 13: IS/hw13
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Общее описание
+
+```text
+Leetcode практикум
+```
+
+## Алгоритмическая сложность
+
+### 1. Two Sum
+
+```text
+leetcode_1.php
+Сложность O(n), т.к используется только один перебор массива
+```
+
+### 1636. Sort Array by Increasing Frequency
+
+```text
+leetcode_1636.php
+- O(n) - построение хеша;
+- O(n log n) - сортировка по кол-ву или по значению;
+- O(n) - построение результата.
+
+Итог: сложность O(n log n).
+```
+
+### 349. Intersection of Two Arrays
+
+```text
+leetcode_349.php
+Сложность O(n), т.к проиcходит перебор двух массивов со сложностью O(n) с действиями внутри циклов со сложностью O(1)
+```
+
+### 2441. Largest Positive Integer That Exists With Its Negative
+
+```text
+leetcode_2441.php
+Сложность O(n), т.к проиcходит один перебор массива со сложностью O(n) с действиям внутри со сложностью O(1)
+```
+
+### 1365. How Many Numbers Are Smaller Than the Current Number
+
+```text
+leetcode_1365.php
+- O(n log n) - сортировка исходного массива по возрастанию;
+- O(n) - построение хеша (минимальный индекс встреченного элемента равен кол-ву элементов которые меньше);
+- O(n) - формирование результата.
+
+Итог: сложность O(n log n).
+```
