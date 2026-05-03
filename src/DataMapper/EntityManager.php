@@ -24,15 +24,19 @@ class EntityManager
 
         $data = [];
         foreach ($fields as $prop => $column) {
-            $data[$column] = $entity->$prop;
+            $data[$column] = $entity->{$prop};
         }
 
         if ($entity->id === null) {
-            // INSERT
             unset($data['id']);
+            $columns = $placeholders = [];
+            foreach (array_keys($data) as $column) {
+                $columns[] = $column;
+                $placeholders[] = ":{$column}";
+            }
 
-            $columns = implode(', ', array_keys($data));
-            $placeholders = implode(', ', array_map(fn($c) => ":$c", array_keys($data)));
+            $columns = implode(', ', $columns);
+            $placeholders = implode(', ', $placeholders);
 
             $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
             $stmt = $this->pdo->prepare($sql);
@@ -40,8 +44,10 @@ class EntityManager
 
             $entity->id = (int)$this->pdo->lastInsertId();
         } else {
-            // UPDATE
-            $set = implode(', ', array_map(fn($c) => "$c = :$c", array_keys($data)));
+            $set = $data
+                    |> array_keys(...)
+                    |> (fn($columns) => array_map(fn($c) => "$c = :$c", $columns))
+                    |> (fn($bindColumns) => implode(', ', $bindColumns));
 
             $sql = "UPDATE $table SET $set WHERE id = :id";
             $stmt = $this->pdo->prepare($sql);
@@ -49,6 +55,9 @@ class EntityManager
         }
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function find(int $id, string $entityClass): ?object
     {
         $table = $this->metadataReader->getTableName($entityClass);
@@ -63,11 +72,39 @@ class EntityManager
             return null;
         }
 
-        $args = [];
-        foreach ($fields as $prop => $column) {
-            $args[$prop] = $row[$column];
-        }
+        $args = array_map(fn ($column) => $row[$column], $fields);
 
         return new $entityClass(...$args);
+    }
+
+    public function all(string $entityClass, array $conditions = []): EntityCollection
+    {
+        $table = $this->metadataReader->getTableName($entityClass);
+        $fields = $this->metadataReader->getMapping($entityClass);
+
+        $sql = "SELECT * FROM $table";
+
+        $safeConditions = array_intersect_key($conditions, $fields);
+        $bindings = [];
+        foreach ($safeConditions as $column => $value) {
+            $bindings[] = "$column = :{$column}";
+        }
+
+        if (!empty($bindings)) {
+            $sql .= ' WHERE ' . implode(' AND ', $bindings);
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($conditions);
+        $rows = $stmt->fetchAll();
+
+        $entities = array_map(
+            function ($row) use ($fields, $entityClass) {
+                $args = array_map(fn ($column)  => $row[$column], $fields);
+                return new $entityClass(...$args);
+            },
+            $rows
+        );
+
+        return new EntityCollection($entities);
     }
 }

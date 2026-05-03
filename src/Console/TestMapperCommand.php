@@ -28,9 +28,26 @@ class TestMapperCommand extends Command
 
         $user = new User(null, 'Petya', 'test@mail.ru');
         $this->users->save($user);
-        $user = $this->users->find(1);
 
-        $io->success("{$user->id} {$user->name} {$user->email}");
+        $io->success("Сохранен: {$user->id} {$user->name} {$user->email}");
+
+        $user = $this->users->find(1);
+        $user->name = 'new Name';
+        $this->users->save($user);
+
+        $io->success("Обновлен: {$user->id} {$user->name} {$user->email}");
+
+        $users = $this->users->findAll();
+        foreach ($users as $user) {
+            $io->success("{$user->id} {$user->name} {$user->email}");
+        }
+        $io->success('Всего найдено: ' . count($users));
+
+        $users = $this->users->findByEmail('test@mail.ru');
+        foreach ($users as $user) {
+            $io->success("{$user->id} {$user->name} {$user->email}");
+        }
+        $io->success('Всего найдено по почте: ' . count($users));
 
         return Command::SUCCESS;
     }

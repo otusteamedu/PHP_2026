@@ -17,4 +17,14 @@ final readonly class UserRepository
     {
         $this->entityManager->save($user);
     }
+
+    public function findAll(): EntityCollection
+    {
+        return $this->entityManager->all(User::class);
+    }
+
+    public function findByEmail(string $email): EntityCollection
+    {
+        return $this->entityManager->all(User::class, ['email' => $email]);
+    }
 }
