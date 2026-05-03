@@ -8,6 +8,11 @@ use ReflectionException;
 
 class EntityManager
 {
+    /**
+     * @var array<string, object>
+     */
+    private array $identityMap = [];
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly MetadataReader $metadataReader,
@@ -63,6 +68,11 @@ class EntityManager
         $table = $this->metadataReader->getTableName($entityClass);
         $fields = $this->metadataReader->getMapping($entityClass);
 
+        $identityMapId = $this->buildIdentityMapId($entityClass, $id);
+        if ($entity = $this->getFromIdentityMap($identityMapId)) {
+            return $entity;
+        }
+
         $sql = "SELECT * FROM $table WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
@@ -73,10 +83,15 @@ class EntityManager
         }
 
         $args = array_map(fn ($column) => $row[$column], $fields);
+        $entity = new $entityClass(...$args);
+        $this->setToIdentityMap($identityMapId, $entity);
 
-        return new $entityClass(...$args);
+        return $entity;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function all(string $entityClass, array $conditions = []): EntityCollection
     {
         $table = $this->metadataReader->getTableName($entityClass);
@@ -97,14 +112,36 @@ class EntityManager
         $stmt->execute($conditions);
         $rows = $stmt->fetchAll();
 
-        $entities = array_map(
-            function ($row) use ($fields, $entityClass) {
-                $args = array_map(fn ($column)  => $row[$column], $fields);
-                return new $entityClass(...$args);
-            },
-            $rows
-        );
+        $entities = [];
+        foreach ($rows as $row) {
+            $id = (int)$row['id'];
+            $identityMapId = $this->buildIdentityMapId($entityClass, $id);
+            if ($entity = $this->getFromIdentityMap($identityMapId)) {
+                $entities[] = $entity;
+                continue;
+            }
+
+            $args = array_map(fn ($column) => $row[$column], $fields);
+            $entity = new $entityClass(...$args);
+            $this->setToIdentityMap($identityMapId, $entity);
+            $entities[] = $entity;
+        }
 
         return new EntityCollection($entities);
+    }
+
+    private function buildIdentityMapId(string $entityClass, int $id): string
+    {
+        return "{$entityClass}_{$id}";
+    }
+
+    private function getFromIdentityMap(string $identityMapId): ?object
+    {
+        return $this->identityMap[$identityMapId] ?? null;
+    }
+
+    private function setToIdentityMap(string $identityMapId, object $entity): void
+    {
+        $this->identityMap[$identityMapId] = $entity;
     }
 }
