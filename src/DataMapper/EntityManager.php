@@ -122,7 +122,7 @@ class EntityManager
      */
     private function hydrateRelations(object $entity, string $entityClass, array $row): void
     {
-        $relations = $this->metadataReader->getRelations($entityClass);
+        $relations = $this->metadataReader->getOneToOneRelations($entityClass);
         foreach ($relations as $property => $relation) {
             $localValue = $row[$relation['localColumn']] ?? null;
             if ($localValue === null) {
@@ -137,7 +137,7 @@ class EntityManager
             );
         }
 
-        $toManyRelations = $this->metadataReader->getToManyRelations($entityClass);
+        $toManyRelations = $this->metadataReader->getOneToManyRelations($entityClass);
         foreach ($toManyRelations as $property => $relation) {
             $localValue = $row[$relation['localColumn']] ?? null;
             if ($localValue === null) {

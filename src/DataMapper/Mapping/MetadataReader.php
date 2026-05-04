@@ -37,7 +37,7 @@ class MetadataReader
      * @return array<string, array{targetEntity: string, localColumn: string, targetColumn: string}>
      * @throws ReflectionException
      */
-    public function getRelations(string $className): array
+    public function getOneToOneRelations(string $className): array
     {
         $relations = [];
         $reflection = new ReflectionClass($className);
@@ -61,7 +61,7 @@ class MetadataReader
      * @return array<string, array{targetEntity: string, localColumn: string, targetColumn: string}>
      * @throws ReflectionException
      */
-    public function getToManyRelations(string $className): array
+    public function getOneToManyRelations(string $className): array
     {
         $relations = [];
         $reflection = new ReflectionClass($className);
