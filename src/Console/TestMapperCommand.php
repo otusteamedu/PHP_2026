@@ -41,9 +41,9 @@ class TestMapperCommand extends Command
         $user = new User(null, 'Petya', 'test@mail.ru');
         $this->users->save($user);
 
-        $io->success("Сохранен: {$user->id} {$user->name} {$user->email}");
+        $io->success("Сохранен юзер: {$user->id} {$user->name} {$user->email}");
 
-        $profile = new Profile(null, 1, 'test');
+        $profile = new Profile(null, 1, 'login-petya');
         $this->profiles->save($profile);
         $io->success("Сохранен профиль: {$profile->id} {$profile->userId} {$profile->login}");
 
@@ -57,50 +57,49 @@ class TestMapperCommand extends Command
 
         $userPet = new UserPet(null, 1, $pet->id);
         $this->userPets->save($userPet);
-        $io->success("Связь user_pet: {$userPet->id} {$userPet->userId} {$userPet->petId}");
+        $io->success("Сохранена связь питомца с юзером: {$userPet->id} {$userPet->userId} {$userPet->petId}");
 
         $userPet = new UserPet(null, 1, $pet2->id);
         $this->userPets->save($userPet);
-        $io->success("Связь user_pet: {$userPet->id} {$userPet->userId} {$userPet->petId}");
+        $io->success("Сохранена связь питомца с юзером: {$userPet->id} {$userPet->userId} {$userPet->petId}");
 
-        $house = new House(null, 1, 'Moscow, Tverskaya 1');
+        $house = new House(null, 1, 'Санкт-Петербург, Литейный проспект 12');
         $this->houses->save($house);
         $io->success("Сохранен дом: {$house->id} {$house->userId} {$house->address}");
 
-
         $user = $this->users->find(1);
         $profile = $user->profile;
-        $io->success("Профиль ленивый: {$profile->id} {$profile->userId} {$profile->login}");
+        $io->success("Профиль юзера с id=1 связь O2O: {$profile->id} {$profile->userId} {$profile->login}");
 
         $pets = $user->pets;
         foreach ($pets as $pet) {
-            $io->success("Питомец ленивый M2M: {$pet->id} {$pet->type}");
+            $io->success("Питомец юзера с id=1 связь M2M: {$pet->id} {$pet->type}");
         }
 
         $houses = $user->houses;
         foreach ($houses as $house) {
-            $io->success("Дом ленивый O2M: {$house->id} {$house->userId} {$house->address}");
+            $io->success("Дом юзера с id=1 связь O2M: {$house->id} {$house->userId} {$house->address}");
         }
 
         $houseUser = $house->user;
-        $io->success("Юзер дома ленивый M2O: {$houseUser->id} {$houseUser->name} {$houseUser->email}");
+        $io->success("Юзер дома связь M2O: {$houseUser->id} {$houseUser->name} {$houseUser->email}");
 
-        $user->name = 'new Name';
+        $user->name = 'Updated Petya';
         $this->users->save($user);
 
-        $io->success("Обновлен: {$user->id} {$user->name} {$user->email}");
+        $io->success("Обновлен юзер с id=1: {$user->id} {$user->name} {$user->email}");
 
         $users = $this->users->findAll();
         foreach ($users as $user) {
-            $io->success("{$user->id} {$user->name} {$user->email}");
+            $io->success("Найденный юзер в цикле: {$user->id} {$user->name} {$user->email}");
         }
-        $io->success('Всего найдено: ' . count($users));
+        $io->success('Всего найдено юзеров: ' . count($users));
 
         $users = $this->users->findByEmail('test@mail.ru');
         foreach ($users as $user) {
-            $io->success("{$user->id} {$user->name} {$user->email}");
+            $io->success("Найденный по почте юзер в цикле: {$user->id} {$user->name} {$user->email}");
         }
-        $io->success('Всего найдено по почте: ' . count($users));
+        $io->success('Всего найдено юзеров по почте test@mail.ru: ' . count($users));
 
         return Command::SUCCESS;
     }
