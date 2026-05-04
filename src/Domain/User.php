@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataMapper;
+namespace App\Domain;
 
 use App\DataMapper\Mapping\Column;
 use App\DataMapper\Mapping\Table;

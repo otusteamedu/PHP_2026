@@ -127,7 +127,7 @@ class EntityManager
             $entities[] = $entity;
         }
 
-        return new EntityCollection($entities);
+        return new EntityCollection($entities, $entityClass);
     }
 
     private function buildIdentityMapId(string $entityClass, int $id): string

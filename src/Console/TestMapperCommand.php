@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\DataMapper\User;
-use App\DataMapper\UserRepository;
+use App\Domain\User;
+use App\Domain\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

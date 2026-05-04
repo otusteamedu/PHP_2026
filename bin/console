@@ -6,7 +6,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Console\TestMapperCommand;
 use App\DataMapper\EntityManager;
 use App\DataMapper\Mapping\MetadataReader;
-use App\DataMapper\UserRepository;
+use App\Domain\UserRepository;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
