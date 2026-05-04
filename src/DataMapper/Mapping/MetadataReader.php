@@ -2,6 +2,10 @@
 
 namespace App\DataMapper\Mapping;
 
+use App\DataMapper\Mapping\Attribute\Column;
+use App\DataMapper\Mapping\Attribute\OneToMany;
+use App\DataMapper\Mapping\Attribute\OneToOne;
+use App\DataMapper\Mapping\Attribute\Table;
 use ReflectionClass;
 use ReflectionException;
 
@@ -25,6 +29,54 @@ class MetadataReader
         }
 
         return $mapping;
+    }
+
+    /**
+     * @return array<string, array{targetEntity: string, localColumn: string, targetColumn: string}>
+     * @throws ReflectionException
+     */
+    public function getRelations(string $className): array
+    {
+        $relations = [];
+        $reflection = new ReflectionClass($className);
+
+        foreach ($reflection->getProperties() as $property) {
+            $attributes = $property->getAttributes(OneToOne::class);
+            foreach ($attributes as $attribute) {
+                $relation = $attribute->newInstance();
+                $relations[$property->getName()] = [
+                    'targetEntity' => $relation->targetEntity,
+                    'localColumn' => $relation->localColumn,
+                    'targetColumn' => $relation->targetColumn,
+                ];
+            }
+        }
+
+        return $relations;
+    }
+
+    /**
+     * @return array<string, array{targetEntity: string, localColumn: string, targetColumn: string}>
+     * @throws ReflectionException
+     */
+    public function getToManyRelations(string $className): array
+    {
+        $relations = [];
+        $reflection = new ReflectionClass($className);
+
+        foreach ($reflection->getProperties() as $property) {
+            $attributes = $property->getAttributes(OneToMany::class);
+            foreach ($attributes as $attribute) {
+                $relation = $attribute->newInstance();
+                $relations[$property->getName()] = [
+                    'targetEntity' => $relation->targetEntity,
+                    'localColumn' => $relation->localColumn,
+                    'targetColumn' => $relation->targetColumn,
+                ];
+            }
+        }
+
+        return $relations;
     }
 
     /**

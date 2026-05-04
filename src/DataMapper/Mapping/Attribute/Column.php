@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataMapper\Mapping;
+namespace App\DataMapper\Mapping\Attribute;
 
 use Attribute;
 

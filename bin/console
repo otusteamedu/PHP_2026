@@ -6,7 +6,9 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Console\TestMapperCommand;
 use App\DataMapper\EntityManager;
 use App\DataMapper\Mapping\MetadataReader;
-use App\Domain\UserRepository;
+use App\Example\PetRepository;
+use App\Example\ProfileRepository;
+use App\Example\UserRepository;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
@@ -21,8 +23,10 @@ $dsn = "pgsql:host=$host;dbname=$db;port=$port";
 $pdo = new PDO($dsn, $user, $pass);
 $metadataReader = new MetadataReader();
 $entityManager = new EntityManager($pdo, $metadataReader);
-$repository = new UserRepository($entityManager);
+$userRepository = new UserRepository($entityManager);
+$profileRepository = new ProfileRepository($entityManager);
+$petRepository = new PetRepository($entityManager);
 
-$application->addCommand(new TestMapperCommand($repository));
+$application->addCommand(new TestMapperCommand($userRepository, $profileRepository, $petRepository));
 
 $application->run();

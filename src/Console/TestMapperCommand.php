@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Domain\User;
-use App\Domain\UserRepository;
+use App\Example\Pet;
+use App\Example\PetRepository;
+use App\Example\Profile;
+use App\Example\ProfileRepository;
+use App\Example\User;
+use App\Example\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +22,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class TestMapperCommand extends Command
 {
     public function __construct(
-        private readonly UserRepository $users
+        private readonly UserRepository $users,
+        private readonly ProfileRepository $profiles,
+        private readonly PetRepository $pets,
     ) {
         parent::__construct();
     }
@@ -31,7 +37,28 @@ class TestMapperCommand extends Command
 
         $io->success("Сохранен: {$user->id} {$user->name} {$user->email}");
 
+        $profile = new Profile(null, 1, 'test');
+        $this->profiles->save($profile);
+        $io->success("Сохранен профиль: {$profile->id} {$profile->userId} {$profile->login}");
+
+        $pet = new Pet(null, 1, 'cat');
+        $this->pets->save($pet);
+        $io->success("Сохранен питомец: {$pet->id} {$pet->userId} {$pet->type}");
+
+        $pet = new Pet(null, 1, 'dog');
+        $this->pets->save($pet);
+        $io->success("Сохранен питомец: {$pet->id} {$pet->userId} {$pet->type}");
+
+
         $user = $this->users->find(1);
+        $profile = $user->profile;
+        $io->success("Профиль ленивый: {$profile->id} {$profile->userId} {$profile->login}");
+
+        $pets = $user->pets;
+        foreach ($pets as $pet) {
+            $io->success("Питомец ленивый: {$pet->id} {$pet->userId} {$pet->type}");
+        }
+
         $user->name = 'new Name';
         $this->users->save($user);
 

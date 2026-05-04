@@ -3,7 +3,9 @@
 namespace App\DataMapper;
 
 use App\DataMapper\Mapping\MetadataReader;
+use ArrayObject;
 use PDO;
+use ReflectionClass;
 use ReflectionException;
 
 class EntityManager
@@ -47,7 +49,7 @@ class EntityManager
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($data);
 
-            $entity->id = (int)$this->pdo->lastInsertId();
+            $entity->id = (int) $this->pdo->lastInsertId();
         } else {
             $set = $data
                     |> array_keys(...)
@@ -82,8 +84,7 @@ class EntityManager
             return null;
         }
 
-        $args = array_map(fn ($column) => $row[$column], $fields);
-        $entity = new $entityClass(...$args);
+        $entity = $this->getEntity($entityClass, $fields, $row);
         $this->setToIdentityMap($identityMapId, $entity);
 
         return $entity;
@@ -92,7 +93,7 @@ class EntityManager
     /**
      * @throws ReflectionException
      */
-    public function all(string $entityClass, array $conditions = []): EntityCollection
+    public function all(string $entityClass, array $conditions = []): ArrayObject
     {
         $table = $this->metadataReader->getTableName($entityClass);
         $fields = $this->metadataReader->getMapping($entityClass);
@@ -112,22 +113,167 @@ class EntityManager
         $stmt->execute($conditions);
         $rows = $stmt->fetchAll();
 
-        $entities = [];
-        foreach ($rows as $row) {
-            $id = (int)$row['id'];
-            $identityMapId = $this->buildIdentityMapId($entityClass, $id);
-            if ($entity = $this->getFromIdentityMap($identityMapId)) {
-                $entities[] = $entity;
+        return $this->getEntities($entityClass, $fields, $rows);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @throws ReflectionException
+     */
+    private function hydrateRelations(object $entity, string $entityClass, array $row): void
+    {
+        $relations = $this->metadataReader->getRelations($entityClass);
+        foreach ($relations as $property => $relation) {
+            $localValue = $row[$relation['localColumn']] ?? null;
+            if ($localValue === null) {
+                $entity->{$property} = null;
                 continue;
             }
 
-            $args = array_map(fn ($column) => $row[$column], $fields);
-            $entity = new $entityClass(...$args);
-            $this->setToIdentityMap($identityMapId, $entity);
+            $entity->{$property} = $this->createOneToOneRelation(
+                $relation['targetEntity'],
+                $relation['targetColumn'],
+                $localValue
+            );
+        }
+
+        $toManyRelations = $this->metadataReader->getToManyRelations($entityClass);
+        foreach ($toManyRelations as $property => $relation) {
+            $localValue = $row[$relation['localColumn']] ?? null;
+            if ($localValue === null) {
+                $entity->{$property} = [];
+                continue;
+            }
+
+            $entity->{$property} = $this->findAllByColumn(
+                $relation['targetEntity'],
+                $relation['targetColumn'],
+                $localValue
+            );
+        }
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function createOneToOneRelation(string $targetClass, string $targetColumn, mixed $localValue): object
+    {
+        $initializer = fn (): ?object => $this->findOneByColumn($targetClass, $targetColumn, $localValue);
+
+        return new ReflectionClass($targetClass)->newLazyGhost(function (object $ghost) use ($initializer, $targetClass): void {
+            $loaded = $initializer();
+            if ($loaded === null) {
+                return;
+            }
+
+            foreach (get_object_vars($loaded) as $property => $value) {
+                $ghost->{$property} = $value;
+            }
+
+            $mapping = $this->metadataReader->getMapping($targetClass);
+            $row = [];
+            foreach ($mapping as $property => $column) {
+                $row[$column] = $loaded->{$property};
+            }
+            $this->hydrateRelations($ghost, $targetClass, $row);
+        });
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function findOneByColumn(string $entityClass, string $column, mixed $value): ?object
+    {
+        $table = $this->metadataReader->getTableName($entityClass);
+        $fields = $this->metadataReader->getMapping($entityClass);
+
+        $sql = "SELECT * FROM $table WHERE $column = :value LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['value' => $value]);
+
+        $row = $stmt->fetch();
+        if (!$row) {
+            return null;
+        }
+
+        $id = null;
+        $idColumn = $fields['id'] ?? null;
+        if ($idColumn !== null) {
+            $id = (int) $row[$idColumn];
+            $identityMapId = $this->buildIdentityMapId($entityClass, $id);
+            if ($entity = $this->getFromIdentityMap($identityMapId)) {
+                return $entity;
+            }
+        }
+
+        $entity = $this->getEntity($entityClass, $fields, $row);
+
+        if ($id !== null) {
+            $this->setToIdentityMap($this->buildIdentityMapId($entityClass, $id), $entity);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function findAllByColumn(string $entityClass, string $column, mixed $value): ArrayObject
+    {
+        $table = $this->metadataReader->getTableName($entityClass);
+        $fields = $this->metadataReader->getMapping($entityClass);
+
+        $sql = "SELECT * FROM $table WHERE $column = :value";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['value' => $value]);
+        $rows = $stmt->fetchAll();
+
+        return $this->getEntities($entityClass, $fields, $rows);
+    }
+
+    /**
+     * @param array<string, string> $fields
+     * @param array<array<string, mixed>> $rows
+     * @throws ReflectionException
+     */
+    private function getEntities(string $entityClass, array $fields, array $rows): ArrayObject
+    {
+        $entities = [];
+        foreach ($rows as $row) {
+            $id = null;
+            $idColumn = $fields['id'] ?? null;
+            if ($idColumn !== null) {
+                $id = (int) $row[$idColumn];
+                $identityMapId = $this->buildIdentityMapId($entityClass, $id);
+                if ($entity = $this->getFromIdentityMap($identityMapId)) {
+                    $entities[] = $entity;
+                    continue;
+                }
+            }
+
+            $entity = $this->getEntity($entityClass, $fields, $row);
+
+            if ($id !== null) {
+                $this->setToIdentityMap($this->buildIdentityMapId($entityClass, $id), $entity);
+            }
+
             $entities[] = $entity;
         }
 
-        return new EntityCollection($entities, $entityClass);
+        return new ArrayObject($entities);
+    }
+
+    /**
+     * @param array<string, string> $fields
+     * @param array<string, mixed> $row
+     * @throws ReflectionException
+     */
+    private function getEntity(string $entityClass, array $fields, array $row): object
+    {
+        $args = array_map(fn ($column) => $row[$column], $fields);
+        $entity = new $entityClass(...$args);
+        $this->hydrateRelations($entity, $entityClass, $row);
+        return $entity;
     }
 
     private function buildIdentityMapId(string $entityClass, int $id): string

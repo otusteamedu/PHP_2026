@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain;
+namespace App\Example;
 
-use App\DataMapper\EntityCollection;
 use App\DataMapper\EntityManager;
+use ArrayObject;
 use ReflectionException;
 
 final readonly class UserRepository
@@ -29,19 +29,20 @@ final readonly class UserRepository
     }
 
     /**
+     * @return ArrayObject<User>
      * @throws ReflectionException
      */
-    public function findAll(): EntityCollection
+    public function findAll(): ArrayObject
     {
         return $this->entityManager->all(User::class);
     }
 
     /**
+     * @return ArrayObject<User>
      * @throws ReflectionException
      */
-    public function findByEmail(string $email): UserCollection
+    public function findByEmail(string $email): ArrayObject
     {
-        $users = $this->entityManager->all(User::class, ['email' => $email]);
-        return new UserCollection((array) $users);
+        return $this->entityManager->all(User::class, ['email' => $email]);
     }
 }
