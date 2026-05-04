@@ -1,0 +1,10 @@
+CREATE INDEX IF NOT EXISTS idx_phones_cinema ON phones(cinema_id);
+CREATE INDEX IF NOT EXISTS idx_halls_cinema ON halls(cinema_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_halls ON schedule(hall_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_films ON schedule(film_id);
+CREATE INDEX IF NOT EXISTS idx_maps_halls ON seat_maps(hall_id);
+CREATE INDEX IF NOT EXISTS idx_seats_map ON seats(map_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_schedule ON tickets(schedule_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_seat ON tickets(seat_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_date_hall ON schedule(date, hall_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_schedule_seat ON tickets(schedule_id, seat_id);
