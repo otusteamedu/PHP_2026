@@ -1,3 +1,19 @@
-# PHP_2026
+## Реализация паттерна Data Mapper
+### + паттерн Identity Map
+### + паттерн Lazy Load
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+
+##### Сам код находится в папке `src/DataMapper`
+
+В папке `src/Example` пример использования паттерна.
+Также есть консольный контроллер для проверки работы примера.
+
+Для запуска консольного примера выполните:
+1. Инициализация
+```bash
+make init
+```
+2. Запуск контроллера
+```bash
+make console-test
+```
