@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskController;
 use App\Models\Page;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'pages.home')->name('home');
-
-Route::view('/profile', 'pages.user')->name('user.profile');
-
-Route::view('/register', 'pages.register')->name('register.form');
 
 Route::view('/about', 'pages.static-info')->name('static.info');
 
@@ -22,16 +23,24 @@ Route::get('/page/{page}', function (Page $page) {
     return view('pages.dynamic', ['page' => $page]);
 })->name('page.show');
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [AuthController::class, 'login'])->name('login.attempt');
+Route::get('login', [LoginController::class, 'create'])->name('login');
+Route::post('login', [LoginController::class, 'store']);
+Route::get('register', [RegisterController::class, 'create'])->name('register');
+Route::post('register', [RegisterController::class, 'store']);
+Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
+Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
-    Route::middleware(['auth', 'admin'])->group(function () {
-        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-        Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
+Route::middleware('auth')->group(function (): void {
+    Route::get('profile', [ProfileController::class, 'show'])->name('user.profile');
+    Route::resource('tasks', TaskController::class)->except(['show']);
+});
 
-        Route::resource('pages', PageController::class)->except(['show']);
-        Route::resource('courses', CourseController::class)->except(['show']);
-    });
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
+    Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
+    Route::resource('pages', PageController::class)->except(['show']);
+    Route::resource('courses', CourseController::class)->except(['show']);
 });
