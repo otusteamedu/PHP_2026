@@ -1,4 +1,4 @@
-init: docker-down-clear docker-build docker-up
+init: docker-down-clear docker-build docker-up composer-install db-set
 up: docker-up
 down: docker-down
 restart: down up
@@ -19,6 +19,8 @@ docker-build:
 composer-install:
 	docker-compose run --rm php-cli composer install
 
-index:
-	docker-compose run --rm php-cli php bin/index.php
+db-set:
+	docker-compose exec -T postgres psql -U admin -d mapper -f /app/schema.sql
 
+console-test:
+	docker-compose run --rm php-cli php bin/console app:test:mapper

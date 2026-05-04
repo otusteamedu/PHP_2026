@@ -15,7 +15,7 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$host = '127.0.0.1';
+$host = 'postgres';
 $db   = 'mapper';
 $user = 'admin';
 $pass = 'secret';
