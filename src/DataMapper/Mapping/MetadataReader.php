@@ -3,6 +3,8 @@
 namespace App\DataMapper\Mapping;
 
 use App\DataMapper\Mapping\Attribute\Column;
+use App\DataMapper\Mapping\Attribute\ManyToMany;
+use App\DataMapper\Mapping\Attribute\ManyToOne;
 use App\DataMapper\Mapping\Attribute\OneToMany;
 use App\DataMapper\Mapping\Attribute\OneToOne;
 use App\DataMapper\Mapping\Attribute\Table;
@@ -71,6 +73,57 @@ class MetadataReader
                 $relations[$property->getName()] = [
                     'targetEntity' => $relation->targetEntity,
                     'localColumn' => $relation->localColumn,
+                    'targetColumn' => $relation->targetColumn,
+                ];
+            }
+        }
+
+        return $relations;
+    }
+
+    /**
+     * @return array<string, array{targetEntity: string, localColumn: string, targetColumn: string}>
+     * @throws ReflectionException
+     */
+    public function getManyToOneRelations(string $className): array
+    {
+        $relations = [];
+        $reflection = new ReflectionClass($className);
+
+        foreach ($reflection->getProperties() as $property) {
+            $attributes = $property->getAttributes(ManyToOne::class);
+            foreach ($attributes as $attribute) {
+                $relation = $attribute->newInstance();
+                $relations[$property->getName()] = [
+                    'targetEntity' => $relation->targetEntity,
+                    'localColumn' => $relation->localColumn,
+                    'targetColumn' => $relation->targetColumn,
+                ];
+            }
+        }
+
+        return $relations;
+    }
+
+    /**
+     * @return array<string, array{targetEntity: string, joinEntity: string, localColumn: string, joinLocalColumn: string, joinTargetColumn: string, targetColumn: string}>
+     * @throws ReflectionException
+     */
+    public function getManyToManyRelations(string $className): array
+    {
+        $relations = [];
+        $reflection = new ReflectionClass($className);
+
+        foreach ($reflection->getProperties() as $property) {
+            $attributes = $property->getAttributes(ManyToMany::class);
+            foreach ($attributes as $attribute) {
+                $relation = $attribute->newInstance();
+                $relations[$property->getName()] = [
+                    'targetEntity' => $relation->targetEntity,
+                    'joinEntity' => $relation->joinEntity,
+                    'localColumn' => $relation->localColumn,
+                    'joinLocalColumn' => $relation->joinLocalColumn,
+                    'joinTargetColumn' => $relation->joinTargetColumn,
                     'targetColumn' => $relation->targetColumn,
                 ];
             }

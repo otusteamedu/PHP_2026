@@ -3,6 +3,7 @@
 namespace App\Example;
 
 use App\DataMapper\Mapping\Attribute\Column;
+use App\DataMapper\Mapping\Attribute\ManyToMany;
 use App\DataMapper\Mapping\Attribute\OneToMany;
 use App\DataMapper\Mapping\Attribute\OneToOne;
 use App\DataMapper\Mapping\Attribute\Table;
@@ -13,6 +14,7 @@ final class User
 {
     /**
      * @param ?ArrayObject<Pet> $pets
+     * @param ?ArrayObject<House> $houses
      */
     public function __construct(
         #[Column(name: 'id')]
@@ -23,8 +25,17 @@ final class User
         public string $email,
         #[OneToOne(targetEntity: Profile::class, localColumn: 'id', targetColumn: 'user_id')]
         public ?Profile $profile = null,
-        #[OneToMany(targetEntity: Pet::class, localColumn: 'id', targetColumn: 'user_id')]
+        #[ManyToMany(
+            targetEntity: Pet::class,
+            joinEntity: UserPet::class,
+            localColumn: 'id',
+            joinLocalColumn: 'user_id',
+            joinTargetColumn: 'pet_id',
+            targetColumn: 'id'
+        )]
         public ?ArrayObject $pets = null,
+        #[OneToMany(targetEntity: House::class, localColumn: 'id', targetColumn: 'user_id')]
+        public ?ArrayObject $houses = null,
     ) {
     }
 }

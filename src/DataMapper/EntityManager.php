@@ -151,12 +151,71 @@ class EntityManager
                 $localValue
             );
         }
+
+        $manyToOneRelations = $this->metadataReader->getManyToOneRelations($entityClass);
+        foreach ($manyToOneRelations as $property => $relation) {
+            $localValue = $row[$relation['localColumn']] ?? null;
+            if ($localValue === null) {
+                $entity->{$property} = null;
+                continue;
+            }
+
+            $entity->{$property} = $this->createManyToOneRelation(
+                $relation['targetEntity'],
+                $relation['targetColumn'],
+                $localValue
+            );
+        }
+
+        $manyToManyRelations = $this->metadataReader->getManyToManyRelations($entityClass);
+        foreach ($manyToManyRelations as $property => $relation) {
+            $localValue = $row[$relation['localColumn']] ?? null;
+            if ($localValue === null) {
+                $entity->{$property} = new ArrayObject([]);
+                continue;
+            }
+
+            $entity->{$property} = $this->findAllByManyToMany(
+                $relation['targetEntity'],
+                $relation['joinEntity'],
+                $relation['targetColumn'],
+                $relation['joinLocalColumn'],
+                $relation['joinTargetColumn'],
+                $localValue
+            );
+        }
     }
 
     /**
      * @throws ReflectionException
      */
     private function createOneToOneRelation(string $targetClass, string $targetColumn, mixed $localValue): object
+    {
+        $initializer = fn (): ?object => $this->findOneByColumn($targetClass, $targetColumn, $localValue);
+
+        return new ReflectionClass($targetClass)->newLazyGhost(function (object $ghost) use ($initializer, $targetClass): void {
+            $loaded = $initializer();
+            if ($loaded === null) {
+                return;
+            }
+
+            foreach (get_object_vars($loaded) as $property => $value) {
+                $ghost->{$property} = $value;
+            }
+
+            $mapping = $this->metadataReader->getMapping($targetClass);
+            $row = [];
+            foreach ($mapping as $property => $column) {
+                $row[$column] = $loaded->{$property};
+            }
+            $this->hydrateRelations($ghost, $targetClass, $row);
+        });
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function createManyToOneRelation(string $targetClass, string $targetColumn, mixed $localValue): object
     {
         $initializer = fn (): ?object => $this->findOneByColumn($targetClass, $targetColumn, $localValue);
 
@@ -229,6 +288,32 @@ class EntityManager
         $rows = $stmt->fetchAll();
 
         return $this->getEntities($entityClass, $fields, $rows);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function findAllByManyToMany(
+        string $targetEntityClass,
+        string $joinEntityClass,
+        string $targetColumn,
+        string $joinLocalColumn,
+        string $joinTargetColumn,
+        mixed $localValue
+    ): ArrayObject {
+        $targetTable = $this->metadataReader->getTableName($targetEntityClass);
+        $targetFields = $this->metadataReader->getMapping($targetEntityClass);
+        $joinTable = $this->metadataReader->getTableName($joinEntityClass);
+
+        $sql = "SELECT t.* FROM $targetTable t "
+             . "INNER JOIN $joinTable j ON t.$targetColumn = j.$joinTargetColumn "
+             . "WHERE j.$joinLocalColumn = :value";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['value' => $localValue]);
+        $rows = $stmt->fetchAll();
+
+        return $this->getEntities($targetEntityClass, $targetFields, $rows);
     }
 
     /**

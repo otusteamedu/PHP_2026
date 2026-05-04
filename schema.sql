@@ -1,0 +1,34 @@
+DROP TABLE IF EXISTS user_pets;
+DROP TABLE IF EXISTS houses;
+DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS pets;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    login VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE pets (
+    id SERIAL PRIMARY KEY,
+    type VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE houses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    address VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE user_pets (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    pet_id INTEGER NOT NULL
+);

@@ -8,7 +8,9 @@ use App\DataMapper\EntityManager;
 use App\DataMapper\Mapping\MetadataReader;
 use App\Example\PetRepository;
 use App\Example\ProfileRepository;
+use App\Example\HouseRepository;
 use App\Example\UserRepository;
+use App\Example\UserPetRepository;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
@@ -26,7 +28,15 @@ $entityManager = new EntityManager($pdo, $metadataReader);
 $userRepository = new UserRepository($entityManager);
 $profileRepository = new ProfileRepository($entityManager);
 $petRepository = new PetRepository($entityManager);
+$houseRepository = new HouseRepository($entityManager);
+$userPetRepository = new UserPetRepository($entityManager);
 
-$application->addCommand(new TestMapperCommand($userRepository, $profileRepository, $petRepository));
+$application->addCommand(new TestMapperCommand(
+    $userRepository,
+    $profileRepository,
+    $petRepository,
+    $houseRepository,
+    $userPetRepository
+));
 
 $application->run();
