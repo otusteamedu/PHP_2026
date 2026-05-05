@@ -32,10 +32,6 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        if (Auth::user()->can('access-admin')) {
-            return redirect()->intended(route('admin.pages.index'));
-        }
-
         return redirect()->intended(route('home'));
     }
 

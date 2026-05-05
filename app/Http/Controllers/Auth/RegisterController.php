@@ -37,10 +37,11 @@ class RegisterController extends Controller
             'password' => $validated['password'],
         ]);
 
-        $student = Role::query()->where('slug', 'student')->first();
-        if ($student !== null) {
-            $user->roles()->attach($student->id);
-        }
+        $student = Role::query()->firstOrCreate(
+            ['slug' => 'student'],
+            ['name' => 'Студент'],
+        );
+        $user->roles()->attach($student->id);
 
         event(new Registered($user));
 

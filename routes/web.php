@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('tasks', TaskController::class)->except(['show']);
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
     Route::resource('pages', PageController::class)->except(['show']);
     Route::resource('courses', CourseController::class)->except(['show']);
