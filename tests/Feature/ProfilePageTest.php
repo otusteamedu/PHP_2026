@@ -3,14 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ProfilePageTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function guest_is_redirected_to_login(): void
     {

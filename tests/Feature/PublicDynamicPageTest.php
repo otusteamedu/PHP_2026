@@ -3,14 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Page;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PublicDynamicPageTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function published_page_is_visible(): void
     {

@@ -4,14 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TaskResourceTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function guest_cannot_access_tasks(): void
     {
@@ -63,5 +60,34 @@ class TaskResourceTest extends TestCase
         $task = Task::factory()->for($owner)->create();
 
         $this->actingAs($other)->get(route('tasks.edit', $task))->assertForbidden();
+    }
+
+    #[Test]
+    public function user_cannot_update_another_users_task(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $task = Task::factory()->for($owner)->create();
+
+        $this->actingAs($other)->put(route('tasks.update', $task), [
+            'title' => 'Чужая задача',
+            'description' => null,
+            'is_done' => false,
+        ])->assertForbidden();
+
+        $task->refresh();
+        $this->assertNotSame('Чужая задача', $task->title);
+    }
+
+    #[Test]
+    public function user_cannot_delete_another_users_task(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $task = Task::factory()->for($owner)->create();
+
+        $this->actingAs($other)->delete(route('tasks.destroy', $task))->assertForbidden();
+
+        $this->assertNotNull(Task::query()->find($task->id));
     }
 }

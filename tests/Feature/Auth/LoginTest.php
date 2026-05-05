@@ -4,14 +4,11 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function guest_can_view_login_form(): void
     {
@@ -41,6 +38,36 @@ class LoginTest extends TestCase
 
         $response->assertRedirect(route('login'));
         $response->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    #[Test]
+    public function login_fails_for_unknown_email_with_same_error_message_as_wrong_password(): void
+    {
+        User::factory()->create([
+            'email' => 'exists@example.test',
+            'password' => 'password',
+        ]);
+
+        $wrongPassword = $this->from(route('login'))->post(route('login'), [
+            'email' => 'exists@example.test',
+            'password' => 'wrong-password',
+        ]);
+
+        $wrongPassword->assertSessionHasErrors('email');
+        $expectedMessage = 'Неверный email или пароль.';
+        $wrongEmailErrors = session('errors')->get('email');
+        $this->assertContains($expectedMessage, $wrongEmailErrors);
+
+        $unknownEmail = $this->from(route('login'))->post(route('login'), [
+            'email' => 'nobody@example.test',
+            'password' => 'password',
+        ]);
+
+        $unknownEmail->assertSessionHasErrors('email');
+        $unknownEmailErrors = session('errors')->get('email');
+        $this->assertContains($expectedMessage, $unknownEmailErrors);
+        $this->assertEquals($wrongEmailErrors, $unknownEmailErrors);
         $this->assertGuest();
     }
 

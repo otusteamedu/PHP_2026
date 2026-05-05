@@ -4,14 +4,11 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RegisterTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function guest_can_view_register_form(): void
     {

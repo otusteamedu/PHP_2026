@@ -3,7 +3,6 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use PHPUnit\Framework\Attributes\Test;
@@ -11,8 +10,6 @@ use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function guest_can_view_forgot_password_form(): void
     {
@@ -53,5 +50,25 @@ class PasswordResetTest extends TestCase
 
         $user->refresh();
         $this->assertTrue(Hash::check('New-valid-pass-1', $user->password));
+    }
+
+    #[Test]
+    public function password_reset_fails_with_invalid_token(): void
+    {
+        $user = User::factory()->create(['email' => 'invalid-token@example.test']);
+
+        $response = $this->from(route('password.reset', ['token' => 'invalid-token']).'?email='.urlencode($user->email))
+            ->post(route('password.store'), [
+                'token' => 'invalid-token',
+                'email' => $user->email,
+                'password' => 'New-valid-pass-1',
+                'password_confirmation' => 'New-valid-pass-1',
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('email');
+
+        $user->refresh();
+        $this->assertFalse(Hash::check('New-valid-pass-1', $user->password));
     }
 }

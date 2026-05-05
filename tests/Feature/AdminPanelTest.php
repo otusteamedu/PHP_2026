@@ -7,14 +7,11 @@ use App\Models\Direction;
 use App\Models\Page;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdminPanelTest extends TestCase
 {
-    use RefreshDatabase;
-
     private function makeAdmin(): User
     {
         $role = Role::factory()->create(['slug' => 'admin']);
