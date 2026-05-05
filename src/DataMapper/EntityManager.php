@@ -110,7 +110,7 @@ class EntityManager
             $sql .= ' WHERE ' . implode(' AND ', $bindings);
         }
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($conditions);
+        $stmt->execute($safeConditions);
         $rows = $stmt->fetchAll();
 
         return $this->getEntities($entityClass, $fields, $rows);
@@ -150,6 +150,43 @@ class EntityManager
         }
 
         return $entity;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function findOneToManyData(string $entityClass, string $column, mixed $value): ArrayObject
+    {
+        $table = $this->metadataReader->getTableName($entityClass);
+        $fields = $this->metadataReader->getMapping($entityClass);
+        $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE $column = :value");
+        $stmt->execute(['value' => $value]);
+
+        return $this->getEntities($entityClass, $fields, $stmt->fetchAll());
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function findManyToManyData(
+        string $targetClass,
+        string $joinClass,
+        string $targetCol,
+        string $joinLocal,
+        string $joinTarget,
+        mixed $localValue
+    ): ArrayObject {
+        $targetTable = $this->metadataReader->getTableName($targetClass);
+        $targetFields = $this->metadataReader->getMapping($targetClass);
+        $joinTable = $this->metadataReader->getTableName($joinClass);
+
+        $sql = "SELECT t.* FROM $targetTable t "
+            . "INNER JOIN $joinTable j ON t.$targetCol = j.$joinTarget "
+            . "WHERE j.$joinLocal = :value";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['value' => $localValue]);
+
+        return $this->getEntities($targetClass, $targetFields, $stmt->fetchAll());
     }
 
     /**
@@ -279,15 +316,9 @@ class EntityManager
      */
     private function createOneToManyRelation(string $entityClass, string $column, mixed $value): ArrayObject
     {
-        $table = $this->metadataReader->getTableName($entityClass);
-        $fields = $this->metadataReader->getMapping($entityClass);
+        $initializer = fn (): ArrayObject => $this->findOneToManyData($entityClass, $column, $value);
 
-        $sql = "SELECT * FROM $table WHERE $column = :value";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['value' => $value]);
-        $rows = $stmt->fetchAll();
-
-        return $this->getEntities($entityClass, $fields, $rows);
+        return new LazyEntityCollection($initializer);
     }
 
     /**
@@ -301,19 +332,16 @@ class EntityManager
         string $joinTargetColumn,
         mixed $localValue
     ): ArrayObject {
-        $targetTable = $this->metadataReader->getTableName($targetEntityClass);
-        $targetFields = $this->metadataReader->getMapping($targetEntityClass);
-        $joinTable = $this->metadataReader->getTableName($joinEntityClass);
+        $initializer = fn (): ArrayObject => $this->findManyToManyData(
+            $targetEntityClass,
+            $joinEntityClass,
+            $targetColumn,
+            $joinLocalColumn,
+            $joinTargetColumn,
+            $localValue
+        );
 
-        $sql = "SELECT t.* FROM $targetTable t "
-             . "INNER JOIN $joinTable j ON t.$targetColumn = j.$joinTargetColumn "
-             . "WHERE j.$joinLocalColumn = :value";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['value' => $localValue]);
-        $rows = $stmt->fetchAll();
-
-        return $this->getEntities($targetEntityClass, $targetFields, $rows);
+        return new LazyEntityCollection($initializer);
     }
 
     /**
