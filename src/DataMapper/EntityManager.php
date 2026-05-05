@@ -145,7 +145,7 @@ class EntityManager
                 continue;
             }
 
-            $entity->{$property} = $this->findAllByColumn(
+            $entity->{$property} = $this->createOneToManyRelation(
                 $relation['targetEntity'],
                 $relation['targetColumn'],
                 $localValue
@@ -175,7 +175,7 @@ class EntityManager
                 continue;
             }
 
-            $entity->{$property} = $this->findAllByManyToMany(
+            $entity->{$property} = $this->createManyToManyRelation(
                 $relation['targetEntity'],
                 $relation['joinEntity'],
                 $relation['targetColumn'],
@@ -277,7 +277,7 @@ class EntityManager
     /**
      * @throws ReflectionException
      */
-    private function findAllByColumn(string $entityClass, string $column, mixed $value): ArrayObject
+    private function createOneToManyRelation(string $entityClass, string $column, mixed $value): ArrayObject
     {
         $table = $this->metadataReader->getTableName($entityClass);
         $fields = $this->metadataReader->getMapping($entityClass);
@@ -293,7 +293,7 @@ class EntityManager
     /**
      * @throws ReflectionException
      */
-    private function findAllByManyToMany(
+    private function createManyToManyRelation(
         string $targetEntityClass,
         string $joinEntityClass,
         string $targetColumn,
