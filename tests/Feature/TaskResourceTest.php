@@ -38,9 +38,9 @@ class TaskResourceTest extends TestCase
         $this->assertNotNull($task);
         $this->assertSame('Изучить тесты', $task->title);
 
-        $this->actingAs($user)->get(route('tasks.edit', $task))->assertOk();
+        $this->actingAs($user)->get(route('tasks.edit', ['task' => $task]))->assertOk();
 
-        $update = $this->actingAs($user)->put(route('tasks.update', $task), [
+        $update = $this->actingAs($user)->put(route('tasks.update', ['task' => $task]), [
             'title' => 'Изучить тесты — готово',
             'description' => null,
             'is_done' => true,
@@ -50,7 +50,7 @@ class TaskResourceTest extends TestCase
         $task->refresh();
         $this->assertTrue($task->is_done);
 
-        $destroy = $this->actingAs($user)->delete(route('tasks.destroy', $task));
+        $destroy = $this->actingAs($user)->delete(route('tasks.destroy', ['task' => $task]));
         $destroy->assertRedirect(route('tasks.index'));
         $this->assertNull(Task::query()->find($task->id));
     }
@@ -62,6 +62,6 @@ class TaskResourceTest extends TestCase
         $other = User::factory()->create();
         $task = Task::factory()->for($owner)->create();
 
-        $this->actingAs($other)->get(route('tasks.edit', $task))->assertForbidden();
+        $this->actingAs($other)->get(route('tasks.edit', ['task' => $task]))->assertForbidden();
     }
 }

@@ -8,39 +8,50 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
+use App\Http\Middleware\SetLocaleFromUrl;
 use App\Models\Page;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'pages.home')->name('home');
+$localePattern = implode('|', config('locale.supported', ['en', 'ru']));
 
-Route::view('/about', 'pages.static-info')->name('static.info');
+Route::redirect('/', '/'.config('locale.default', 'ru'), 302);
 
-Route::get('/page/{page}', function (Page $page) {
-    if (! $page->is_published) {
-        abort(404);
-    }
+Route::prefix('{locale}')
+    ->where(['locale' => $localePattern])
+    ->middleware([SetLocaleFromUrl::class])
+    ->group(function (): void {
+        Route::view('/', 'pages.home')->name('home');
 
-    return view('pages.dynamic', ['page' => $page]);
-})->name('page.show');
+        Route::view('about', 'pages.static-info')->name('static.info');
 
-Route::get('login', [LoginController::class, 'create'])->name('login');
-Route::post('login', [LoginController::class, 'store']);
-Route::get('register', [RegisterController::class, 'create'])->name('register');
-Route::post('register', [RegisterController::class, 'store']);
-Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
-Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
-Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+        Route::get('page/{page}', function (Page $page) {
+            if (! $page->is_published) {
+                abort(404);
+            }
 
-Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+            return view('pages.dynamic', ['page' => $page]);
+        })->name('page.show');
 
-Route::middleware('auth')->group(function (): void {
-    Route::get('profile', [ProfileController::class, 'show'])->name('user.profile');
-    Route::resource('tasks', TaskController::class)->except(['show']);
-});
+        Route::get('login', [LoginController::class, 'create'])->name('login');
+        Route::post('login', [LoginController::class, 'store']);
+        Route::get('register', [RegisterController::class, 'create'])->name('register');
+        Route::post('register', [RegisterController::class, 'store']);
+        Route::get('forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
+        Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
+        Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+        Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
-    Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
-    Route::resource('pages', PageController::class)->except(['show']);
-    Route::resource('courses', CourseController::class)->except(['show']);
-});
+        Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+        Route::middleware('auth')->group(function (): void {
+            Route::get('profile', [ProfileController::class, 'show'])->name('user.profile');
+            Route::view('dashboard', 'dashboard')->name('dashboard');
+            Route::resource('tasks', TaskController::class)->except(['show']);
+        });
+
+        Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
+            Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
+            Route::resource('pages', PageController::class)->except(['show']);
+            Route::resource('courses', CourseController::class)->except(['show']);
+        });
+    });

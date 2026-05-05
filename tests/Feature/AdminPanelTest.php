@@ -44,7 +44,7 @@ class AdminPanelTest extends TestCase
     {
         $admin = $this->makeAdmin();
 
-        $this->actingAs($admin)->get('/admin')->assertRedirect(route('admin.pages.index'));
+        $this->actingAs($admin)->get(route('admin.dashboard'))->assertRedirect(route('admin.pages.index'));
 
         $this->actingAs($admin)->get(route('admin.pages.index'))->assertOk();
         $this->actingAs($admin)->get(route('admin.courses.index'))->assertOk();
@@ -84,7 +84,7 @@ class AdminPanelTest extends TestCase
         $admin = $this->makeAdmin();
         $page = Page::factory()->create(['slug' => 'to-edit', 'title' => 'Old']);
 
-        $this->actingAs($admin)->put(route('admin.pages.update', $page), [
+        $this->actingAs($admin)->put(route('admin.pages.update', ['page' => $page]), [
             'title' => 'New',
             'slug' => 'to-edit',
             'body' => 'B',
@@ -94,7 +94,7 @@ class AdminPanelTest extends TestCase
         $page->refresh();
         $this->assertSame('New', $page->title);
 
-        $this->actingAs($admin)->delete(route('admin.pages.destroy', $page))
+        $this->actingAs($admin)->delete(route('admin.pages.destroy', ['page' => $page]))
             ->assertRedirect(route('admin.pages.index'));
         $this->assertDatabaseMissing('pages', ['id' => $page->id]);
     }
@@ -107,7 +107,7 @@ class AdminPanelTest extends TestCase
 
         $directionId = $course->direction_id;
 
-        $this->actingAs($admin)->put(route('admin.courses.update', $course), [
+        $this->actingAs($admin)->put(route('admin.courses.update', ['course' => $course]), [
             'direction_id' => $directionId,
             'title' => 'Обновлённый',
             'slug' => 'editable',
@@ -118,7 +118,7 @@ class AdminPanelTest extends TestCase
         $course->refresh();
         $this->assertSame('Обновлённый', $course->title);
 
-        $this->actingAs($admin)->delete(route('admin.courses.destroy', $course))
+        $this->actingAs($admin)->delete(route('admin.courses.destroy', ['course' => $course]))
             ->assertRedirect(route('admin.courses.index'));
         $this->assertDatabaseMissing('courses', ['id' => $course->id]);
     }
