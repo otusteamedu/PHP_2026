@@ -15,8 +15,8 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->text('bio')->nullable();
-            $table->string('headline')->nullable();
+            $table->text('bio')->nullable()->default(null);
+            $table->string('headline')->nullable()->default(null);
             $table->timestamps();
         });
     }

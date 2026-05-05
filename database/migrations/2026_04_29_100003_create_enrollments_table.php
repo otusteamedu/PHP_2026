@@ -18,12 +18,13 @@ return new class extends Migration
                 ->constrained('courses')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->string('status', 32);
+            $table->enum('status', ['planned', 'in_progress', 'completed']);
             $table->text('comment')->nullable();
             $table->timestamp('enrolled_at')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'course_id']);
+            $table->index('status');
             $table->index(['course_id', 'status']);
         });
     }
