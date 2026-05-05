@@ -117,6 +117,42 @@ class EntityManager
     }
 
     /**
+     * @throws ReflectionException
+     */
+    private function findOneByColumn(string $entityClass, string $column, mixed $value): ?object
+    {
+        $table = $this->metadataReader->getTableName($entityClass);
+        $fields = $this->metadataReader->getMapping($entityClass);
+
+        $sql = "SELECT * FROM $table WHERE $column = :value LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['value' => $value]);
+
+        $row = $stmt->fetch();
+        if (!$row) {
+            return null;
+        }
+
+        $id = null;
+        $idColumn = $fields['id'] ?? null;
+        if ($idColumn !== null) {
+            $id = (int) $row[$idColumn];
+            $identityMapId = $this->buildIdentityMapId($entityClass, $id);
+            if ($entity = $this->getFromIdentityMap($identityMapId)) {
+                return $entity;
+            }
+        }
+
+        $entity = $this->getEntity($entityClass, $fields, $row);
+
+        if ($id !== null) {
+            $this->setToIdentityMap($this->buildIdentityMapId($entityClass, $id), $entity);
+        }
+
+        return $entity;
+    }
+
+    /**
      * @param array<string, mixed> $row
      * @throws ReflectionException
      */
@@ -236,42 +272,6 @@ class EntityManager
             }
             $this->hydrateRelations($ghost, $targetClass, $row);
         });
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    private function findOneByColumn(string $entityClass, string $column, mixed $value): ?object
-    {
-        $table = $this->metadataReader->getTableName($entityClass);
-        $fields = $this->metadataReader->getMapping($entityClass);
-
-        $sql = "SELECT * FROM $table WHERE $column = :value LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['value' => $value]);
-
-        $row = $stmt->fetch();
-        if (!$row) {
-            return null;
-        }
-
-        $id = null;
-        $idColumn = $fields['id'] ?? null;
-        if ($idColumn !== null) {
-            $id = (int) $row[$idColumn];
-            $identityMapId = $this->buildIdentityMapId($entityClass, $id);
-            if ($entity = $this->getFromIdentityMap($identityMapId)) {
-                return $entity;
-            }
-        }
-
-        $entity = $this->getEntity($entityClass, $fields, $row);
-
-        if ($id !== null) {
-            $this->setToIdentityMap($this->buildIdentityMapId($entityClass, $id), $entity);
-        }
-
-        return $entity;
     }
 
     /**
