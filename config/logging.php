@@ -51,6 +51,7 @@ return [
             'via' => CreateTelegramAlertLogger::class,
             'api_token' => env('TELEGRAM_BOT_TOKEN'),
             'channel_id' => env('TELEGRAM_LOG_CHANNEL_ID'),
+            'level' => env('LOG_TELEGRAM_LEVEL', 'error'),
             'fallback_path' => storage_path('logs/telegram-error-fallback.log'),
         ],
 

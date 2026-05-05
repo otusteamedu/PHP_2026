@@ -16,16 +16,23 @@ class CreateTelegramAlertLogger
         $token = (string) ($config['api_token'] ?? '');
         $channelId = (string) ($config['channel_id'] ?? '');
         $fallbackPath = (string) ($config['fallback_path'] ?? storage_path('logs/telegram-error-fallback.log'));
+        $levelName = strtolower((string) ($config['level'] ?? 'error'));
+
+        try {
+            $minLevel = Level::fromName($levelName);
+        } catch (\UnhandledMatchError) {
+            $minLevel = Level::Error;
+        }
 
         $processors = [new PsrLogMessageProcessor];
 
-        $fallback = new StreamHandler($fallbackPath, Level::Error);
+        $fallback = new StreamHandler($fallbackPath, $minLevel);
 
         if (! extension_loaded('curl') || $token === '' || $channelId === '') {
             return new Logger('telegram_alerts', [$fallback], $processors);
         }
 
-        $telegram = new TelegramBotHandler($token, $channelId, Level::Error);
+        $telegram = new TelegramBotHandler($token, $channelId, $minLevel);
 
         return new Logger('telegram_alerts', [
             new FallbackGroupHandler([$telegram, $fallback]),
