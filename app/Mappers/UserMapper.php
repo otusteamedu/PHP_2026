@@ -30,6 +30,41 @@ class UserMapper
         return $users;
     }
 
+    // Получение пользователей с пагинацией
+    public function paginate(?int $limit = null, int $page = 1): array
+    {
+        $stmt = $this->db->query('SELECT COUNT(*) FROM users');
+        $totalCount = $stmt->fetchColumn();
+
+        if (is_null($limit)) {
+            $limit = $totalCount;
+        }
+
+        $offset = ($page - 1) * $limit;
+
+        $stmt = $this->db->prepare("SELECT * FROM users LIMIT ? OFFSET ?");
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+
+        $users = [];
+        foreach ($results as $row) {
+            $user = $this->createUserFromRow($row);
+            $this->identityMap[$user->getId()] = $user;
+            $users[] = $user;
+        }
+        return [
+            'items' => $users,
+            'meta' => [
+                'total' => $totalCount,
+                'current_page' => $page,
+                'last_page' => (int)ceil($totalCount / $limit),
+                'per_page' => $limit,
+            ]
+        ];
+    }
+
     // Получение пользователя по ID
     public function findById(int $id): ?User
     {

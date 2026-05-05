@@ -45,3 +45,9 @@ $userMapper->delete($user);
 // Выгружаем все посты (их нет, т.к пользователь удален и каскадно удалены посты)
 $posts = $postMapper->findAll();
 var_dump($posts);
+
+$users = $userMapper->paginate();
+var_dump($users);
+
+$users = $userMapper->paginate(2, 2);
+var_dump($users);
