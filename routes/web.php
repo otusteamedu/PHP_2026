@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Models\Page;
 use Illuminate\Support\Facades\Route;
 
@@ -23,11 +23,11 @@ Route::get('/page/{page}', function (Page $page) {
 })->name('page.show');
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [AuthController::class, 'login'])->name('login.attempt');
+    Route::get('login', [AdminAuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AdminAuthenticatedSessionController::class, 'store'])->name('login.attempt');
 
     Route::middleware(['auth', 'admin'])->group(function () {
-        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
         Route::get('/', fn () => redirect()->route('admin.pages.index'))->name('dashboard');
 

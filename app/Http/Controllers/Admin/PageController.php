@@ -27,7 +27,7 @@ class PageController extends Controller
     {
         Page::query()->create($request->validated());
 
-        return redirect()->route('admin.pages.index')->with('ok', 'Страница создана.');
+        return redirect()->route('admin.pages.index')->with('success', 'Страница создана.');
     }
 
     public function edit(Page $page): View
@@ -39,13 +39,13 @@ class PageController extends Controller
     {
         $page->update($request->validated());
 
-        return redirect()->route('admin.pages.index')->with('ok', 'Сохранено.');
+        return redirect()->route('admin.pages.index')->with('success', 'Сохранено.');
     }
 
     public function destroy(Page $page): RedirectResponse
     {
         $page->delete();
 
-        return redirect()->route('admin.pages.index')->with('ok', 'Удалено.');
+        return redirect()->route('admin.pages.index')->with('success', 'Удалено.');
     }
 }

@@ -30,7 +30,7 @@ class CourseController extends Controller
     {
         Course::query()->create($request->validated());
 
-        return redirect()->route('admin.courses.index')->with('ok', 'Курс создан.');
+        return redirect()->route('admin.courses.index')->with('success', 'Курс создан.');
     }
 
     public function edit(Course $course): View
@@ -44,13 +44,13 @@ class CourseController extends Controller
     {
         $course->update($request->validated());
 
-        return redirect()->route('admin.courses.index')->with('ok', 'Сохранено.');
+        return redirect()->route('admin.courses.index')->with('success', 'Сохранено.');
     }
 
     public function destroy(Course $course): RedirectResponse
     {
         $course->delete();
 
-        return redirect()->route('admin.courses.index')->with('ok', 'Удалено.');
+        return redirect()->route('admin.courses.index')->with('success', 'Удалено.');
     }
 }

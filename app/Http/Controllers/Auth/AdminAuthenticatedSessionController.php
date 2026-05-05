@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class AuthController extends Controller
+class AdminAuthenticatedSessionController extends Controller
 {
-    public function showLoginForm(): View|RedirectResponse
+    public function create(): View|RedirectResponse
     {
         if (Auth::check() && Auth::user()->roles()->where('slug', 'admin')->exists()) {
             return redirect()->route('admin.pages.index');
@@ -19,7 +19,7 @@ class AuthController extends Controller
         return view('admin.auth.login');
     }
 
-    public function login(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -43,7 +43,7 @@ class AuthController extends Controller
         return redirect()->intended(route('admin.pages.index'));
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function destroy(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();
