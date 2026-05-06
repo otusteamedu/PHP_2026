@@ -5,6 +5,7 @@ namespace App\Example;
 use App\DataMapper\Mapping\Attribute\Column;
 use App\DataMapper\Mapping\Attribute\ManyToOne;
 use App\DataMapper\Mapping\Attribute\Table;
+use App\Example\Infrastucture\Entity\User;
 
 #[Table(name: 'houses')]
 final class House

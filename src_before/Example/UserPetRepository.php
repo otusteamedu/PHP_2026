@@ -3,10 +3,11 @@
 namespace App\Example;
 
 use App\DataMapper\EntityManager;
+use App\Example\Infrastucture\Entity\UserPet;
 use ArrayObject;
 use ReflectionException;
 
-final readonly class HouseRepository
+final readonly class UserPetRepository
 {
     public function __construct(
         private EntityManager $entityManager
@@ -16,25 +17,25 @@ final readonly class HouseRepository
     /**
      * @throws ReflectionException
      */
-    public function find(int $id): ?House
+    public function find(int $id): ?UserPet
     {
-        return $this->entityManager->find($id, House::class);
+        return $this->entityManager->find($id, UserPet::class);
     }
 
     /**
      * @throws ReflectionException
      */
-    public function save(House $house): void
+    public function save(UserPet $userPet): void
     {
-        $this->entityManager->save($house);
+        $this->entityManager->save($userPet);
     }
 
     /**
-     * @return ArrayObject<House>
+     * @return ArrayObject<UserPet>
      * @throws ReflectionException
      */
     public function findAll(): ArrayObject
     {
-        return $this->entityManager->all(House::class);
+        return $this->entityManager->all(UserPet::class);
     }
 }

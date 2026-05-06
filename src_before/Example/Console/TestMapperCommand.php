@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Console;
+namespace App\Example\Console;
 
-use App\Example\Pet;
-use App\Example\PetRepository;
-use App\Example\Profile;
-use App\Example\ProfileRepository;
-use App\Example\House;
-use App\Example\HouseRepository;
-use App\Example\User;
-use App\Example\UserRepository;
-use App\Example\UserPet;
-use App\Example\UserPetRepository;
+use App\Example\Infrastucture\Entity\House;
+use App\Example\Infrastucture\Entity\Pet;
+use App\Example\Infrastucture\Entity\Profile;
+use App\Example\Infrastucture\Entity\User;
+use App\Example\Infrastucture\Entity\UserPet;
+use App\Example\Infrastucture\Repository\HouseRepositoryInterface;
+use App\Example\Infrastucture\Repository\PetRepository;
+use App\Example\Infrastucture\Repository\ProfileRepository;
+use App\Example\Infrastucture\Repository\UserPetRepository;
+use App\Example\Infrastucture\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +29,7 @@ class TestMapperCommand extends Command
         private readonly UserRepository $users,
         private readonly ProfileRepository $profiles,
         private readonly PetRepository $pets,
-        private readonly HouseRepository $houses,
+        private readonly HouseRepositoryInterface $houses,
         private readonly UserPetRepository $userPets,
     ) {
         parent::__construct();

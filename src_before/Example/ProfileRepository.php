@@ -3,38 +3,38 @@
 namespace App\Example;
 
 use App\DataMapper\EntityManager;
+use App\Example\Infrastucture\Entity\Profile;
 use ArrayObject;
 use ReflectionException;
 
-final readonly class UserPetRepository
+final readonly class ProfileRepository
 {
     public function __construct(
         private EntityManager $entityManager
-    ) {
+    ) {}
+
+    /**
+     * @throws ReflectionException
+     */
+    public function find(int $id): ?Profile
+    {
+        return $this->entityManager->find($id, Profile::class);
     }
 
     /**
      * @throws ReflectionException
      */
-    public function find(int $id): ?UserPet
+    public function save(Profile $Profile): void
     {
-        return $this->entityManager->find($id, UserPet::class);
+        $this->entityManager->save($Profile);
     }
 
     /**
-     * @throws ReflectionException
-     */
-    public function save(UserPet $userPet): void
-    {
-        $this->entityManager->save($userPet);
-    }
-
-    /**
-     * @return ArrayObject<UserPet>
+     * @return ArrayObject<Profile>
      * @throws ReflectionException
      */
     public function findAll(): ArrayObject
     {
-        return $this->entityManager->all(UserPet::class);
+        return $this->entityManager->all(Profile::class);
     }
 }

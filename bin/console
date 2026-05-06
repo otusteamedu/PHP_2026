@@ -3,14 +3,14 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Console\TestMapperCommand;
 use App\DataMapper\EntityManager;
 use App\DataMapper\Mapping\MetadataReader;
-use App\Example\PetRepository;
-use App\Example\ProfileRepository;
-use App\Example\HouseRepository;
-use App\Example\UserRepository;
-use App\Example\UserPetRepository;
+use App\Example\Infrastucture\Console\TestMapperCommand;
+use App\Example\Infrastucture\Repository\HouseRepositoryInterface;
+use App\Example\Infrastucture\Repository\PetRepository;
+use App\Example\Infrastucture\Repository\ProfileRepository;
+use App\Example\Infrastucture\Repository\UserPetRepository;
+use App\Example\Infrastucture\Repository\UserRepository;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
@@ -28,7 +28,7 @@ $entityManager = new EntityManager($pdo, $metadataReader);
 $userRepository = new UserRepository($entityManager);
 $profileRepository = new ProfileRepository($entityManager);
 $petRepository = new PetRepository($entityManager);
-$houseRepository = new HouseRepository($entityManager);
+$houseRepository = new HouseRepositoryInterface($entityManager);
 $userPetRepository = new UserPetRepository($entityManager);
 
 $application->addCommand(new TestMapperCommand(

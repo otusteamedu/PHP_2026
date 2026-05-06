@@ -3,6 +3,7 @@
 namespace App\Example;
 
 use App\DataMapper\EntityManager;
+use App\Example\Infrastucture\Entity\Pet;
 use ArrayObject;
 use ReflectionException;
 

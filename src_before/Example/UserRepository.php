@@ -3,6 +3,7 @@
 namespace App\Example;
 
 use App\DataMapper\EntityManager;
+use App\Example\Infrastucture\Entity\User;
 use ArrayObject;
 use ReflectionException;
 

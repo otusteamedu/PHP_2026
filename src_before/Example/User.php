@@ -7,6 +7,10 @@ use App\DataMapper\Mapping\Attribute\ManyToMany;
 use App\DataMapper\Mapping\Attribute\OneToMany;
 use App\DataMapper\Mapping\Attribute\OneToOne;
 use App\DataMapper\Mapping\Attribute\Table;
+use App\Example\Infrastucture\Entity\House;
+use App\Example\Infrastucture\Entity\Pet;
+use App\Example\Infrastucture\Entity\Profile;
+use App\Example\Infrastucture\Entity\UserPet;
 use ArrayObject;
 
 #[Table(name: 'users')]
