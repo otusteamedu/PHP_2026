@@ -16,9 +16,10 @@
     ],
     "require": {
         "php": "^8.2",
+        "darkaonline/l5-swagger": "^11.0",
         "hw11/learning-package": "@dev",
         "laravel/framework": "^12.0",
-        "laravel/sanctum": "^4.3",
+        "laravel/passport": "^13.7",
         "laravel/tinker": "^2.10.1"
     },
     "require-dev": {
@@ -66,6 +67,9 @@
         "deploy": [
             "Composer\\Config::disableProcessTimeout",
             "@php vendor/bin/envoy run deploy"
+        ],
+        "swagger": [
+            "@php artisan l5-swagger:generate"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
