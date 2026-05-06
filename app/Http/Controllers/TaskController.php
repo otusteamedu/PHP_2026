@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TaskCreated;
 use App\Models\Task;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,9 @@ class TaskController extends Controller
         $validated['user_id'] = $request->user()->id;
         $validated['is_done'] = $request->boolean('is_done');
 
-        Task::query()->create($validated);
+        $task = Task::query()->create($validated);
+
+        event(new TaskCreated($task));
 
         return redirect()->route('tasks.index')->with('ok', 'Задача создана.');
     }

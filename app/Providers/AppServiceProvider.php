@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\TaskCreated;
+use App\Listeners\RecordTaskCreatedInLog;
+use App\Listeners\SendTaskCreatedEmail;
 use App\Models\Direction;
 use App\Models\Page;
 use App\Models\User;
@@ -37,5 +40,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-admin', function (User $user): bool {
             return $user->roles()->where('slug', 'admin')->exists();
         });
+
+        Event::listen(TaskCreated::class, RecordTaskCreatedInLog::class);
+        Event::listen(TaskCreated::class, SendTaskCreatedEmail::class);
     }
 }
