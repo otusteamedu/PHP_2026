@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ApiTokenController;
+use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\TaskApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,6 +9,7 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/token', [ApiTokenController::class, 'store']);
 
     Route::middleware('auth:api')->group(function (): void {
+        Route::get('/me', [ProfileApiController::class, 'show']);
         Route::get('/tasks', [TaskApiController::class, 'list']);
         Route::get('/tasks/{task}', [TaskApiController::class, 'show']);
         Route::post('/tasks', [TaskApiController::class, 'store']);
