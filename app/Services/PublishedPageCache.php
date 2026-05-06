@@ -33,10 +33,10 @@ class PublishedPageCache
         Cache::forget(self::cacheKey($slug));
     }
 
-    public function warmPublished(): int
+    public function warmPublished(int $chunkSize = 100): int
     {
         $count = 0;
-        Page::query()->where('is_published', true)->select(['id', 'slug'])->chunkById(100, function ($pages) use (&$count): void {
+        Page::query()->where('is_published', true)->select(['id', 'slug'])->chunkById(max(1, $chunkSize), function ($pages) use (&$count): void {
             foreach ($pages as $page) {
                 $this->findPublished($page->slug);
                 $count++;
