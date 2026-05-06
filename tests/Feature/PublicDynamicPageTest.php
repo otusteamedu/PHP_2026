@@ -19,7 +19,7 @@ class PublicDynamicPageTest extends TestCase
             'is_published' => true,
         ]);
 
-        $this->get(route('page.show', ['page' => $page]))->assertOk()->assertViewIs('pages.dynamic');
+        $this->get(route('page.show', [$page]))->assertOk()->assertViewIs('pages.dynamic');
     }
 
     #[Test]
@@ -30,6 +30,6 @@ class PublicDynamicPageTest extends TestCase
             'is_published' => false,
         ]);
 
-        $this->get(route('page.show', ['page' => $page]))->assertNotFound();
+        $this->get(route('page.show', [$page]))->assertNotFound();
     }
 }

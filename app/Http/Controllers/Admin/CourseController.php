@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCourseRequest;
 use App\Http\Requests\Admin\UpdateCourseRequest;
 use App\Models\Course;
-use App\Models\Direction;
+use App\Services\DirectionsListCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class CourseController extends Controller
 {
+    public function __construct(
+        private readonly DirectionsListCache $directionsListCache
+    ) {}
+
     public function index(): View
     {
         $courses = Course::query()->with('direction')->latest('updated_at')->paginate(15);
@@ -21,7 +25,7 @@ class CourseController extends Controller
 
     public function create(): View
     {
-        $directions = Direction::query()->orderBy('name')->get();
+        $directions = $this->directionsListCache->allOrderedByName();
 
         return view('admin.courses.create', compact('directions'));
     }
@@ -33,21 +37,21 @@ class CourseController extends Controller
         return redirect()->route('admin.courses.index')->with('ok', 'Курс создан.');
     }
 
-    public function edit(Course $course): View
+    public function edit(string $locale, Course $course): View
     {
-        $directions = Direction::query()->orderBy('name')->get();
+        $directions = $this->directionsListCache->allOrderedByName();
 
         return view('admin.courses.edit', compact('course', 'directions'));
     }
 
-    public function update(UpdateCourseRequest $request, Course $course): RedirectResponse
+    public function update(string $locale, Course $course, UpdateCourseRequest $request): RedirectResponse
     {
         $course->update($request->validated());
 
         return redirect()->route('admin.courses.index')->with('ok', 'Сохранено.');
     }
 
-    public function destroy(Course $course): RedirectResponse
+    public function destroy(string $locale, Course $course): RedirectResponse
     {
         $course->delete();
 
