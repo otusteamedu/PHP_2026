@@ -74,6 +74,82 @@
                 "security": []
             }
         },
+        "/api/v1/me": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "description": "Данные пользователя для мобильного личного кабинета",
+                "operationId": "profileMe",
+                "responses": {
+                    "200": {
+                        "description": "Профиль",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "email_verified_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "nullable": true
+                                        },
+                                        "roles": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "profile": {
+                                            "properties": {
+                                                "bio": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "headline": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/tasks": {
             "get": {
                 "tags": [
@@ -377,6 +453,9 @@
         },
         {
             "name": "Tasks"
+        },
+        {
+            "name": "Profile"
         }
     ]
 }
