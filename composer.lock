@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
+    "content-hash": "542d51779e491ac22a382bb613101786",
     "packages": [
         {
             "name": "brick/math",
@@ -1052,6 +1052,45 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "hw11/learning-package",
+            "version": "dev-EBaksaisov/hw11",
+            "dist": {
+                "type": "path",
+                "url": "packages/hw11/learning-package",
+                "reference": "7d5100ead965b80d49683ef619816e3b5cc3d408"
+            },
+            "require": {
+                "illuminate/console": "^12.0",
+                "illuminate/contracts": "^12.0",
+                "illuminate/support": "^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Hw11\\LearningPackage\\LearningPackageServiceProvider"
+                    ],
+                    "aliases": {
+                        "LearningSignature": "Hw11\\LearningPackage\\Facades\\Signature"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hw11\\LearningPackage\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Local learning package for Laravel homework",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",
@@ -8388,7 +8427,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "hw11/learning-package": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

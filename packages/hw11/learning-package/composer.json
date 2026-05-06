@@ -1,0 +1,27 @@
+{
+    "name": "hw11/learning-package",
+    "description": "Local learning package for Laravel homework",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hw11\\LearningPackage\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/console": "^12.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hw11\\LearningPackage\\LearningPackageServiceProvider"
+            ],
+            "aliases": {
+                "LearningSignature": "Hw11\\LearningPackage\\Facades\\Signature"
+            }
+        }
+    }
+}
