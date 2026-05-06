@@ -4,12 +4,15 @@ namespace App\DataMapper;
 
 use App\DataMapper\Mapping\MetadataReader;
 use ArrayObject;
+use InvalidArgumentException;
 use PDO;
 use ReflectionClass;
 use ReflectionException;
 
 class EntityManager
 {
+    private const int DEFAULT_LIMIT = 100;
+
     /**
      * @var array<string, object>
      */
@@ -26,7 +29,7 @@ class EntityManager
      */
     public function save(object $entity): void
     {
-        $table = $this->metadataReader->getTableName($entity::class);
+        $table = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($entity::class));
         $fields = $this->metadataReader->getMapping($entity::class);
 
         $data = [];
@@ -38,7 +41,7 @@ class EntityManager
             unset($data['id']);
             $columns = $placeholders = [];
             foreach (array_keys($data) as $column) {
-                $columns[] = $column;
+                $columns[] = $this->validateAndQuoteIdentifier($column);
                 $placeholders[] = ":{$column}";
             }
 
@@ -53,10 +56,11 @@ class EntityManager
         } else {
             $set = $data
                     |> array_keys(...)
-                    |> (fn($columns) => array_map(fn($c) => "$c = :$c", $columns))
+                    |> (fn($columns) => array_map(fn($c) => $this->validateAndQuoteIdentifier($c) . " = :$c", $columns))
                     |> (fn($bindColumns) => implode(', ', $bindColumns));
 
-            $sql = "UPDATE $table SET $set WHERE id = :id";
+            $idColumn = $this->validateAndQuoteIdentifier($fields['id'] ?? 'id');
+            $sql = "UPDATE {$table} SET {$set} WHERE {$idColumn} = :id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($data);
         }
@@ -67,7 +71,7 @@ class EntityManager
      */
     public function find(int $id, string $entityClass): ?object
     {
-        $table = $this->metadataReader->getTableName($entityClass);
+        $table = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($entityClass));
         $fields = $this->metadataReader->getMapping($entityClass);
 
         $identityMapId = $this->buildIdentityMapId($entityClass, $id);
@@ -75,7 +79,9 @@ class EntityManager
             return $entity;
         }
 
-        $sql = "SELECT * FROM $table WHERE id = :id";
+        $selectColumns = $this->buildSelectColumns($fields);
+        $idColumn = $this->validateAndQuoteIdentifier($fields['id'] ?? 'id');
+        $sql = "SELECT {$selectColumns} FROM {$table} WHERE {$idColumn} = :id LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
 
@@ -93,24 +99,37 @@ class EntityManager
     /**
      * @throws ReflectionException
      */
-    public function all(string $entityClass, array $conditions = []): ArrayObject
-    {
-        $table = $this->metadataReader->getTableName($entityClass);
+    public function all(
+        string $entityClass,
+        array $conditions = [],
+        int $limit = self::DEFAULT_LIMIT,
+        int $offset = 0
+    ): ArrayObject {
+        $table = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($entityClass));
         $fields = $this->metadataReader->getMapping($entityClass);
 
-        $sql = "SELECT * FROM $table";
+        $selectColumns = $this->buildSelectColumns($fields);
+        $sql = "SELECT {$selectColumns} FROM {$table}";
 
         $safeConditions = array_intersect_key($conditions, $fields);
         $bindings = [];
-        foreach ($safeConditions as $column => $value) {
-            $bindings[] = "$column = :{$column}";
+        foreach ($safeConditions as $property => $value) {
+            $column = $fields[$property];
+            $bindings[] = $this->validateAndQuoteIdentifier($column) . " = :{$property}";
         }
 
         if (!empty($bindings)) {
             $sql .= ' WHERE ' . implode(' AND ', $bindings);
         }
+        $sql .= ' LIMIT :limit OFFSET :offset';
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($safeConditions);
+        foreach ($safeConditions as $property => $value) {
+            $stmt->bindValue(":{$property}", $value);
+        }
+        $stmt->bindValue(':limit', max(1, $limit), PDO::PARAM_INT);
+        $stmt->bindValue(':offset', max(0, $offset), PDO::PARAM_INT);
+        $stmt->execute();
         $rows = $stmt->fetchAll();
 
         return $this->getEntities($entityClass, $fields, $rows);
@@ -121,10 +140,15 @@ class EntityManager
      */
     private function findOneByColumn(string $entityClass, string $column, mixed $value): ?object
     {
-        $table = $this->metadataReader->getTableName($entityClass);
+        $table = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($entityClass));
         $fields = $this->metadataReader->getMapping($entityClass);
+        if (!in_array($column, $fields)) {
+            throw new InvalidArgumentException("Column '{$column}' is not mapped for {$entityClass}.");
+        }
 
-        $sql = "SELECT * FROM $table WHERE $column = :value LIMIT 1";
+        $selectColumns = $this->buildSelectColumns($fields);
+        $column = $this->validateAndQuoteIdentifier($column);
+        $sql = "SELECT {$selectColumns} FROM {$table} WHERE {$column} = :value LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['value' => $value]);
 
@@ -157,9 +181,15 @@ class EntityManager
      */
     private function findOneToManyData(string $entityClass, string $column, mixed $value): ArrayObject
     {
-        $table = $this->metadataReader->getTableName($entityClass);
+        $table = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($entityClass));
         $fields = $this->metadataReader->getMapping($entityClass);
-        $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE $column = :value");
+        if (!in_array($column, $fields)) {
+            throw new InvalidArgumentException("Column '{$column}' is not mapped for {$entityClass}.");
+        }
+
+        $selectColumns = $this->buildSelectColumns($fields);
+        $column = $this->validateAndQuoteIdentifier($column);
+        $stmt = $this->pdo->prepare("SELECT {$selectColumns} FROM {$table} WHERE {$column} = :value");
         $stmt->execute(['value' => $value]);
 
         return $this->getEntities($entityClass, $fields, $stmt->fetchAll());
@@ -176,13 +206,26 @@ class EntityManager
         string $joinTarget,
         mixed $localValue
     ): ArrayObject {
-        $targetTable = $this->metadataReader->getTableName($targetClass);
+        $targetTable = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($targetClass));
         $targetFields = $this->metadataReader->getMapping($targetClass);
-        $joinTable = $this->metadataReader->getTableName($joinClass);
+        $joinTable = $this->validateAndQuoteIdentifier($this->metadataReader->getTableName($joinClass));
+        $joinFields = $this->metadataReader->getMapping($joinClass);
 
-        $sql = "SELECT t.* FROM $targetTable t "
-            . "INNER JOIN $joinTable j ON t.$targetCol = j.$joinTarget "
-            . "WHERE j.$joinLocal = :value";
+        if (!in_array($targetCol, $targetFields, true)) {
+            throw new InvalidArgumentException("Column '{$targetCol}' is not mapped for {$targetClass}.");
+        }
+        if (!in_array($joinLocal, $joinFields, true) || !in_array($joinTarget, $joinFields, true)) {
+            throw new InvalidArgumentException("Join columns are not mapped for {$joinClass}.");
+        }
+
+        $targetSelectColumns = $this->buildSelectColumns($targetFields, 't');
+        $targetCol = $this->validateAndQuoteIdentifier($targetCol);
+        $joinLocal = $this->validateAndQuoteIdentifier($joinLocal);
+        $joinTarget = $this->validateAndQuoteIdentifier($joinTarget);
+
+        $sql = "SELECT {$targetSelectColumns} FROM {$targetTable} t "
+            . "INNER JOIN {$joinTable} j ON t.{$targetCol} = j.{$joinTarget} "
+            . "WHERE j.{$joinLocal} = :value";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['value' => $localValue]);
 
@@ -402,5 +445,31 @@ class EntityManager
     private function setToIdentityMap(string $identityMapId, object $entity): void
     {
         $this->identityMap[$identityMapId] = $entity;
+    }
+
+    /**
+     * @param array<string, string> $fields
+     */
+    private function buildSelectColumns(array $fields, ?string $alias = null): string
+    {
+        $quotedFields = array_map(function (string $column) use ($alias): string {
+            $quotedColumn = $this->validateAndQuoteIdentifier($column);
+            if ($alias === null) {
+                return $quotedColumn;
+            }
+
+            return $alias . '.' . $quotedColumn;
+        }, $fields);
+
+        return implode(', ', $quotedFields);
+    }
+
+    private function validateAndQuoteIdentifier(string $identifier): string
+    {
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $identifier)) {
+            throw new InvalidArgumentException("Unsafe SQL identifier: {$identifier}");
+        }
+
+        return '"' . $identifier . '"';
     }
 }
