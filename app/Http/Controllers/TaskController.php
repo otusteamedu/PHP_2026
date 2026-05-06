@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Task\TaskAggregate;
+use App\Domain\Task\TaskRepository;
+use App\Domain\Task\ValueObjects\TaskDescription;
+use App\Domain\Task\ValueObjects\TaskTitle;
 use App\Events\TaskCreated;
 use App\Models\Task;
+use DateTimeImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -11,6 +16,10 @@ use Illuminate\View\View;
 
 class TaskController extends Controller
 {
+    public function __construct(
+        private readonly TaskRepository $tasks
+    ) {}
+
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Task::class);
@@ -37,12 +46,22 @@ class TaskController extends Controller
             'is_done' => ['sometimes', 'boolean'],
             'due_at' => ['nullable', 'date'],
         ]);
-        $validated['user_id'] = $request->user()->id;
-        $validated['is_done'] = $request->boolean('is_done');
 
-        $task = Task::query()->create($validated);
+        $due = isset($validated['due_at']) && $validated['due_at'] !== ''
+            ? new DateTimeImmutable($validated['due_at'])
+            : null;
 
-        event(new TaskCreated($task));
+        $aggregate = TaskAggregate::begin(
+            $request->user()->id,
+            TaskTitle::fromString($validated['title']),
+            TaskDescription::fromNullable($validated['description'] ?? null),
+            $request->boolean('is_done'),
+            $due,
+        );
+
+        $persisted = $this->tasks->save($aggregate);
+
+        event(new TaskCreated($persisted));
 
         return redirect()->route('tasks.index')->with('ok', 'Задача создана.');
     }
@@ -64,8 +83,24 @@ class TaskController extends Controller
             'is_done' => ['sometimes', 'boolean'],
             'due_at' => ['nullable', 'date'],
         ]);
-        $validated['is_done'] = $request->boolean('is_done');
-        $task->update($validated);
+
+        $aggregate = $this->tasks->findForOwner((int) $task->getKey(), (int) $request->user()->id);
+        if ($aggregate === null) {
+            abort(404);
+        }
+
+        $due = isset($validated['due_at']) && $validated['due_at'] !== ''
+            ? new DateTimeImmutable($validated['due_at'])
+            : null;
+
+        $aggregate->recordTitleNotesAndSchedule(
+            TaskTitle::fromString($validated['title']),
+            TaskDescription::fromNullable($validated['description'] ?? null),
+            $request->boolean('is_done'),
+            $due,
+        );
+
+        $this->tasks->save($aggregate);
 
         return redirect()->route('tasks.index')->with('ok', 'Сохранено.');
     }
