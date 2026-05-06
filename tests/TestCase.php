@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\URL;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -10,7 +11,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        \Illuminate\Support\Facades\URL::defaults([
+        URL::defaults([
             'locale' => config('locale.testing', 'en'),
         ]);
     }
