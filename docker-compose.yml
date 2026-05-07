@@ -1,10 +1,4 @@
 services:
-  redis:
-    image: redis
-
-  memcached:
-    image: memcached
-
   php-cli:
     build:
       context: ./docker
