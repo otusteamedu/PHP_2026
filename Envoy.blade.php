@@ -34,5 +34,5 @@
 @endtask
 
 @task('publish', ['on' => 'localhost'])
-    cd "{{ $prodRoot }}" && git pull origin {{ $branch }} && composer install --no-dev --optimize-autoloader --no-interaction && npm install --omit=dev && npm run build && php artisan migrate --force --no-interaction && php artisan optimize
+    cd "{{ $prodRoot }}" && git pull origin {{ $branch }} && composer install --no-dev --optimize-autoloader --no-interaction && npm install --omit=dev && npm run build && php artisan migrate --force --no-interaction && php artisan optimize && php artisan queue:restart && php artisan cache:warm-app
 @endtask
