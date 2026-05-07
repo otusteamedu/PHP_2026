@@ -46,6 +46,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'task_events' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/task-events.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'telegram_alerts' => [
             'driver' => 'custom',
             'via' => CreateTelegramAlertLogger::class,
