@@ -42,7 +42,7 @@ final class PageAggregate
     public function assignPersistedIdentity(int $id): void
     {
         if ($this->id !== null) {
-            throw new \LogicException('id');
+            throw new \LogicException('Identity already assigned');
         }
         if ($id < 1) {
             throw new \InvalidArgumentException('id');
