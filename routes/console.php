@@ -11,13 +11,8 @@ Artisan::command('inspire', function () {
 app()->booted(function (): void {
     $schedule = app(Schedule::class);
 
-    $schedule->command('cache:clear')
+    $schedule->command('cache:refresh-app all --chunk=200')
         ->dailyAt('03:00')
-        ->onOneServer()
-        ->withoutOverlapping();
-
-    $schedule->command('cache:warm-app all --chunk=200')
-        ->dailyAt('03:10')
         ->onOneServer()
         ->withoutOverlapping();
 });
