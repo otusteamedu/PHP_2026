@@ -16,13 +16,13 @@ class PublishedPageCache
     {
         $key = self::cacheKey($slug);
         $cached = Cache::get($key);
-        if ($cached instanceof Page) {
-            return $cached;
+        if (is_array($cached)) {
+            return Page::hydrate([$cached])->first();
         }
 
         $page = Page::query()->where('slug', $slug)->where('is_published', true)->first();
         if ($page !== null) {
-            Cache::put($key, $page, now()->addSeconds(config('hw_cache.pages_ttl')));
+            Cache::put($key, $page->getAttributes(), now()->addSeconds(config('hw_cache.pages_ttl')));
         }
 
         return $page;
