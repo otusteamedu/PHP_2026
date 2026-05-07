@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Construct;
+use App\Models\ConstructAlias;
 use App\Models\ConstructLink;
 use App\Models\ConstructSnippet;
 use App\Models\Language;
@@ -35,6 +36,20 @@ class ConstructPublicApiTest extends TestCase
         $data = $response->json('data');
         $this->assertCount(1, $data);
         $this->assertSame('php', $data[0]['language']);
+        $this->assertSame('foreach', $data[0]['slug']);
+    }
+
+    public function test_search_finds_by_alias(): void
+    {
+        $php = Language::factory()->create(['code' => 'php', 'name' => 'PHP']);
+        $construct = Construct::factory()->for($php)->create(['title' => 'foreach', 'slug' => 'foreach']);
+        ConstructAlias::factory()->for($construct)->create(['alias' => 'for each']);
+
+        $response = $this->getJson('/api/v1/constructs?language=php&q=for%20each&limit=10');
+
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
         $this->assertSame('foreach', $data[0]['slug']);
     }
 

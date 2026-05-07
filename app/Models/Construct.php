@@ -33,4 +33,9 @@ class Construct extends Model
     {
         return $this->hasMany(ConstructLink::class)->orderBy('sort');
     }
+
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(ConstructAlias::class)->orderBy('alias');
+    }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Construct;
+use App\Models\ConstructAlias;
 use App\Models\ConstructLink;
 use App\Models\ConstructSnippet;
 use App\Models\Language;
@@ -55,6 +56,7 @@ PHP,
                 'url' => 'https://www.php.net/manual/en/control-structures.foreach.php',
             ]
         );
+        $this->syncAliases($foreach->id, ['for each', 'foreach loop', 'цикл', 'итерация']);
 
         $switch = Construct::query()->updateOrCreate(
             ['language_id' => $languageId, 'slug' => 'switch'],
@@ -91,6 +93,7 @@ PHP,
                 'url' => 'https://www.php.net/manual/en/control-structures.switch.php',
             ]
         );
+        $this->syncAliases($switch->id, ['case', 'ветвление']);
 
         $tryCatch = Construct::query()->updateOrCreate(
             ['language_id' => $languageId, 'slug' => 'try-catch'],
@@ -121,6 +124,7 @@ PHP,
                 'url' => 'https://www.php.net/manual/en/language.exceptions.php',
             ]
         );
+        $this->syncAliases($tryCatch->id, ['exception', 'throwable', 'исключение', 'ошибка']);
     }
 
     private function seedGo(int $languageId): void
@@ -162,6 +166,7 @@ GO,
                 'url' => 'https://go.dev/tour/concurrency/1',
             ]
         );
+        $this->syncAliases($goroutine->id, ['go routine', 'concurrency', 'параллельность']);
 
         $defer = Construct::query()->updateOrCreate(
             ['language_id' => $languageId, 'slug' => 'defer'],
@@ -194,5 +199,23 @@ GO,
                 'url' => 'https://go.dev/tour/flowcontrol/12',
             ]
         );
+        $this->syncAliases($defer->id, ['finally', 'cleanup', 'отложенный вызов']);
+    }
+
+    private function syncAliases(int $constructId, array $aliases): void
+    {
+        ConstructAlias::query()->where('construct_id', $constructId)->delete();
+
+        foreach ($aliases as $alias) {
+            $alias = trim((string) $alias);
+            if ($alias === '') {
+                continue;
+            }
+
+            ConstructAlias::query()->create([
+                'construct_id' => $constructId,
+                'alias' => $alias,
+            ]);
+        }
     }
 }

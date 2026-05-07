@@ -16,19 +16,33 @@ class TelegramBotClient
             ->get("https://api.telegram.org/bot{$this->token}/getUpdates", [
                 'offset' => $offset,
                 'timeout' => $timeoutSeconds,
-                'allowed_updates' => ['message'],
             ]);
 
         return (array) $response->json();
     }
 
-    public function sendMessage(int|string $chatId, string $text): array
+    public function sendMessage(int|string $chatId, string $text, ?array $replyMarkup = null): array
     {
-        $response = Http::timeout(10)->post("https://api.telegram.org/bot{$this->token}/sendMessage", [
+        $payload = [
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
             'disable_web_page_preview' => true,
+        ];
+
+        if ($replyMarkup !== null) {
+            $payload['reply_markup'] = $replyMarkup;
+        }
+
+        $response = Http::timeout(10)->post("https://api.telegram.org/bot{$this->token}/sendMessage", $payload);
+
+        return (array) $response->json();
+    }
+
+    public function answerCallbackQuery(string $callbackQueryId): array
+    {
+        $response = Http::timeout(10)->post("https://api.telegram.org/bot{$this->token}/answerCallbackQuery", [
+            'callback_query_id' => $callbackQueryId,
         ]);
 
         return (array) $response->json();

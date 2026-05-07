@@ -19,7 +19,7 @@ class ConstructPublicApiController extends Controller
         ]);
 
         $limit = (int) ($validated['limit'] ?? 10);
-        $q = isset($validated['q']) ? trim((string) $validated['q']) : '';
+        $q = isset($validated['q']) ? $this->normalizeQuery((string) $validated['q']) : '';
         $languageCode = isset($validated['language']) ? trim((string) $validated['language']) : '';
 
         $query = Construct::query()
@@ -35,11 +35,37 @@ class ConstructPublicApiController extends Controller
         }
 
         if ($q !== '') {
-            $query->where(function ($q1) use ($q): void {
-                $q1->where('title', 'like', '%'.$q.'%')
+            $words = $this->splitWords($q);
+
+            $query->where(function ($q1) use ($q, $words): void {
+                $q1->where('slug', 'like', '%'.$q.'%')
+                    ->orWhere('title', 'like', '%'.$q.'%')
                     ->orWhere('summary', 'like', '%'.$q.'%')
-                    ->orWhere('details', 'like', '%'.$q.'%');
+                    ->orWhere('details', 'like', '%'.$q.'%')
+                    ->orWhereHas('aliases', function ($a) use ($q): void {
+                        $a->where('alias', 'like', '%'.$q.'%');
+                    });
+
+                foreach ($words as $w) {
+                    $q1->orWhere('title', 'like', '%'.$w.'%')
+                        ->orWhere('slug', 'like', '%'.$w.'%')
+                        ->orWhereHas('aliases', function ($a) use ($w): void {
+                            $a->where('alias', 'like', '%'.$w.'%');
+                        });
+                }
             });
+
+            $qLower = mb_strtolower($q);
+            $query->orderByRaw(
+                'case
+                    when lower(slug) = ? then 0
+                    when lower(title) = ? then 1
+                    when lower(slug) like ? then 2
+                    when lower(title) like ? then 3
+                    else 4
+                end',
+                [$qLower, $qLower, $qLower.'%', $qLower.'%']
+            );
         }
 
         $items = $query->orderBy('title')->limit($limit)->get();
@@ -90,5 +116,20 @@ class ConstructPublicApiController extends Controller
                 'url' => $l->url,
             ])->values(),
         ]);
+    }
+
+    private function normalizeQuery(string $q): string
+    {
+        $q = trim(preg_replace('/\s+/', ' ', $q) ?? '');
+
+        return mb_substr($q, 0, 200);
+    }
+
+    private function splitWords(string $q): array
+    {
+        $parts = preg_split('/[^a-z0-9_\/-]+/iu', $q) ?: [];
+        $parts = array_values(array_filter(array_map('trim', $parts), static fn ($v) => $v !== ''));
+
+        return array_slice($parts, 0, 5);
     }
 }
