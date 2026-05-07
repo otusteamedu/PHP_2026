@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Domain\Page\PageRepository;
+use App\Domain\Task\TaskRepository;
 use App\Events\TaskCreated;
+use App\Infrastructure\Persistence\EloquentPageRepository;
+use App\Infrastructure\Persistence\EloquentTaskRepository;
 use App\Listeners\RecordTaskCreatedInLog;
 use App\Listeners\SendTaskCreatedEmail;
 use App\Models\Direction;
@@ -19,7 +23,11 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(TaskRepository::class, EloquentTaskRepository::class);
+        $this->app->singleton(PageRepository::class, EloquentPageRepository::class);
+    }
 
     public function boot(): void
     {

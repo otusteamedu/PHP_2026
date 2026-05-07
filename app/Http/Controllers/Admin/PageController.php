@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Page\PageAggregate;
+use App\Domain\Page\PageRepository;
+use App\Domain\Page\ValueObjects\PageBody;
+use App\Domain\Page\ValueObjects\PageSlug;
+use App\Domain\Page\ValueObjects\PageTitle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePageRequest;
 use App\Http\Requests\Admin\UpdatePageRequest;
@@ -11,6 +16,10 @@ use Illuminate\View\View;
 
 class PageController extends Controller
 {
+    public function __construct(
+        private readonly PageRepository $pages
+    ) {}
+
     public function index(): View
     {
         $pages = Page::query()->latest('updated_at')->paginate(15);
@@ -25,7 +34,16 @@ class PageController extends Controller
 
     public function store(StorePageRequest $request): RedirectResponse
     {
-        Page::query()->create($request->validated());
+        $data = $request->validated();
+
+        $aggregate = PageAggregate::draft(
+            PageTitle::fromString($data['title']),
+            PageSlug::fromString($data['slug']),
+            PageBody::fromNullable($data['body'] ?? null),
+            (bool) ($data['is_published'] ?? false),
+        );
+
+        $this->pages->save($aggregate);
 
         return redirect()->route('admin.pages.index')->with('ok', 'Страница создана.');
     }
@@ -37,7 +55,21 @@ class PageController extends Controller
 
     public function update(string $locale, Page $page, UpdatePageRequest $request): RedirectResponse
     {
-        $page->update($request->validated());
+        $data = $request->validated();
+
+        $aggregate = $this->pages->findById((int) $page->getKey());
+        if ($aggregate === null) {
+            abort(404);
+        }
+
+        $aggregate->revise(
+            PageTitle::fromString($data['title']),
+            PageSlug::fromString($data['slug']),
+            PageBody::fromNullable($data['body'] ?? null),
+            (bool) ($data['is_published'] ?? false),
+        );
+
+        $this->pages->save($aggregate);
 
         return redirect()->route('admin.pages.index')->with('ok', 'Сохранено.');
     }
