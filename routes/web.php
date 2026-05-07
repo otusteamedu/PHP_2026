@@ -9,7 +9,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Http\Middleware\SetLocaleFromUrl;
-use App\Models\Page;
+use App\Services\PublishedPageCache;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 $localePattern = implode('|', config('locale.supported', ['en', 'ru']));
@@ -24,13 +25,16 @@ Route::prefix('{locale}')
 
         Route::view('about', 'pages.static-info')->name('static.info');
 
-        Route::get('page/{page}', function (Page $page) {
-            if (! $page->is_published) {
+        Route::get('page/{slug}', function (PublishedPageCache $publishedPageCache, Request $request) {
+            $slug = (string) $request->route()->parameter('slug');
+
+            $model = $publishedPageCache->findPublished($slug);
+            if ($model === null) {
                 abort(404);
             }
 
-            return view('pages.dynamic', ['page' => $page]);
-        })->name('page.show');
+            return view('pages.dynamic', ['page' => $model]);
+        })->where('slug', '[A-Za-z0-9_-]+')->name('page.show');
 
         Route::get('login', [LoginController::class, 'create'])->name('login');
         Route::post('login', [LoginController::class, 'store']);

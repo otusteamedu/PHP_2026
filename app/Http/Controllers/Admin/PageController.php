@@ -30,19 +30,19 @@ class PageController extends Controller
         return redirect()->route('admin.pages.index')->with('ok', 'Страница создана.');
     }
 
-    public function edit(Page $page): View
+    public function edit(string $locale, Page $page): View
     {
         return view('admin.pages.edit', compact('page'));
     }
 
-    public function update(UpdatePageRequest $request, Page $page): RedirectResponse
+    public function update(string $locale, Page $page, UpdatePageRequest $request): RedirectResponse
     {
         $page->update($request->validated());
 
         return redirect()->route('admin.pages.index')->with('ok', 'Сохранено.');
     }
 
-    public function destroy(Page $page): RedirectResponse
+    public function destroy(string $locale, Page $page): RedirectResponse
     {
         $page->delete();
 

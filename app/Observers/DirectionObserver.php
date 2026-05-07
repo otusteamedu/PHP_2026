@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Observers;
+
+use App\Models\Direction;
+use App\Services\DirectionsListCache;
+
+class DirectionObserver
+{
+    public function __construct(
+        private readonly DirectionsListCache $directionsListCache,
+    ) {
+    }
+
+    public function saved(Direction $direction): void
+    {
+        $this->directionsListCache->forget();
+    }
+
+    public function deleted(Direction $direction): void
+    {
+        $this->directionsListCache->forget();
+    }
+}

@@ -44,14 +44,14 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('ok', 'Задача создана.');
     }
 
-    public function edit(Task $task): View
+    public function edit(string $locale, Task $task): View
     {
         Gate::authorize('update', $task);
 
         return view('tasks.edit', compact('task'));
     }
 
-    public function update(Request $request, Task $task): RedirectResponse
+    public function update(string $locale, Task $task, Request $request): RedirectResponse
     {
         Gate::authorize('update', $task);
 
@@ -67,7 +67,7 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('ok', 'Сохранено.');
     }
 
-    public function destroy(Task $task): RedirectResponse
+    public function destroy(string $locale, Task $task): RedirectResponse
     {
         Gate::authorize('delete', $task);
 
