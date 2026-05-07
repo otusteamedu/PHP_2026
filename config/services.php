@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN', ''),
+    ],
+
+    'admin' => [
+        'api_token' => env('ADMIN_API_TOKEN', ''),
+    ],
+    'admin_web' => [
+        'password' => env('ADMIN_WEB_PASSWORD', ''),
+    ],
+
 ];
