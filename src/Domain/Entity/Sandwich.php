@@ -4,15 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-final class Sandwich
+final class Sandwich extends Food
 {
-    public function __construct(
-        private string $name
-    ) {
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
 }

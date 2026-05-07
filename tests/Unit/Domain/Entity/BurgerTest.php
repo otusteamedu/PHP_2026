@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Unit\Domain\Entity;
 
 use App\Domain\Entity\Burger;
+use App\Domain\Enum\Status;
 use PHPUnit\Framework\TestCase;
 
 final class BurgerTest extends TestCase
@@ -16,5 +17,19 @@ final class BurgerTest extends TestCase
         );
 
         self::assertSame('Cheeseburger', $burger->getName());
+        self::assertSame(Status::Created, $burger->status);
+    }
+
+    public function testItCooksBurger(): void
+    {
+        $burger = new Burger(
+            name: 'Cheeseburger'
+        );
+
+        self::assertSame(Status::Created, $burger->status);
+
+        $burger->cook();
+
+        self::assertSame(Status::Cooked, $burger->status);
     }
 }
