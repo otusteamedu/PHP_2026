@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Test\Unit\Domain\Factory;
+namespace Test\Unit\Infrastructure\Factory;
 
 use App\Domain\Entity\Burger;
 use App\Domain\Enum\Status;

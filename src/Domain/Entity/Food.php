@@ -6,7 +6,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\Enum\Status;
 
-abstract class Food
+abstract class Food implements Cookable
 {
     public Status $status {
         get {
