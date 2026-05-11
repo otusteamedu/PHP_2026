@@ -7,16 +7,10 @@ namespace App\Domain\Proxy;
 use App\Domain\Entity\Cookable;
 use App\Domain\Enum\Status;
 
-final class FoodProxy implements Cookable
+final readonly class FoodProxy implements Cookable
 {
-    public Status $status {
-        get {
-            return $this->food->status;
-        }
-    }
-
     public function __construct(
-        private readonly Cookable $food
+        private Cookable $food
     )
     {
     }
