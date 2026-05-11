@@ -20,4 +20,15 @@ final class ObserverTest extends TestCase
         $subject->detach($observer);
         $subject->notify();
     }
+
+    public function testNotifiedWhenCooked(): void
+    {
+        $subject = new Burger('Cheeseburger');
+        $observer = $this->createMock(SplObserver::class);
+        $observer->expects(self::once())->method('update')->with(self::equalTo($subject));
+
+        $subject->attach($observer);
+
+        $subject->cook();
+    }
 }

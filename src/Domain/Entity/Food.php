@@ -35,6 +35,7 @@ abstract class Food implements Cookable, SplSubject
     public function cook(): void
     {
         $this->status = Status::Cooked;
+        $this->notify();
     }
 
     public function attach(SplObserver $observer): void
