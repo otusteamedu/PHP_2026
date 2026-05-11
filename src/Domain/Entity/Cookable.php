@@ -6,5 +6,5 @@ namespace App\Domain\Entity;
 
 interface Cookable
 {
-    public function cook(): void;
+    public function cook(): array;
 }

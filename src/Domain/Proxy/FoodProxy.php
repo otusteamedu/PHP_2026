@@ -21,13 +21,15 @@ final class FoodProxy implements Cookable
     {
     }
 
-    public function cook(): void
+    public function cook(): array
     {
         $this->beforeCook();
 
-        $this->food->cook();
+        $result = $this->food->cook();
 
         $this->afterCook();
+
+        return $result;
     }
 
     private function beforeCook(): void

@@ -28,8 +28,9 @@ final class SandwichTest extends TestCase
 
         self::assertSame(Status::Created, $sandwich->status);
 
-        $sandwich->cook();
+        $result = $sandwich->cook();
 
         self::assertSame(Status::Cooked, $sandwich->status);
+        self::assertCount(3, $result);
     }
 }

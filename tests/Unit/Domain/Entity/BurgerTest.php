@@ -28,8 +28,9 @@ final class BurgerTest extends TestCase
 
         self::assertSame(Status::Created, $burger->status);
 
-        $burger->cook();
+        $result = $burger->cook();
 
         self::assertSame(Status::Cooked, $burger->status);
+        self::assertCount(3, $result);
     }
 }

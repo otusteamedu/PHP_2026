@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Decorator;
 
 use App\Domain\Entity\Cookable;
+use App\Domain\ValueObject\Onion;
 
 final readonly class OnionDecorator implements Cookable
 {
@@ -15,9 +16,11 @@ final readonly class OnionDecorator implements Cookable
     {
     }
 
-    public function cook(): void
+    public function cook(): array
     {
-        //Добавляем лук
-        $this->decorated->cook();
+        $result = $this->decorated->cook();
+        $result[] = new Onion(3);
+
+        return $result;
     }
 }

@@ -28,8 +28,9 @@ final class HotDogTest extends TestCase
 
         self::assertSame(Status::Created, $hotDog->status);
 
-        $hotDog->cook();
+        $result = $hotDog->cook();
 
         self::assertSame(Status::Cooked, $hotDog->status);
+        self::assertCount(2, $result);
     }
 }
