@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Proxy;
 
 use App\Domain\Entity\Cookable;
-use App\Domain\Enum\Status;
 
 final readonly class FoodProxy implements Cookable
 {
