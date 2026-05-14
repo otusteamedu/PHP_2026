@@ -1,0 +1,40 @@
+@startuml
+title UML-схема до изменений
+
+class App
+class Router
+class Request
+class JsonResponse
+class MovieController
+class StorageFactory
+class MovieStorage
+class MovieMapper
+class IdentityMap
+class Movie
+class MovieCollection
+class PDO
+
+App --> Router
+App --> Request
+App --> MovieController
+App --> StorageFactory
+
+StorageFactory --> MovieStorage
+StorageFactory --> PDO
+
+MovieController --> Request
+MovieController --> JsonResponse
+MovieController --> MovieStorage
+
+MovieStorage --> MovieMapper
+MovieStorage --> Movie
+MovieStorage --> MovieCollection
+
+MovieMapper --> PDO
+MovieMapper --> IdentityMap
+MovieMapper --> Movie
+MovieMapper --> MovieCollection
+
+MovieCollection --> Movie
+
+@enduml

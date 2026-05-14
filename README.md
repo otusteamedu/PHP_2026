@@ -42,3 +42,16 @@ curl -X PUT http://localhost/api/movies/1 \
 # Удалить фильм
 curl -X DELETE http://localhost/api/movies/1
 ```
+
+
+• Сделал правки в коде по анализу из docs/code-analysis.md, также добавил uml-схемы до изменений uml-before.puml и после uml-after.puml:
+
+- добавил Container вместо StorageFactory;
+- заменил MovieStorage на MovieRepositoryInterface + PdoMovieRepository;
+- добавил MovieService;
+- вынес парсинг JSON в app/Core/Http/Request.php;
+- добавил DTO: CreateMovieRequest, UpdateMovieRequest;
+- усилил app/Entity/Movie.php: фабричные методы, валидация title/year/id, доменные методы rename, changeYear, changeGenre, changeDirector;
+- обновил app/Core/Http/Controller/MovieController.php, теперь он тоньше и работает через сервис;
+- MovieMapper теперь получает IdentityMap через DI;
+- поправил public/index.php, чтобы аварийный JsonResponse реально отправлялся.

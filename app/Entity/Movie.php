@@ -4,15 +4,54 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-class Movie
+use InvalidArgumentException;
+
+final class Movie
 {
-    public function __construct(
+    private function __construct(
         private string $title,
         private int $year,
         private string $genre,
         private string $director,
         private ?int $id = null,
     ) {
+    }
+
+    public static function create(
+        string $title,
+        int $year,
+        string $genre = '',
+        string $director = '',
+    ): self {
+        self::assertValidTitle($title);
+        self::assertValidYear($year);
+
+        return new self(
+            title: trim($title),
+            year: $year,
+            genre: trim($genre),
+            director: trim($director),
+        );
+    }
+
+    public static function reconstitute(
+        string $title,
+        int $year,
+        string $genre,
+        string $director,
+        int $id,
+    ): self {
+        self::assertValidId($id);
+        self::assertValidTitle($title);
+        self::assertValidYear($year);
+
+        return new self(
+            title: trim($title),
+            year: $year,
+            genre: trim($genre),
+            director: trim($director),
+            id: $id,
+        );
     }
 
     public function getId(): ?int
@@ -42,27 +81,35 @@ class Movie
 
     public function setId(int $id): void
     {
+        self::assertValidId($id);
+
+        if ($this->id !== null) {
+            throw new InvalidArgumentException('Movie id is already assigned');
+        }
+
         $this->id = $id;
     }
 
-    public function setTitle(string $title): void
+    public function rename(string $title): void
     {
-        $this->title = $title;
+        self::assertValidTitle($title);
+        $this->title = trim($title);
     }
 
-    public function setYear(int $year): void
+    public function changeYear(int $year): void
     {
+        self::assertValidYear($year);
         $this->year = $year;
     }
 
-    public function setGenre(string $genre): void
+    public function changeGenre(string $genre): void
     {
-        $this->genre = $genre;
+        $this->genre = trim($genre);
     }
 
-    public function setDirector(string $director): void
+    public function changeDirector(string $director): void
     {
-        $this->director = $director;
+        $this->director = trim($director);
     }
 
     public function toArray(): array
@@ -74,5 +121,28 @@ class Movie
             'genre' => $this->genre,
             'director' => $this->director,
         ];
+    }
+
+    private static function assertValidId(int $id): void
+    {
+        if ($id <= 0) {
+            throw new InvalidArgumentException('Movie id must be positive');
+        }
+    }
+
+    private static function assertValidTitle(string $title): void
+    {
+        if (trim($title) === '') {
+            throw new InvalidArgumentException('Movie title must not be empty');
+        }
+    }
+
+    private static function assertValidYear(int $year): void
+    {
+        $maxYear = (int) date('Y') + 1;
+
+        if ($year < 1888 || $year > $maxYear) {
+            throw new InvalidArgumentException('Movie year is invalid');
+        }
     }
 }

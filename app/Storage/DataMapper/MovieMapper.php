@@ -9,11 +9,10 @@ use App\Entity\MovieCollection;
 
 class MovieMapper
 {
-    private IdentityMap $identityMap;
-
-    public function __construct(private readonly \PDO $pdo)
-    {
-        $this->identityMap = new IdentityMap();
+    public function __construct(
+        private readonly \PDO $pdo,
+        private readonly IdentityMap $identityMap,
+    ) {
     }
 
     public function findById(int $id): ?Movie
@@ -119,7 +118,7 @@ class MovieMapper
      */
     private function hydrate(array $row): Movie
     {
-        return new Movie(
+        return Movie::reconstitute(
             title:    $row['title'],
             year:     (int) $row['year'],
             genre:    $row['genre'],

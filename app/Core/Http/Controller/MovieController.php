@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Http\Controller;
 
+use App\Core\Http\Dto\CreateMovieRequest;
+use App\Core\Http\Dto\UpdateMovieRequest;
+use App\Core\Http\InvalidRequestException;
 use App\Core\Http\JsonResponse;
 use App\Core\Http\Request;
-use App\Storage\MovieStorage;
-use JsonException;
+use App\Service\MovieService;
+use InvalidArgumentException;
 
 /**
  *
@@ -21,14 +24,14 @@ use JsonException;
 final readonly class MovieController
 {
     public function __construct(
-        private MovieStorage $storage,
+        private MovieService $service,
     ) {
     }
 
     /** GET /api/movies - Получить все фильмы */
     public function list(): JsonResponse
     {
-        $collection = $this->storage->getAll();
+        $collection = $this->service->getAll();
 
         return new JsonResponse([
             'data'  => $collection->toArray(),
@@ -39,7 +42,7 @@ final readonly class MovieController
     /** GET /api/movies/{id} - Получить фильм по ID */
     public function getOne(int $id): JsonResponse
     {
-        $movie = $this->storage->getById($id);
+        $movie = $this->service->getById($id);
 
         if ($movie === null) {
             return new JsonResponse(['error' => 'Movie not found'], 404);
@@ -52,21 +55,11 @@ final readonly class MovieController
     public function create(Request $request): JsonResponse
     {
         try {
-            $body = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+            $dto = CreateMovieRequest::fromArray($request->json());
+            $movie = $this->service->create($dto);
+        } catch (InvalidRequestException|InvalidArgumentException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
         }
-
-        if (!isset($body['title'], $body['year'])) {
-            return new JsonResponse(['error' => 'Required fields: title, year'], 400);
-        }
-
-        $movie = $this->storage->create(
-            title:    (string) $body['title'],
-            year:     (int) $body['year'],
-            genre:    (string) ($body['genre'] ?? ''),
-            director: (string) ($body['director'] ?? ''),
-        );
 
         return new JsonResponse(['data' => $movie->toArray()], 201);
     }
@@ -75,16 +68,11 @@ final readonly class MovieController
     public function update(int $id, Request $request): JsonResponse
     {
         try {
-            $body = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+            $dto = UpdateMovieRequest::fromArray($request->json());
+            $movie = $this->service->update($id, $dto);
+        } catch (InvalidRequestException|InvalidArgumentException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
         }
-
-        if (empty($body)) {
-            return new JsonResponse(['error' => 'Nothing to update'], 400);
-        }
-
-        $movie = $this->storage->updateById($id, $body);
 
         if ($movie === null) {
             return new JsonResponse(['error' => 'Movie not found'], 404);
@@ -96,7 +84,7 @@ final readonly class MovieController
     /** DELETE /api/movies/{id} - Удалить фильм */
     public function delete(int $id): JsonResponse
     {
-        if (!$this->storage->deleteById($id)) {
+        if (!$this->service->deleteById($id)) {
             return new JsonResponse(['error' => 'Movie not found'], 404);
         }
 

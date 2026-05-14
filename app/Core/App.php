@@ -4,42 +4,42 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Http\Controller\MovieController;
 use App\Core\Http\JsonResponse;
 use App\Core\Http\Request;
-use JsonException;
 use RuntimeException;
 use Throwable;
 
 final class App
 {
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function run(): void
     {
         $request = new Request();
         $router = new Router();
-        $controller = new MovieController(StorageFactory::create());
+        $container = new Container();
 
-        $router->add('GET', '/api/movies', function (array $p) use ($controller): JsonResponse {
-            return $controller->list();
+        $movieController = $container->movies()->controller();
+
+        $router->add('GET', '/api/movies', function () use ($movieController): JsonResponse {
+            return $movieController->list();
         });
 
-        $router->add('GET', '/api/movies/{id}', function (array $p) use ($controller): JsonResponse {
-            return $controller->getOne((int) $p['id']);
+        $router->add('GET', '/api/movies/{id}', function (array $p) use ($movieController): JsonResponse {
+            return $movieController->getOne((int) $p['id']);
         });
 
-        $router->add('POST', '/api/movies', function (array $p) use ($request, $controller): JsonResponse {
-            return $controller->create($request);
+        $router->add('POST', '/api/movies', function () use ($request, $movieController): JsonResponse {
+            return $movieController->create($request);
         });
 
-        $router->add('PUT', '/api/movies/{id}', function (array $p) use ($request, $controller): JsonResponse {
-            return $controller->update((int) $p['id'], $request);
+        $router->add('PUT', '/api/movies/{id}', function (array $p) use ($request, $movieController): JsonResponse {
+            return $movieController->update((int) $p['id'], $request);
         });
 
-        $router->add('DELETE', '/api/movies/{id}', function (array $p) use ($controller): JsonResponse {
-            return $controller->delete((int) $p['id']);
+        $router->add('DELETE', '/api/movies/{id}', function (array $p) use ($movieController): JsonResponse {
+            return $movieController->delete((int) $p['id']);
         });
 
         try {

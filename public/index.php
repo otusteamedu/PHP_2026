@@ -10,5 +10,5 @@ require __DIR__ . '/../vendor/autoload.php';
 try {
     (new App())->run();
 } catch (Throwable $e) {
-    return new JsonResponse(['error' => $e->getMessage()], 500);
+    (new JsonResponse(['error' => $e->getMessage()], 500))->send();
 }
