@@ -1,0 +1,65 @@
+@startuml
+title UML-схема после изменений
+
+class App
+class Container
+class Router
+class Request
+class JsonResponse
+class InvalidRequestException
+
+class MovieController
+class MovieService
+
+class CreateMovieRequest
+class UpdateMovieRequest
+
+interface MovieRepositoryInterface
+class PdoMovieRepository
+class MovieMapper
+class IdentityMap
+class PDO
+
+class Movie
+class MovieCollection
+
+App --> Container
+App --> Router
+App --> Request
+App --> JsonResponse
+
+Container --> MovieController
+Container --> MovieService
+Container --> MovieRepositoryInterface
+Container --> MovieMapper
+Container --> IdentityMap
+Container --> PDO
+
+Router --> Request
+MovieController --> Request
+MovieController --> JsonResponse
+MovieController --> CreateMovieRequest
+MovieController --> UpdateMovieRequest
+MovieController --> MovieService
+
+CreateMovieRequest --> InvalidRequestException
+UpdateMovieRequest --> InvalidRequestException
+Request --> InvalidRequestException
+
+MovieService --> MovieRepositoryInterface
+MovieService --> CreateMovieRequest
+MovieService --> UpdateMovieRequest
+MovieService --> Movie
+MovieService --> MovieCollection
+
+MovieRepositoryInterface <|.. PdoMovieRepository
+PdoMovieRepository --> MovieMapper
+
+MovieMapper --> PDO
+MovieMapper --> IdentityMap
+MovieMapper --> Movie
+MovieMapper --> MovieCollection
+
+MovieCollection --> Movie
+
+@enduml
