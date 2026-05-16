@@ -6,5 +6,5 @@ use App\Domain\Entity\Cookable;
 
 interface CookInterface
 {
-    public function cook(Cookable $product): void;
+    public function cook(Cookable $product): string;
 }

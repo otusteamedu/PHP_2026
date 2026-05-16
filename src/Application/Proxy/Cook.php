@@ -9,8 +9,8 @@ use App\Domain\Proxy\CookInterface;
 
 final readonly class Cook implements CookInterface
 {
-    public function cook(Cookable $product): void
+    public function cook(Cookable $product): string
     {
-        // TODO: Implement cook() method.
+        return $product->prepare();
     }
 }

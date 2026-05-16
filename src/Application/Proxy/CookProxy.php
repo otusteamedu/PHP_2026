@@ -8,22 +8,30 @@ use App\Application\Observer\StatusTracker;
 use App\Domain\Entity\Cookable;
 use App\Domain\Enum\Status;
 use App\Domain\Proxy\CookInterface;
+use App\Domain\Proxy\QualityCheckInterface;
+use ArrayObject;
 
 final readonly class CookProxy implements CookInterface
 {
+    /**
+     * @param ArrayObject<QualityCheckInterface> $qualityCheckers
+     */
     public function __construct(
         private CookInterface $cook,
-        private StatusTracker $statusTracker
+        private StatusTracker $statusTracker,
+        private ArrayObject $qualityCheckers,
     ) {
     }
 
-    public function cook(Cookable $product): void
+    public function cook(Cookable $product): string
     {
         $this->beforeCook();
 
-        $this->cook->cook($product);
+        $result = $this->cook->cook($product);
 
-        $this->afterCook();
+        $this->afterCook($result);
+
+        return $result;
     }
 
     private function beforeCook(): void
@@ -31,15 +39,19 @@ final readonly class CookProxy implements CookInterface
         $this->statusTracker->updateStatus(Status::COOKING);
     }
 
-    private function afterCook(): void
+    private function afterCook(string $resultProduct): void
     {
-        $finalStatus = $this->qualityCheck() ? Status::DONE : Status::FAILED;
+        $finalStatus = $this->qualityCheck($resultProduct) ? Status::DONE : Status::FAILED;
         $this->statusTracker->updateStatus($finalStatus);
     }
 
-    private function qualityCheck(): bool
+    private function qualityCheck(string $resultProduct): bool
     {
-        //todo implement
+        foreach ($this->qualityCheckers as $qualityChecker) {
+            if (!$qualityChecker->check($resultProduct)) {
+                return false;
+            }
+        }
         return true;
     }
 }
