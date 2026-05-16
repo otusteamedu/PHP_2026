@@ -4,18 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-use App\Domain\ValueObject\BottomBun;
-use App\Domain\ValueObject\Cutlet;
-use App\Domain\ValueObject\TopBun;
-
-final class Burger extends Food
+class Burger implements Cookable
 {
-    protected function defaultIngredients(): array
+
+    public function prepare(): string
     {
-        return [
-            new BottomBun(),
-            new Cutlet(2),
-            new TopBun(100),
-        ];
+        return 'Mug + Ketchup + Cutlet';
     }
 }

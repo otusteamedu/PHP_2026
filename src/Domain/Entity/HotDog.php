@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-use App\Domain\ValueObject\HotDogBun;
-use App\Domain\ValueObject\Sausage;
-
-final class HotDog extends Food
+class HotDog implements Cookable
 {
-    protected function defaultIngredients(): array
+
+    public function prepare(): string
     {
-        return [
-            new HotDogBun(),
-            new Sausage(2),
-        ];
+        return 'Bread + sausage';
     }
 }

@@ -4,23 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Decorator;
 
-use App\Domain\Entity\Cookable;
-use App\Domain\ValueObject\Onion;
-
-final readonly class OnionDecorator implements Cookable
+final readonly class OnionDecorator extends Decorator
 {
 
-    public function __construct(
-        private Cookable $decorated
-    )
+    public function prepare(): string
     {
-    }
-
-    public function cook(): array
-    {
-        $result = $this->decorated->cook();
-        $result[] = new Onion(3);
-
-        return $result;
+        return parent::prepare() . ' + onion';
     }
 }
