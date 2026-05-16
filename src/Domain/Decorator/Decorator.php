@@ -14,6 +14,11 @@ abstract readonly class Decorator implements Cookable
     {
     }
 
+    public function getName(): string
+    {
+        return $this->decorated->getName();
+    }
+
     public function prepare(): string
     {
         return $this->decorated->prepare();

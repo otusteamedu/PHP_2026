@@ -9,6 +9,6 @@ final readonly class SausageDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + sausage';
+        return parent::prepare() . ' + сосиска';
     }
 }

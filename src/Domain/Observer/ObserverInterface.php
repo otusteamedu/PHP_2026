@@ -2,7 +2,11 @@
 
 namespace App\Domain\Observer;
 
+/**
+ * @template T of Event
+ */
 interface ObserverInterface
 {
-    public function update(Event $event): void;
+    /** @param T $event */
+    public function update($event): void;
 }

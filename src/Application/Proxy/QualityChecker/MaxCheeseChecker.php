@@ -10,7 +10,7 @@ class MaxCheeseChecker implements QualityCheckInterface
 {
     public function check(string $finalProduct): bool
     {
-        $count = preg_match_all('/\bcheese\b/i', $finalProduct);
+        $count = preg_match_all('/\bсыр\b/iu', $finalProduct);
         return $count < 4;
     }
 }

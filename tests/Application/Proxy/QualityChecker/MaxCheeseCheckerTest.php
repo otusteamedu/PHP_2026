@@ -27,11 +27,11 @@ class MaxCheeseCheckerTest extends TestCase
     public static function cases(): array
     {
         return [
-            ['cheese + bread', true],
-            ['cheese + cheese + bread', true],
-            ['cheese + cheese + cheese + bread', true],
-            ['cheese + cheese + cheese + cheese', false],
-            ['cheese + cheese + cheese + cheese + cheese', false],
+            ['сыр + хлеб', true],
+            ['сыр + сыр + хлеб', true],
+            ['сыр + сыр + сыр + хлеб', true],
+            ['сыр + сыр + сыр + сыр', false],
+            ['сыр + сыр + сыр + сыр + сыр', false],
         ];
     }
 }

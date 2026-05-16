@@ -7,8 +7,13 @@ namespace App\Domain\Entity;
 class HotDog implements Cookable
 {
 
+    public function getName(): string
+    {
+        return 'Хот Дог';
+    }
+
     public function prepare(): string
     {
-        return 'Bread + sausage';
+        return 'булка + сосиска';
     }
 }

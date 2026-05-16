@@ -9,6 +9,6 @@ final readonly class VegetablesDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + vegetables';
+        return parent::prepare() . ' + овощи';
     }
 }

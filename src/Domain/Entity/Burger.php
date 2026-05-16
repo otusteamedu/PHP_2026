@@ -6,9 +6,13 @@ namespace App\Domain\Entity;
 
 class Burger implements Cookable
 {
+    public function getName(): string
+    {
+        return 'Бургер';
+    }
 
     public function prepare(): string
     {
-        return 'Mug + Ketchup + Cutlet';
+        return 'булка + кетчуп + котлета';
     }
 }

@@ -16,17 +16,24 @@ class StatusTracker implements SubjectInterface
      * @param ObserverInterface[] $observers
      */
     public function __construct(
+        private string $product = '',
         private Status $status = Status::READY_TO_COOK,
         private array $observers = []
     )
     {
     }
 
+    public function init(string $product): void
+    {
+        $this->status = Status::READY_TO_COOK;
+        $this->product = $product;
+    }
+
     public function updateStatus(Status $status): void
     {
         $currentStatus = $this->status;
         $this->status = $status;
-        $this->notify(new StatusChanged($currentStatus, $status));
+        $this->notify(new StatusChanged($this->product, $currentStatus, $status));
     }
 
     public function attach(ObserverInterface $observer): void

@@ -25,7 +25,7 @@ final readonly class CookProxy implements CookInterface
 
     public function cook(Cookable $product): string
     {
-        $this->beforeCook();
+        $this->beforeCook($product);
 
         $result = $this->cook->cook($product);
 
@@ -34,8 +34,9 @@ final readonly class CookProxy implements CookInterface
         return $result;
     }
 
-    private function beforeCook(): void
+    private function beforeCook(Cookable $product): void
     {
+        $this->statusTracker->init($product->getName());
         $this->statusTracker->updateStatus(Status::COOKING);
     }
 

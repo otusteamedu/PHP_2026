@@ -9,6 +9,6 @@ final readonly class BreadDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + bread';
+        return parent::prepare() . ' + хлеб';
     }
 }

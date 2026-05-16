@@ -9,6 +9,6 @@ final readonly class MeetDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + meet';
+        return parent::prepare() . ' + мясо';
     }
 }

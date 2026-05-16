@@ -9,6 +9,6 @@ final readonly class OnionDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + onion';
+        return parent::prepare() . ' + лук';
     }
 }

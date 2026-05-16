@@ -9,6 +9,6 @@ final readonly class KetchupDecorator extends Decorator
 
     public function prepare(): string
     {
-        return parent::prepare() . ' + ketchup';
+        return parent::prepare() . ' + кетчуп';
     }
 }
