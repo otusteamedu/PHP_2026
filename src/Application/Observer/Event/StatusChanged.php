@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Observer;
+namespace App\Application\Observer\Event;
 
 use App\Domain\Enum\Status;
+use App\Domain\Observer\Event\Event;
 
 final readonly class StatusChanged extends Event
 {

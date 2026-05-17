@@ -2,6 +2,8 @@
 
 namespace App\Domain\Observer;
 
+use App\Domain\Observer\Event\Event;
+
 /**
  * @template T of Event
  */

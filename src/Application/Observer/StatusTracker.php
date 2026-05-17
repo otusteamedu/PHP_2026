@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Observer;
 
+use App\Application\Observer\Event\StatusChanged;
 use App\Domain\Enum\Status;
-use App\Domain\Observer\Event;
+use App\Domain\Observer\Event\Event;
 use App\Domain\Observer\ObserverInterface;
-use App\Domain\Observer\StatusChanged;
 use App\Domain\Observer\SubjectInterface;
 
 class StatusTracker implements SubjectInterface
