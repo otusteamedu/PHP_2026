@@ -15,7 +15,6 @@ final readonly class Handler
         private CookInterface $cook,
         private array $strategies
     ) {
-
     }
 
     public function __invoke(Order $order): Response

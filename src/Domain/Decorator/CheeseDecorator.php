@@ -6,7 +6,6 @@ namespace App\Domain\Decorator;
 
 final readonly class CheeseDecorator extends Decorator
 {
-
     public function prepare(): string
     {
         return parent::prepare() . ' + сыр';

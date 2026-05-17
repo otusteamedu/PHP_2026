@@ -44,6 +44,7 @@ final class OrderCommand extends Command
             throw new RuntimeException('Question helper is not available.');
         }
 
+        /** @var ArrayObject<int, Position> $positions */
         $positions = new ArrayObject();
         $addMore = true;
 
@@ -76,13 +77,13 @@ final class OrderCommand extends Command
             'Выберите продукт:',
             array_keys(self::PRODUCTS)
         );
-        $productLabel = $helper->ask($input, $output, $productQuestion);
+        $productLabel = $this->askStringChoice($helper, $input, $output, $productQuestion);
 
         $typeQuestion = new ChoiceQuestion(
             'Как оформить позицию?',
             ['По рецепту', 'Кастом']
         );
-        $typeLabel = $helper->ask($input, $output, $typeQuestion);
+        $typeLabel = $this->askStringChoice($helper, $input, $output, $typeQuestion);
 
         $configurator = $typeLabel === 'По рецепту'
             ? $this->askRecipeConfigurator($input, $output, $helper)
@@ -98,7 +99,7 @@ final class OrderCommand extends Command
     ): ProductConfiguratorInterface {
         $recipes = $this->recipes();
         $recipeQuestion = new ChoiceQuestion('Выберите рецепт:', array_keys($recipes));
-        $recipeLabel = $helper->ask($input, $output, $recipeQuestion);
+        $recipeLabel = $this->askStringChoice($helper, $input, $output, $recipeQuestion);
 
         return $recipes[$recipeLabel];
     }
@@ -112,10 +113,12 @@ final class OrderCommand extends Command
             'Ингредиенты через запятую (BREAD, CHEESE, KETCHUP, MEAT, VEGETABLES, ONION), Enter - без допов: ',
             ''
         );
-        $ingredientsRaw = (string) $helper->ask($input, $output, $ingredientsQuestion);
+        $ingredientsRaw = $this->askString($helper, $input, $output, $ingredientsQuestion);
 
         $ingredients = $this->parseIngredients($ingredientsRaw);
-        return new CustomReceipt(new ArrayObject($ingredients));
+        /** @var ArrayObject<int, Ingredient> $ingredientCollection */
+        $ingredientCollection = new ArrayObject($ingredients);
+        return new CustomReceipt($ingredientCollection);
     }
 
     /** @return Ingredient[] */
@@ -143,7 +146,35 @@ final class OrderCommand extends Command
 
     private function resolveIngredient(string $name): ?Ingredient
     {
-        return array_find(Ingredient::cases(), fn($case) => $case->name === $name);
+        return array_find(Ingredient::cases(), fn ($case) => $case->name === $name);
+    }
+
+    private function askStringChoice(
+        QuestionHelper $helper,
+        InputInterface $input,
+        OutputInterface $output,
+        ChoiceQuestion $question
+    ): string {
+        $value = $helper->ask($input, $output, $question);
+        if (!is_string($value)) {
+            throw new RuntimeException('Expected string answer.');
+        }
+
+        return $value;
+    }
+
+    private function askString(
+        QuestionHelper $helper,
+        InputInterface $input,
+        OutputInterface $output,
+        Question $question
+    ): string {
+        $value = $helper->ask($input, $output, $question);
+        if (!is_string($value)) {
+            throw new RuntimeException('Expected string answer.');
+        }
+
+        return $value;
     }
 
     /** @return array<string, ProductConfiguratorInterface> */

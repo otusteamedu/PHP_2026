@@ -14,7 +14,7 @@ use ArrayObject;
 final readonly class CookProxy implements CookInterface
 {
     /**
-     * @param ArrayObject<QualityCheckInterface> $qualityCheckers
+     * @param ArrayObject<int, QualityCheckInterface> $qualityCheckers
      */
     public function __construct(
         private CookInterface $cook,

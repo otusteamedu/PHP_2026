@@ -8,7 +8,7 @@ use ArrayObject;
 
 final readonly class Order
 {
-    /** @param ArrayObject<Position> $positions */
+    /** @param ArrayObject<int, Position> $positions */
     public function __construct(
         public ArrayObject $positions,
     ) {

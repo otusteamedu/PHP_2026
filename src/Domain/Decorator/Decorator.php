@@ -10,8 +10,7 @@ abstract readonly class Decorator implements Cookable
 {
     public function __construct(
         private Cookable $decorated
-    )
-    {
+    ) {
     }
 
     public function getName(): string

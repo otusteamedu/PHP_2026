@@ -6,7 +6,6 @@ namespace App\Domain\Decorator;
 
 final readonly class VegetablesDecorator extends Decorator
 {
-
     public function prepare(): string
     {
         return parent::prepare() . ' + овощи';

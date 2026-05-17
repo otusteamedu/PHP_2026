@@ -6,7 +6,6 @@ namespace App\Domain\Entity;
 
 class HotDog implements Cookable
 {
-
     public function getName(): string
     {
         return 'Хот Дог';

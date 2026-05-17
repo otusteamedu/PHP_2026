@@ -6,5 +6,4 @@ namespace App\Domain\Observer\Event;
 
 abstract readonly class Event
 {
-
 }

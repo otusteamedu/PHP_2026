@@ -11,7 +11,7 @@ use ArrayObject;
 
 final readonly class CustomReceipt implements ProductConfiguratorInterface
 {
-    /** @param ArrayObject<Ingredient> $ingredients */
+    /** @param ArrayObject<int, Ingredient> $ingredients */
     public function __construct(
         private ArrayObject $ingredients
     ) {

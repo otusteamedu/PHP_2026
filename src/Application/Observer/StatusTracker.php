@@ -13,14 +13,13 @@ use App\Domain\Observer\SubjectInterface;
 class StatusTracker implements SubjectInterface
 {
     /**
-     * @param ObserverInterface[] $observers
+     * @param array<string, ObserverInterface<Event>> $observers
      */
     public function __construct(
         private string $product = '',
         private Status $status = Status::READY_TO_COOK,
         private array $observers = []
-    )
-    {
+    ) {
     }
 
     public function init(string $product): void
