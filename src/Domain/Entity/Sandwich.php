@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-class Sandwich implements Cookable
+final readonly class Sandwich implements Cookable
 {
     public function getName(): string
     {

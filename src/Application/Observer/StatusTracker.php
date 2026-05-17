@@ -10,7 +10,7 @@ use App\Domain\Observer\Event\Event;
 use App\Domain\Observer\ObserverInterface;
 use App\Domain\Observer\SubjectInterface;
 
-class StatusTracker implements SubjectInterface
+final class StatusTracker implements SubjectInterface
 {
     /**
      * @param array<string, ObserverInterface<Event>> $observers

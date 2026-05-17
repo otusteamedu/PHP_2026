@@ -11,7 +11,7 @@ use App\Domain\Observer\ObserverInterface;
 /**
  * @implements ObserverInterface<StatusChanged>
  */
-class NotificationSender implements ObserverInterface
+final readonly class NotificationSender implements ObserverInterface
 {
     public function update($event): void
     {
