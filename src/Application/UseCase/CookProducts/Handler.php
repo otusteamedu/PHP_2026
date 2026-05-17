@@ -18,13 +18,15 @@ final readonly class Handler
 
     }
 
-    public function __invoke(Order $order): void
+    public function __invoke(Order $order): Response
     {
+        $resultProducts = [];
         foreach ($order->positions as $position) {
             $product = $this->resolveStrategy($position->product)->getFactory()->create();
             $product = $position->configurator->configure($product);
-            $this->cook->cook($product);
+            $resultProducts[] = $this->cook->cook($product);
         }
+        return new Response($resultProducts);
     }
 
     private function resolveStrategy(string $product): CookingStrategyInterface

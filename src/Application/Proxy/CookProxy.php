@@ -29,9 +29,7 @@ final readonly class CookProxy implements CookInterface
 
         $result = $this->cook->cook($product);
 
-        $this->afterCook($result);
-
-        return $result;
+        return $this->afterCook($result);
     }
 
     private function beforeCook(Cookable $product): void
@@ -40,10 +38,15 @@ final readonly class CookProxy implements CookInterface
         $this->statusTracker->updateStatus(Status::COOKING);
     }
 
-    private function afterCook(string $resultProduct): void
+    private function afterCook(string $resultProduct): string
     {
-        $finalStatus = $this->qualityCheck($resultProduct) ? Status::DONE : Status::FAILED;
-        $this->statusTracker->updateStatus($finalStatus);
+        if ($this->qualityCheck($resultProduct)) {
+            $this->statusTracker->updateStatus(Status::DONE);
+            return $resultProduct;
+        }
+
+        $this->statusTracker->updateStatus(Status::FAILED);
+        return '';
     }
 
     private function qualityCheck(string $resultProduct): bool

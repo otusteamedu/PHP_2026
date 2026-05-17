@@ -5,11 +5,48 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Application\Command\OrderCommand;
+use App\Application\Factory\BurgerFactory;
+use App\Application\Factory\HotDogFactory;
+use App\Application\Factory\SandwichFactory;
+use App\Application\Observer\NotificationSender;
+use App\Application\Observer\StatusTracker;
+use App\Application\Proxy\Cook;
+use App\Application\Proxy\CookProxy;
+use App\Application\Proxy\QualityChecker\MaxCheeseChecker;
+use App\Application\Strategy\BurgerStrategy;
+use App\Application\Strategy\HotDogStrategy;
+use App\Application\Strategy\SandwichStrategy;
+use App\Application\UseCase\CookProducts\Handler;
+use Symfony\Component\Console\Application;
 
 $application = new Application('Система событий для аналитика', '1.0.0');
 
+$observers = [
+    new NotificationSender(),
+];
+$statusTracker = new StatusTracker(observers: $observers);
+
+$qualityCheckers = new ArrayObject([
+    new MaxCheeseChecker(),
+]);
+
+$cook = new CookProxy(
+    new Cook(),
+    $statusTracker,
+    $qualityCheckers,
+);
+
+$strategies = [
+    'burger' => new BurgerStrategy(new BurgerFactory()),
+    'hotdog' => new HotDogStrategy(new HotDogFactory()),
+    'sandwich' => new SandwichStrategy(new SandwichFactory()),
+];
+
+$handler = new Handler($cook, $strategies);
 
 $application->addCommands([
+    new OrderCommand($handler),
 ]);
 
 $application->run();

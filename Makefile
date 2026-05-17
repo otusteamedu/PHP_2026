@@ -27,3 +27,6 @@ test:
 
 test-coverage:
 	docker-compose run --rm php-cli composer test-coverage
+
+order:
+	docker-compose run --rm php-cli php bin/console app:order

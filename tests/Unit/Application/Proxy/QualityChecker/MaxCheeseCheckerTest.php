@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Application\Proxy\QualityChecker;
+namespace Test\Unit\Application\Proxy\QualityChecker;
 
 use App\Application\Proxy\QualityChecker\MaxCheeseChecker;
 use PHPUnit\Framework\Attributes\DataProvider;
