@@ -8,11 +8,11 @@ use App\Domain\Product\ProductInterface;
 use App\Domain\Status\CookingStatus;
 use App\Observer\CookingSubjectInterface;
 
-final class QualityControlCookProxy implements CookInterface
+final readonly class QualityControlCookProxy implements CookInterface
 {
     public function __construct(
-        private readonly RealCook $realCook,
-        private readonly CookingSubjectInterface $notifier,
+        private CookInterface $realCook,
+        private CookingSubjectInterface $notifier,
     ) {
     }
 

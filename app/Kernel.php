@@ -11,6 +11,7 @@ use App\Observer\CookingSubjectInterface;
 use App\Observer\KitchenLogger;
 use App\Proxy\CookInterface;
 use App\Proxy\QualityControlCookProxy;
+use App\Proxy\RealCook;
 
 final class Kernel
 {
@@ -19,12 +20,16 @@ final class Kernel
         $container = new Container();
 
         $container->bind(CookingSubjectInterface::class, CookingNotifier::class);
-        $container->bind(CookInterface::class, QualityControlCookProxy::class);
 
         /** @var CookingSubjectInterface $notifier */
         $notifier = $container->get(CookingSubjectInterface::class);
         $notifier->attach($container->get(ClientNotifier::class));
         $notifier->attach($container->get(KitchenLogger::class));
+
+        $container->instance(
+            CookInterface::class,
+            new QualityControlCookProxy($container->get(RealCook::class), $notifier),
+        );
 
         return $container;
     }
