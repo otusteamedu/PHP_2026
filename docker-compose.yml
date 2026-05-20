@@ -1,0 +1,28 @@
+services:
+  nginx:
+    container_name: nginx-hw15
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - .:/app
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - app
+
+  php:
+    container_name: php-hw15
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    networks:
+      - app
+
+networks:
+  app:
