@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "first_name": "first_name_1",
+      "last_name": "last_name_2",
+      "email": "example_1@example.ru"
+    },
+    {
+      "first_name": "first_name_2",
+      "last_name": "last_name_2",
+      "email": "example_2@example.ru"
+    },
+    {
+      "first_name": "first_name_3",
+      "last_name": "last_name_3",
+      "email": "example_3@example.ru"
+    }
+  ]
+}
