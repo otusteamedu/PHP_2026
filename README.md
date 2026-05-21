@@ -1,3 +1,14 @@
-# PHP_2026
+# Покрытие валидатора юнит тестами
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Для проверки покрытия тестов:
+1. Инициализация
+   ```bash
+   make init
+   ```
+2. Проверка тестового покрытия
+   ```bash
+   make test-coverage
+   ```
+
+#### Скриншот с результатами тестового покрытия
+<img alt="img.png" height="300" src="img.png" width="400"/>
