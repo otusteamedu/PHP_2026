@@ -1,3 +1,2 @@
-# PHP_2026
-
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Описание тестовых кейсов
+Результат в файле [test-cases.md](test-cases.md)
