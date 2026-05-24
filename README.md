@@ -1,3 +1,3 @@
-# PHP_2026
+# AErmolenko/hw16 - Тестирование
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Pезультат выполнения задачи в файле hw16-tests.md
