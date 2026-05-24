@@ -141,6 +141,12 @@
 
 ### 2.3. Диаграммы
 
-- ![До рефакторинга](https://raw.githubusercontent.com/otusteamedu/PHP_2026/a.emelyanenko/hw13/code-analysis/before-schema.png) 
+#### До рефакторинга 
+
+- ![До рефакторинга](https://raw.githubusercontent.com/otusteamedu/PHP_2026/a.emelyanenko/hw13/code-analysis/before-schema.png)
+
+ ---
+
+ #### После рефакторинга
 
 - ![После рефакторинга](https://raw.githubusercontent.com/otusteamedu/PHP_2026/a.emelyanenko/hw13/code-analysis/after-schema.png)
