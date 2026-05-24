@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\ObjectValues\Email;
+
 class EmailVerificationService
 {
     public function checkEmailList(array $emails): array
@@ -18,11 +20,12 @@ class EmailVerificationService
 
     public function checkEmail(string $email): bool
     {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $objectEmail = new Email($email);
+        if (!filter_var($objectEmail->getEmail(), FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
-        $domain = substr($email, strpos($email, '@') + 1);
+        $domain = substr($objectEmail->getEmail(), strpos($objectEmail->getEmail(), '@') + 1);
         return checkdnsrr($domain, "MX");
     }
 }
