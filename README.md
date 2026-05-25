@@ -1,3 +1,3 @@
-# PHP_2026
+# Разработка кейсов тестирования
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Описание тестов в IS_hw16 
