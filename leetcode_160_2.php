@@ -78,7 +78,8 @@ $headA->next->next = new ListNode(4);
 
 // listB = [1,5]
 $headB = new ListNode(1);
-$headB->next = new ListNode(6);
+$headB->next = new ListNode(5);
+$headA->next->next = new ListNode(7);
 
 $intersected = $solution->getIntersectionNode($headA, $headB);
 echo ($intersected->val ?? 'No intersection') . PHP_EOL;
