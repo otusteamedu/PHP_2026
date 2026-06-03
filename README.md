@@ -1,3 +1,30 @@
-# PHP_2026
+# Задание 18: IS/hw18
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+## Общее описание
+
+```text
+Leetcode практикум
+```
+
+## Алгоритмическая сложность
+
+### 160. Intersection of Two Linked Lists
+
+```text
+leetcode_160.php
+Сложность в худшем случае O(n*m), т.к происходит полный перебор списка B на каждый элемент списка A, где n длинна списка A, m длинна списка B.
+```
+
+### 160. Intersection of Two Linked Lists (вариант с двумя указателями)
+
+```text
+leetcode_160_2.php
+Сложность O(n+m) и O(1), два указателя идут по спискам, при достижении конца переходят на начало другого - сходятся в точке пересечения ©.
+```
+
+### 166. Fraction to Recurring Decimal
+
+```text
+leetcode_166.php
+Сложность O(1), т.к все операции имеют сложность O(1).
+```
