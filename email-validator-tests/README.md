@@ -45,7 +45,7 @@ docker compose -f docker-compose.prod.yaml up --build -d
 ### Покрытие тестами
 
 
-    - ![dashboard](https://github.com/otusteamedu/PHP_2026/blob/aemelyanenko/hw16/email-validator-tests/test-covarage-dashboard.png?raw=true)
+    - ![dashboard](test-covarage-dashboard.png)
 
 
-    - ![console](https://github.com/otusteamedu/PHP_2026/blob/aemelyanenko/hw16/email-validator-tests/test-covarage.png?raw=true)
+    - ![console](test-covarage.png)
