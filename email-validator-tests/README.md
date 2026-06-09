@@ -45,7 +45,7 @@ docker compose -f docker-compose.prod.yaml up --build -d
 ### Покрытие тестами
 
 
-    - ![dahboard](test-covarage-dashboard.png) 
+    - ![dashboard](test1.png) 
 
 
-    - ![console](test-covarage.png) 
+    - ![console](test2.png) 
