@@ -1,0 +1,26 @@
+{
+    "name": "otus/hw19-queue-app",
+    "description": "Deferred bank-statement requests over a Kafka queue",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "AErmolenko"
+        }
+    ],
+    "require": {
+        "ext-rdkafka": "*"
+    },
+    "require-dev": {
+        "kwn/php-rdkafka-stubs": "^3.0"
+    },
+    "config": {
+        "platform": {
+            "ext-rdkafka": "6.0.0"
+        }
+    }
+}

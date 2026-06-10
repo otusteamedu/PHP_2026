@@ -1,0 +1,70 @@
+services:
+  nginx:
+    container_name: nginx-hw19
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - .:/app
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - app
+
+  php:
+    container_name: php-hw19
+    image: otus-hw19-php
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - app
+
+  worker:
+    container_name: worker-hw19
+    image: otus-hw19-php
+    command: php /app/bin/consumer.php
+    restart: unless-stopped
+    volumes:
+      - .:/app
+    environment:
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_GROUP: ${KAFKA_GROUP}
+      MAIL_DIR: ${MAIL_DIR}
+      MAIL_FROM: ${MAIL_FROM}
+    depends_on:
+      - php
+      - kafka
+    networks:
+      - app
+
+  kafka:
+    container_name: kafka-hw19
+    image: apache/kafka:3.8.0
+    ports:
+      - "${KAFKA_PORT}:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - app
+
+networks:
+  app:
