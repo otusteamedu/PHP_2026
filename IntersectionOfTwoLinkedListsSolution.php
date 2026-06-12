@@ -58,38 +58,58 @@ declare(strict_types=1);
  */
 class Solution
 {
-    private array $hash = [];
+    private ?ListNode $headA = null;
+    private ?ListNode $headB = null;
 
     /**
-     * Сложность O (n), где n это позиция самого дальнего искомого элемента.
+     * Сложность O(n + m) по времени и O(1) по памяти, через рекурсию и 2 указателя.
      *
      * @param ListNode $headA
      * @param ListNode $headB
      * @return ListNode
      */
-    function getIntersectionNode($headA, $headB)
+    function getIntersectionNodeRecursive($headA, $headB)
     {
         if ($headA === $headB) {
             return $headA;
         }
 
-        if ($headA) {
-            $key1 = spl_object_id($headA);
-            if (isset($this->hash[$key1])) {
-                return $this->hash[$key1];
-            }
-            $this->hash[$key1] = $headA;
+        //просто заполним изначальные головы при первом проходе
+        if (empty($this->headA)) {
+            $this->headA = $headA;
+        }
+        if (empty($this->headB)) {
+            $this->headB = $headB;
         }
 
-        if ($headB) {
-            $key2 = spl_object_id($headB);
-            if (isset($this->hash[$key2])) {
-                return $this->hash[$key2];
-            }
-            $this->hash[$key2] = $headB;
+        $nextA = !empty($headA) ? $headA->next : $this->headB;
+        $nextB = !empty($headB) ? $headB->next : $this->headA;
+
+        return $this->getIntersectionNodeRecursive($nextA, $nextB);
+    }
+
+    /**
+     * Сложность O(n + m) по времени и O(1) по памяти, итеративно и через 2 указателя.
+     *
+     * @param ListNode $headA
+     * @param ListNode $headB
+     * @return ListNode
+     */
+    function getIntersectionNodeIterative($headA, $headB)
+    {
+        if ($headA === $headB) {
+            return $headA;
         }
 
-        return $this->getIntersectionNode($headA?->next, $headB?->next);
+        $a = $headA;
+        $b = $headB;
+
+        while ($a !== $b) {
+            $a = !empty($a) ? $a->next : $headB;
+            $b = !empty($b) ? $b->next : $headA;
+        }
+
+        return $a;
     }
 }
 
