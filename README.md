@@ -1,3 +1,9 @@
-# PHP_2026
+## Анализ архитектуры кода на примере проекта "Каталог книг"
+1. До
+   - [github (master)](https://github.com/AleksandKrasnyatov/book_catalog/tree/master) - код
+   - [before.md](before.md) - Uml + выводы
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+2. После
+   - [github (layered)](https://github.com/AleksandKrasnyatov/book_catalog/tree/layered) - код
+   - [after.md](after.md) - Uml + выводы
+
