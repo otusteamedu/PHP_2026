@@ -1,0 +1,16 @@
+{
+    "name": "is/hw12",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Сорочинский Иван",
+            "email": "sorochinskii.iv@yandex.ru"
+        }
+    ],
+    "require": {}
+}
