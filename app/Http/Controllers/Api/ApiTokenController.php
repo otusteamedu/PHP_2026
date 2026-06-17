@@ -8,9 +8,41 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
 class ApiTokenController extends Controller
 {
+    #[OA\Post(
+        path: '/api/v1/token',
+        operationId: 'issueToken',
+        description: 'Personal access token (Passport)',
+        security: [],
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password', 'device_name'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password'),
+                    new OA\Property(property: 'device_name', type: 'string', maxLength: 255),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Token issued',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'token_type', type: 'string', example: 'Bearer'),
+                        new OA\Property(property: 'access_token', type: 'string'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Invalid credentials or validation error'),
+        ]
+    )]
     public function store(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -27,11 +59,11 @@ class ApiTokenController extends Controller
             ]);
         }
 
-        $token = $user->createToken($credentials['device_name'])->plainTextToken;
+        $accessToken = $user->createToken($credentials['device_name'])->accessToken;
 
         return response()->json([
-            'token' => $token,
             'token_type' => 'Bearer',
+            'access_token' => $accessToken,
         ]);
     }
 }
