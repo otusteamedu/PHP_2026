@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+$autoload = __DIR__ . '/../vendor/autoload.php';
+
+if (!file_exists($autoload)) {
+    echo "Autoloader не найден. Необходимо выполнить команду 'composer install'.\n";
+    exit(1);
+}
+
+require $autoload;
+
+use App\Command\ImportBooksCommand;
+use App\Command\SearchBooksCommand;
+use App\Infrastructure\BookIndexService;
+use App\Infrastructure\BookImport;
+use App\Infrastructure\BookSearch;
+use App\Infrastructure\ElasticsearchConnection;
+use Symfony\Component\Console\Application;
+
+$indexName = getenv('ES_INDEX') ?: 'books';
+
+try {
+    $client = (new ElasticsearchConnection())->create();
+
+    $app = new Application('Books search', '1.0.0');    
+    
+    $app->add(new ImportBooksCommand(
+        new BookIndexService($client, $indexName),
+        new BookImport($client, $indexName),
+    ));
+    
+    $app->add(new SearchBooksCommand(
+        new BookSearch($client, $indexName),
+    ));
+
+    $app->run();
+} catch (\Throwable $e) {
+    echo "Фатальная ошибка: " . $e->getMessage() . "\n";
+    exit(1);
+}
