@@ -5,8 +5,18 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/hw11/learning-package",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^8.2",
+        "hw11/learning-package": "@dev",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1"
     },
