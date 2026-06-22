@@ -1,3 +1,91 @@
-# PHP_2026
+# AErmolenko/hw20
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+REST API на Symfony: клиент отправляет запрос на обработку, получает его номер,
+обработка идёт в фоне через очередь RabbitMQ. Клиент
+периодически проверяет статус по номеру.
+
+## Стек
+
+- PHP 8.4, Symfony 6.4
+- RabbitMQ
+- Postgres
+- nginx + php-fpm
+- Swagger (nelmio/api-doc-bundle)
+- Docker Compose
+
+## Запуск
+
+```bash
+docker compose up -d --build
+```
+
+Миграции применяются автоматически при старте контейнера php.
+
+Сервисы:
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/api/doc
+- OpenAPI JSON: http://localhost:8080/api/doc.json
+- RabbitMQ UI: http://localhost:15672 (user / user)
+
+## API
+
+Все эндпоинты версионированы под `/api/v1`.
+
+### `POST /api/v1/requests` — создать запрос
+
+```bash
+curl -X POST http://localhost:8080/api/v1/requests \
+  -H 'Content-Type: application/json' \
+  -d '{"payload":{"a":10,"b":20,"c":5}}'
+```
+
+```json
+{ "id": 1, "status": "pending" }
+```
+
+### `GET /api/v1/requests` — список всех запросов (новые сверху)
+
+```bash
+curl "http://localhost:8080/api/v1/requests?limit=50&offset=0"
+```
+Параметры `limit` (1..200, по умолчанию 50) и `offset` — пагинация.
+
+### `GET /api/v1/requests/{id}` — проверить статус
+
+```bash
+curl http://localhost:8080/api/v1/requests/1
+```
+
+```json
+{
+  "id": 1,
+  "status": "done",
+  "result": { "processed": true, "sum": 35, "keys": ["a", "b", "c"] },
+  "createdAt": "2026-06-21T16:54:45+00:00",
+  "updatedAt": "2026-06-21T16:54:48+00:00"
+}
+```
+
+Статусы: `pending` → `processing` → `done` (или `failed`).
+
+### `DELETE /api/v1/requests/{id}` — удалить запрос
+
+```bash
+curl -X GET http://localhost:8080/api/v1/requests/14 -i
+```
+
+- **204** — запись удалена (тело ответа пустое)
+- **404** — `{"error": "not found"}`
+
+## Как работает
+
+1. `POST /api/v1/requests` сохраняет запись (`status=pending`), кладёт
+   `ProcessRequestMessage` в очередь RabbitMQ и сразу возвращает `id`.
+2. Контейнер `worker` (`messenger:consume async`) забирает сообщение,
+   переводит в `processing`, выполняет работу, пишет `result`, ставит `done`.
+3. Клиент опрашивает `GET /api/v1/requests/{id}` до появления результата.
+
+```bash
+docker compose logs -f worker # логи обработчика очереди
+docker compose down -v # остановить и удалить данные
+```
