@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - AKrasnyatov/hw20
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build php-cli image
+        run: docker compose build php-cli
+
+      - name: Install dependencies
+        run: make composer-install
+
+      - name: Run checks
+        run: make check

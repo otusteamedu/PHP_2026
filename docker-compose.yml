@@ -1,0 +1,65 @@
+services:
+
+  nginx:
+    build:
+      context: ./docker/nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/app
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: ./docker/php-fpm
+    volumes:
+      - ./:/app
+    depends_on:
+      - rabbitmq
+      - redis
+      - mailpit
+    env_file:
+      - .env
+
+  php-cli:
+    build:
+      context: ./docker/php-cli
+    volumes:
+      - ./:/app
+    depends_on:
+      - rabbitmq
+      - redis
+      - mailpit
+    env_file:
+      - .env
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # http://localhost:15672 (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

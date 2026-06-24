@@ -1,3 +1,16 @@
-# PHP_2026
+# API
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Простой апи с возможностью создать задачу и отследить ее статус.
+
+1. Инициализация
+   ```bash
+   make init
+   ```
+2. Документация по доступным методам с возможностью их вызова на странице http://localhost/docs
+3. Чтобы задачи выполнялись и меняли статус, в терминале нужно выполнить:
+   ```bash
+   make consume
+   ```
+
+---
+Админка RabbitMQ — http://localhost:15672 (guest / guest)
