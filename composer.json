@@ -1,6 +1,6 @@
 {
     "name": "alex/php_2026",
-    "type": "library",
+    "type": "project",
     "autoload": {
         "psr-4": {
             "App\\": "src/"
