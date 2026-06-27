@@ -12,14 +12,12 @@ class TelegramChatId
         get {
             return $this->value;
         }
-        set {
-            $this->value = $value;
-        }
     }
 
     public function __construct(int $value)
     {
-        Assert::positiveInteger($value, 'Id чата должно быть больше 0');
+        Assert::integer($value, 'Id чата должно быть числом');
+        Assert::notEq($value, 0, 'Id чата должно быть не равно 0');
         $this->value = $value;
     }
 }
