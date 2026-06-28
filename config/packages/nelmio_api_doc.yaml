@@ -1,0 +1,9 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Processing Queue API
+            description: REST API that enqueues requests and reports their processing status.
+            version: 1.0.0
+    areas:
+        path_patterns:
+            - ^/api/v1
