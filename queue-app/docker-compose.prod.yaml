@@ -1,0 +1,77 @@
+services:
+  rabbitmq:
+      image: rabbitmq:3.13-management-alpine     
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      networks:
+        - front
+      restart: unless-stopped
+      healthcheck:
+        test: rabbitmq-diagnostics -q ping
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  nginx:    
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/nginx/Dockerfile  
+    depends_on:
+      - php
+    networks:
+      - front
+    restart: unless-stopped
+    ports:
+      - "${APP_WEB_PORT}:80"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+  php:    
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/php/Dockerfile  
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - front
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+  queue_worker:
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/php/Dockerfile    
+    command: php bin/console queue:consume
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - front
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}      
+  
+networks:
+  front:
+    driver: bridge
