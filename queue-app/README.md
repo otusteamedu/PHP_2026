@@ -87,13 +87,15 @@ docker compose -f docker-compose.prod.yaml up --build -d
     - ![report](images/report.png) 
 
 
-##ВНИМАНИЕ!!!
+## ВНИМАНИЕ!!!
 
-Если требуется отправка пиьма на почту, то необходимо в файле docker-compose.prod.yaml в образ queue_worker в раздел environment добавить:
+Если требуется отправка пиcьма на почту, то необходимо в файле docker-compose.prod.yaml в образ queue_worker в раздел environment добавить:
 
+```
 MAIL_DRIVER: smtp;
 SMTP_DSN: smtp://example@yandex.ru:<password>@smtp.yandex.com:587 (**Ваша запись для отправки письма с сервера и пароль**)
 MAIL_FROM_ADDRESS: example@yandex.ru (**Электронный адрес, с которого будет отправляться почта**)
+```
 
 **В противном случае письма отправляться не будут**. 
 
