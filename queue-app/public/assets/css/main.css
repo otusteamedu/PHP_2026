@@ -1,0 +1,13 @@
+.status-valid {
+      color: green;
+      font-weight: 600;
+    }
+    .status-invalid {
+      color: #b00020;
+      font-weight: 600;
+    }
+    .loading {
+      margin-left: 8px;
+      font-size: 13px;
+      color: #666;
+    }
