@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProcessingRequestRepository::class)]
 #[ORM\Table(name: 'processing_request')]
+#[ORM\HasLifecycleCallbacks]
 class ProcessingRequest
 {
     #[ORM\Id]
@@ -51,7 +52,6 @@ class ProcessingRequest
     public function setStatus(RequestStatus $status): void
     {
         $this->status = $status;
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getPayload(): array
@@ -67,7 +67,6 @@ class ProcessingRequest
     public function setResult(?array $result): void
     {
         $this->result = $result;
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -78,6 +77,12 @@ class ProcessingRequest
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    #[ORM\PreUpdate]
+    public function onUpdated(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function toArray(): array

@@ -15,4 +15,20 @@ class ProcessingRequestRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ProcessingRequest::class);
     }
+
+    public function save(ProcessingRequest $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ProcessingRequest $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }

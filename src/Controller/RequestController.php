@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\ProcessingRequest;
 use App\Message\ProcessRequestMessage;
 use App\Repository\ProcessingRequestRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -80,7 +79,7 @@ final class RequestController extends AbstractController
     )]
     public function create(
         Request $request,
-        EntityManagerInterface $em,
+        ProcessingRequestRepository $repository,
         MessageBusInterface $bus,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -89,8 +88,7 @@ final class RequestController extends AbstractController
         }
 
         $entity = new ProcessingRequest($data['payload']);
-        $em->persist($entity);
-        $em->flush();
+        $repository->save($entity);
 
         $bus->dispatch(new ProcessRequestMessage($entity->getId()));
 
@@ -136,15 +134,14 @@ final class RequestController extends AbstractController
             new OA\Response(response: 404, description: 'Request not found'),
         ]
     )]
-    public function delete(int $id, ProcessingRequestRepository $repository, EntityManagerInterface $em): Response
+    public function delete(int $id, ProcessingRequestRepository $repository): Response
     {
         $entity = $repository->find($id);
         if ($entity === null) {
             return $this->json(['error' => 'not found'], 404);
         }
 
-        $em->remove($entity);
-        $em->flush();
+        $repository->remove($entity);
 
         return new Response(status: 204);
     }
