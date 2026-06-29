@@ -1,0 +1,95 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/php/Dockerfile.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/app:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/nginx/Dockerfile.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy deploy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: docker-compose.prod.yml,deploy/
+          target: /opt/hw21
+
+      - name: Run remote deploy
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          APP_IMAGE: ${{ env.IMAGE_PREFIX }}/app:${{ github.sha }}
+          WEB_IMAGE: ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
+          REGISTRY: ${{ env.REGISTRY }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          RABBITMQ_USER: ${{ vars.RABBITMQ_USER }}
+          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+          HTTP_PORT: ${{ vars.HTTP_PORT }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: APP_IMAGE,WEB_IMAGE,REGISTRY,REGISTRY_USER,REGISTRY_TOKEN,APP_SECRET,POSTGRES_DB,POSTGRES_USER,POSTGRES_PASSWORD,RABBITMQ_USER,RABBITMQ_PASSWORD,HTTP_PORT
+          script: |
+            set -e
+            echo "$REGISTRY_TOKEN" | docker login "$REGISTRY" -u "$REGISTRY_USER" --password-stdin
+            cd /opt/hw21
+            chmod +x deploy/deploy.sh
+            ./deploy/deploy.sh

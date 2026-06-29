@@ -13,6 +13,9 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+/.env.deploy
+/deploy/.deploy-config/
+
 .idea/
 .DS_Store
 .AppleDouble

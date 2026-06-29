@@ -1,4 +1,4 @@
-# AErmolenko/hw20
+# AErmolenko/hw21
 
 REST API на Symfony: клиент отправляет запрос на обработку, получает его номер,
 обработка идёт в фоне через очередь RabbitMQ. Клиент
@@ -71,7 +71,7 @@ curl http://localhost:8080/api/v1/requests/1
 ### `DELETE /api/v1/requests/{id}` — удалить запрос
 
 ```bash
-curl -X GET http://localhost:8080/api/v1/requests/14 -i
+curl -X DELETE http://localhost:8080/api/v1/requests/14 -i
 ```
 
 - **204** — запись удалена (тело ответа пустое)
@@ -89,3 +89,36 @@ curl -X GET http://localhost:8080/api/v1/requests/14 -i
 docker compose logs -f worker # логи обработчика очереди
 docker compose down -v # остановить и удалить данные
 ```
+
+## Деплой
+
+Автоматическая выкатка на VPS через GitHub Actions + `deploy.sh`.
+
+### Как работает
+
+1. Push в `main` (или ручной запуск `workflow_dispatch`) запускает
+   workflow `.github/workflows/deploy.yml`.
+2. **build**: собираются два образа и пушатся в GHCR:
+   - `app` (`docker/php/Dockerfile.prod`) — php-fpm + worker, prod-зависимости;
+   - `web` (`docker/nginx/Dockerfile.prod`) — nginx с вшитым `public/`.
+   Тег образа — `:<commit-sha>` + `:latest`.
+3. **deploy**: файлы (`docker-compose.prod.yml`, `deploy/`) копируются на сервер по
+   SSH, затем удалённо запускается `deploy/deploy.sh`.
+
+### `deploy.sh` (запускается на сервере)
+
+```bash
+./deploy/deploy.sh
+```
+
+Шаги:
+1. рендерит `.env.deploy` из переменных окружения (секреты/настройки приходят из
+   GitHub Actions);
+2. `docker compose up -d --pull always` — тянет новые образы и поднимает сервисы;
+3. прогоняет миграции одним запуском (`AUTO_MIGRATE=0` в контейнерах — реплики
+   не гонятся за блокировку).
+
+### Следует настроить в GitHub
+
+Secrets: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `APP_SECRET`,
+`POSTGRES_PASSWORD`, `RABBITMQ_PASSWORD`, `POSTGRES_DB`, `POSTGRES_USER`, `RABBITMQ_USER`, `HTTP_PORT`.
