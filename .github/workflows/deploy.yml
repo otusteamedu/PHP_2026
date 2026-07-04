@@ -16,9 +16,9 @@ jobs:
     environment: production
     steps:
       - name: Checkout config repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          repository: YOUR_USERNAME/deploy-configs
+          repository: AleksandKrasnyatov/PHP_2026_deploy_config
           token: ${{ secrets.DEPLOY_CONFIG_TOKEN }}
           path: configs
 
@@ -36,12 +36,19 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GITHUB_REPO: ${{ github.repository }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          APP_URL: http://${{ secrets.SSH_HOST }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GITHUB_REPO
+          envs: GITHUB_REPO,DEPLOY_DIR,APP_URL
           script: |
             cd /app/deploy
+            if grep -q "^APP_URL=" .env; then
+                sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" .env
+            else
+                echo "APP_URL=$APP_URL" >> .env
+            fi
             chmod +x scripts/deploy.sh
             bash scripts/deploy.sh
