@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: Email Validation API
+  description: API для асинхронной валидации списка электронных адресов с последующей отправкой отчета.
+  version: 1.0.0
+paths:
+  /api/email-validation:
+    post:
+      summary: Создать задачу на валидацию email
+      description: Принимает список адресов для проверки и email для отправки отчета. Задача обрабатывается асинхронно в фоне.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emails
+                - report_email
+              properties:
+                emails:
+                  type: array
+                  description: Список электронных адресов для проверки
+                  items:
+                    type: string
+                    format: email
+                    example: "a@gmail.com"
+                report_email:
+                  type: string
+                  format: email
+                  description: Email, на который будет отправлен отчет после завершения проверки
+                  example: "user@gmail.com"
+      responses:
+        '202':
+          description: Задача успешно принята в очередь на обработку
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                    description: Уникальный идентификатор созданной задачи
+                    example: "14"
+                  status:
+                    type: string
+                    description: Текущий статус задачи
+                    example: "QUEUED"
+        '400':
+          description: Неверный формат запроса или ошибка валидации входных данных
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Неверный формат запроса"
+
+  /api/email-validation/{request_id}:
+    get:
+      summary: Получить статус задачи валидации
+      description: Возвращает текущее состояние асинхронной задачи по её уникальному идентификатору.
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          description: Идентификатор задачи, полученный при POST-запросе
+          schema:
+            type: string
+            example: "14"
+      responses:
+        '200':
+          description: Информация о задаче успешно получена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Статус успешности выполнения       запроса
+                    example: true
+                  data:
+                    type: object
+                    description: Данные о записи из базы данных
+                    properties:
+                      request_id:
+                        type: integer
+                        description: Идентификатор задачи (ID в       БД)
+                        example: 8
+                      status:
+                        type: string
+                        description: Текущий статус обработки       задачи в очереди
+                        enum: [QUEUED, PROCESSING, COMPLETED,       FAILED]
+                        example: COMPLETED
+                      created_at:
+                        type: string
+                        format: date-time
+                        description: Дата и время создания задачи
+                        example: "2026-07-04T15:38:54+00:00"
+                      updated_at:
+                        type: string
+                        format: date-time
+                        description: Дата и время последнего      обновления задачи
+                        example: "2026-07-04T15:39:12+00:00"
+          
+        '404':
+          description: Задача с указанным ID не найдена в базе данных
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Данные не найдены"

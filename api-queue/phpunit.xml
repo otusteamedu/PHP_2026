@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+    bootstrap="tests/bootstrap.php"
+    cacheDirectory=".phpunit.cache"
+    colors="true">
+
+    <testsuites>
+
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+
+    </testsuites>
+
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+
+        <exclude>
+            <directory>app/HTTP</directory>
+            <directory>app/Infrastructure/Views</directory>
+            <file>app/Infrastructure/Kernel.php</file>            
+            <file>app/Shared/ResponseParser.php</file>
+            <file>app/Domain/EmailValidationRuleInterface.php</file>
+            <file>app/Domain/ValidationMessages.php</file>
+            <file>app/Domain/ValidationResult.php</file>
+        </exclude>
+    </source>
+
+</phpunit>
