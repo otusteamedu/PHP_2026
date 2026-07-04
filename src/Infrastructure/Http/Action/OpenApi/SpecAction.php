@@ -21,6 +21,15 @@ final readonly class SpecAction
             throw new RuntimeException('OpenAPI спецификация не генерируется.');
         }
 
+        $serverUrl = getenv('APP_URL') ?: 'http://localhost';
+
+        foreach ($openapi->servers as $server) {
+            if ($server->url === 'APP_URL_PLACEHOLDER') {
+                $server->url = $serverUrl;
+            }
+        }
+
+
         $response->getBody()->write($openapi->toJson());
 
         return $response->withHeader('Content-Type', 'application/json');

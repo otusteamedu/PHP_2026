@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
     title: 'PHP 2026 API'
 )]
 #[OA\Server(
-    url: 'http://localhost',
+    url: 'APP_URL_PLACEHOLDER',
     description: 'Локальный сайт'
 )]
 #[OA\Tag(
