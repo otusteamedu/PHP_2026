@@ -1,0 +1,36 @@
+name: rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "rollback" to confirm'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "rollback" ]; then
+            echo "Rollback not confirmed. Please type rollback to proceed."
+            exit 1
+          fi
+          echo "Rollback confirmed"
+
+      - name: Run rollback
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DEPLOY_DIR
+          script: |
+            cd $DEPLOY_DIR
+            chmod +x scripts/rollback.sh
+            bash scripts/rollback.sh

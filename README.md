@@ -1,3 +1,15 @@
-# PHP_2026
+# Deploy
 
-https://otus.ru/lessons/razrabotchik-php/?utm_source=github&utm_medium=free&utm_campaign=otus
+Реализация blue/green deployment, на примере апи приложения из прошлого урока.
+
+1. Репозиторий основного проекта находится в папке [project](project).
+2. Пример закрытого репозитория с настройками в папке [private-config](private-config).
+
+### Описание реализации
+- В [workflows](project/.github/workflows) описаны 3 этапа для ci/cd.
+- Для соединения с репозиторием настроек используется секрет DEPLOY_CONFIG_TOKEN.
+- Для соединения с сервером используются секреты SSH_HOST, SSH_USER, SSH_PRIVATE_KEY
+- Все остальные переменные окружения, конфиги и скрипты берутся из закрытого репозитория.
+- Схема для deploy и rollback такая же, как рассмотренная на практикуме,
+  только добавлен отдельный контейнер php-cli для установки composer зависимостей
+  и добавлены сервисы для запуска blue/green консюмеров.

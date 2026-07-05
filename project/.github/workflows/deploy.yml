@@ -1,0 +1,55 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Запускается только если CI прошёл успешно
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout config repo
+        uses: actions/checkout@v5
+        with:
+          repository: AleksandKrasnyatov/PHP_2026_deploy_config
+          token: ${{ secrets.DEPLOY_CONFIG_TOKEN }}
+          path: configs
+
+      - name: Copy configs to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: configs/environments/production/*
+          target: /app/deploy/
+          strip_components: 3
+
+      - name: Run deploy
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          APP_URL: http://${{ secrets.SSH_HOST }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GITHUB_REPO,DEPLOY_DIR,APP_URL
+          script: |
+            cd /app/deploy
+            if grep -q "^APP_URL=" .env; then
+                sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" .env
+            else
+                echo "APP_URL=$APP_URL" >> .env
+            fi
+            chmod +x scripts/deploy.sh
+            bash scripts/deploy.sh
