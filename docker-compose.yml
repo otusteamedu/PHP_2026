@@ -1,0 +1,69 @@
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: hw19_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app:rw
+    depends_on:
+      - php
+      - rabbitmq
+    networks:
+      - hw19_network
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: hw19_php  
+    volumes:
+      - .:/app
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hw19_network
+
+  consumer:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: hw19_consumer
+    command: php bin/consumer.php
+    volumes:
+      - .:/app
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hw19_network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: hw19_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hw19_network
+
+networks:
+  hw19_network:
+    driver: bridge
