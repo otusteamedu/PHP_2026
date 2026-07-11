@@ -1,0 +1,45 @@
+services:
+  nginx:
+    build:      
+      target: dev
+      dockerfile: ./docker/nginx/Dockerfile
+    volumes:
+      - ./:${APP_PATH}
+
+  php:
+    build:     
+      target: dev
+      dockerfile: ./docker/php/Dockerfile  
+    volumes:
+      - ./:${APP_PATH}
+
+  queue_worker:
+    build:    
+      target: dev
+      dockerfile: ./docker/php/Dockerfile         
+    volumes:
+      - ./:${APP_PATH}
+
+  db:
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${APP_MAIL_ADDRESS}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5051:80"
+
+    networks:
+      - backend

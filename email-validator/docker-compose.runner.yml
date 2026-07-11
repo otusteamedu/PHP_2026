@@ -1,0 +1,12 @@
+services:
+  github-runner:
+    image: myoung34/github-runner:latest
+    container_name: github_runner_local
+    restart: always
+    environment:
+      - REPO_URL=https://github.com/Jony2Good/email-validator
+      - RUNNER_NAME=local-docker-runner
+      - RUNNER_TOKEN=
+      - LABELS=self-hosted,docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
