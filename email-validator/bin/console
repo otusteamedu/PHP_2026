@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+define('BASE_PATH', dirname(__DIR__));
+
+$autoload = BASE_PATH . '/vendor/autoload.php';
+
+if (!file_exists($autoload)) {
+    echo "Autoloader не найден. Необходимо выполнить команду 'composer install'.\n";
+    exit(1);
+}
+
+require $autoload;
+
+use Symfony\Component\Console\Application;
+use App\Infrastructure\Console\ConsumeQueueCommand;
+
+$builder = new \DI\ContainerBuilder();
+
+$builder->addDefinitions(BASE_PATH . '/config/container.php');
+
+$container = $builder->build();
+
+try {
+    $command = $container->get(ConsumeQueueCommand::class);
+
+    $app = new Application('RabbitMQ Worker Application', '1.0.0');
+
+    $app->addCommand($command);   
+
+    $app->run();
+} catch (\Throwable $e) {
+    echo "Фатальная ошибка: " . $e->getMessage() . "\n";
+    exit(1);
+}

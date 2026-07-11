@@ -1,0 +1,124 @@
+services:
+  rabbitmq:
+      image: rabbitmq:3.13-management-alpine     
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      networks:
+        - front
+      restart: unless-stopped
+      healthcheck:
+        test: rabbitmq-diagnostics -q ping
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  nginx:    
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/nginx/Dockerfile  
+    depends_on:
+      - php
+    networks:
+      - front
+    restart: unless-stopped
+    ports:
+      - "${APP_WEB_PORT}:80"    
+
+  php:    
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/php/Dockerfile  
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - front
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+  db:
+    image: postgres:15-alpine    
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d  
+    healthcheck:   
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - front
+    ports:
+      - "5432"
+
+  pgadmin:
+    image: dpage/pgadmin4    
+    ports:
+      - "5051:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: '${APP_MAIL_ADDRESS}'
+      PGADMIN_DEFAULT_PASSWORD: '${DB_PASSWORD}'
+    networks:
+    - front  
+
+  queue_worker:
+    build:
+      target: prod
+      context: .
+      args:
+        user: ${DOCKER_USER}
+        uid: 1000      
+      dockerfile: ./docker/php/Dockerfile    
+    command: php bin/console queue:consume
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - front
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+  
+networks:
+  front:
+    driver: bridge
+
+volumes:
+  postgres-data:

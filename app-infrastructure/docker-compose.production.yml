@@ -1,0 +1,148 @@
+services:
+  gateway:
+    build: ./haproxy
+    container_name: gateway
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    volumes:
+      - './haproxy/gateway.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro'
+    networks:
+      - app_network
+
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: always
+    shm_size: 256mb
+    environment:
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${DB_NAME:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  # BLUE СРЕДА
+  blue_nginx:
+    image: nginx:alpine
+    container_name: blue_nginx
+    volumes:
+      - './nginx/blue.conf:/etc/nginx/conf.d/default.conf:ro'
+    depends_on:
+      blue:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  blue:
+    image: ghcr.io/jony2good/email-validator:latest
+    container_name: blue
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - COLOR=blue
+      - RABBITMQ_HOST=rabbitmq  
+    healthcheck:    
+      test: ["CMD-SHELL", "php -r \"exit(fsockopen('127.0.0.1',9000)?0:1);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app_network
+
+  blue_consumer:
+    image: ghcr.io/jony2good/email-validator:latest
+    container_name: blue_consumer
+    restart: on-failure
+    env_file: .env
+    environment:
+      - COLOR=blue
+      - RABBITMQ_HOST=rabbitmq
+    command: php bin/consume.php
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  # GREEN СРЕДА
+  green_nginx:
+    image: nginx:alpine
+    container_name: green_nginx
+    volumes:
+      - './nginx/green.conf:/etc/nginx/conf.d/default.conf:ro'
+    depends_on:
+      green:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  green:
+    image: ghcr.io/jony2good/email-validator:latest
+    container_name: green
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - COLOR=green
+      - RABBITMQ_HOST=rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(fsockopen('127.0.0.1',9000)?0:1);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app_network
+
+  green_consumer:
+    image: ghcr.io/jony2good/email-validator:latest
+    container_name: green_consumer
+    restart: on-failure
+    env_file: .env
+    environment:
+      - COLOR=green
+      - RABBITMQ_HOST=rabbitmq
+    command: php bin/consume.php
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
