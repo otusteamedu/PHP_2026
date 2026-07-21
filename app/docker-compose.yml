@@ -1,0 +1,124 @@
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: hw21_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app:rw
+    depends_on:
+      - php
+      - rabbitmq
+    networks:
+      - hw21_network
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: hw21_php
+    volumes:
+      - .:/app
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      POSTGRES_HOST: db
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - hw21_network
+
+  consumer_new:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: hw21_consumer_new
+    command: php bin/consumer_new.php
+    volumes:
+      - .:/app
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      POSTGRES_HOST: db
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hw21_network
+
+  consumer_processing:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: hw21_consumer_processing
+    command: php bin/consumer_processing.php
+    volumes:
+      - .:/app
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      POSTGRES_HOST: db
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hw21_network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: hw21_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hw21_network
+
+  db:
+    image: postgres:16
+    container_name: hw21_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hw21_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
+
+networks:
+  hw21_network:
+    driver: bridge
